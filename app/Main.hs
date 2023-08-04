@@ -36,21 +36,23 @@ type LocalEnv = Map Ident Value
 type FnEnv = Map Ident Function
 
 data EvalState = EvalState
-  { esLocal :: LocalEnv
+  { esLocals :: LocalEnv
   , esFunctions :: FnEnv
+  , esCurrentFunction :: Ident
   }
 
 data EvalException
   = LookupFail Ident
   | FnLookupFail Ident
   | FnCallFail Ident Int Int
+  | NoReturn Ident
   deriving (Typeable, Show)
 
 instance Exception EvalException where
 
 lookup :: IORef EvalState -> Ident -> IO Value
 lookup stateRef name = do
-  locals <- esLocal <$> readIORef stateRef
+  locals <- esLocals <$> readIORef stateRef
   case Map.lookup name locals of
     Nothing -> throwIO (LookupFail name)
     Just value -> pure value
@@ -62,12 +64,24 @@ fnLookup stateRef fnName = do
     Nothing -> throwIO (FnLookupFail fnName)
     Just fun -> pure fun
 
+exactZip :: [a] -> [b] -> Maybe [(a, b)]
+exactZip xs ys = case (xs, ys) of
+  ([], []) -> Just []
+  (x : xs, y : ys) -> ((x, y) :) <$> exactZip xs ys
+  _ -> Nothing
+
 apply :: IORef EvalState -> Function -> [Value] -> IO Value
 apply stateRef fun args = do
-  savedEnv <- esLocal <$> readIORef stateRef
+  savedState <- readIORef stateRef
   -- Probably need to implement the evaluation of statemets first to be able to
   -- run functions, unfortunately.
-  _
+  newLocals <- case Map.fromList <$> exactZip (fnArgs fun) args of
+    Nothing -> throwIO (FnCallFail (fnName fun) (length (fnArgs fun)) (length args))
+    Just env -> pure env
+  writeIORef stateRef (savedState { esCurrentFunction = fnName fun, esLocals = newLocals })
+  value <- evalBlock stateRef (fnBody fun)
+  writeIORef stateRef savedState
+  pure value
 
 eval :: IORef EvalState -> Exp -> IO Value
 eval stateRef exp = case exp of
@@ -77,6 +91,24 @@ eval stateRef exp = case exp of
     argValues <- mapM (eval stateRef) args
     fn <- fnLookup stateRef fnName
     apply stateRef fn argValues
+
+assign :: IORef EvalState -> Ident -> Value -> IO ()
+assign stateRef var val = do
+  localEnv <- esLocals <$> readIORef stateRef
+  let newEnv = Map.insert var val localEnv
+  modifyIORef stateRef $ \s -> s { esLocals = localEnv }
+
+evalBlock :: IORef EvalState -> Block -> IO Value
+evalBlock stateRef stmts = case stmts of
+  [] -> do
+    currFn <- esCurrentFunction <$> readIORef stateRef
+    throwIO (NoReturn currFn)
+  first : rest -> case first of
+    Assign v e -> do
+      value <- eval stateRef e
+      assign stateRef v value
+      evalBlock stateRef rest
+    Return e -> eval stateRef e
 
 main :: IO ()
 main = putStrLn "Here be dragons"
