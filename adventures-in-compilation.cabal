@@ -8,5 +8,7 @@ maintainer:         ash.drone@gmail.com
 executable adventures-in-compilation
     main-is:          Main.hs
     build-depends:    base ^>=4.18.0.0
+        , text
+        , containers
     hs-source-dirs:   app
     default-language: Haskell2010
