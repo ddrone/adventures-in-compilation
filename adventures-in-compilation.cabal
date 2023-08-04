@@ -10,5 +10,7 @@ executable adventures-in-compilation
     build-depends:    base ^>=4.18.0.0
         , text
         , containers
+        , transformers
+        , mtl
     hs-source-dirs:   app
     default-language: Haskell2010
