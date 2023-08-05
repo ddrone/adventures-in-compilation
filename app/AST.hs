@@ -22,3 +22,5 @@ data Function = Function
   }
 
 type Block = [Stmt]
+
+type Program = [Function]

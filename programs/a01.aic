@@ -1,0 +1,11 @@
+function simple(x, y) {
+  z = x;
+  t = y;
+  return t;
+}
+
+function main() {
+  t = 10;
+  a = 20;
+  return simple(a, t);
+}
