@@ -3,8 +3,14 @@ module Main where
 import Parser (program)
 import qualified Data.Text.IO as TextIO
 import System.Environment (getArgs)
+import Data.Foldable (forM_)
+import Text.Megaparsec (runParser)
 
 main :: IO ()
 main = do
   files <- getArgs
-  mapM_ putStrLn files
+  forM_ files $ \file -> do
+    contents <- TextIO.readFile file
+    case runParser program file contents of
+      Left err -> print err
+      Right p -> print p
