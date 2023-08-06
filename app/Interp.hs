@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Interp where
 
 import Prelude hiding (lookup)

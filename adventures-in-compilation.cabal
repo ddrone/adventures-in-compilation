@@ -20,5 +20,6 @@ executable adventures-in-compilation
         , transformers
         , mtl
         , megaparsec
+    extensions:       OverloadedStrings
     hs-source-dirs:   app
     default-language: Haskell2010

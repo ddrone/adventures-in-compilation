@@ -4,7 +4,9 @@ import AST (Ident, LangInt)
 
 data GenName
   = Src Ident Int
-  | Gen Int
+  | Gen Ident Int
+  -- the important thing here is that identifier is not used for disambiguation,
+  -- but only as a hint. Gen values can be compared only via the second parameter.
   deriving (Show)
 
 data AssignSource
