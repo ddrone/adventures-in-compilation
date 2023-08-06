@@ -36,11 +36,24 @@ lookupLocal stateRef name = do
     Nothing -> throwIO (LookupFail name)
     Just value -> pure value
 
-freshLocal :: IORef CompileState -> IO GenName
-freshLocal = undefined
+freshLocal :: IORef CompileState -> Ident -> IO GenName
+freshLocal stateRef hint = do
+  id <- csNextGen <$> readIORef stateRef
+  modifyIORef stateRef $ \s -> s { csNextGen = id + 1 }
+  pure (Instr.Gen hint id)
+
+writeAssign :: IORef (Seq Instr.Assign) -> GenName -> Instr.AssignSource -> IO GenName
+writeAssign seqRef target source = do
+  modifyIORef seqRef (<> Sequence.singleton (Instr.Assign target source))
+  pure target
 
 compile :: IORef CompileState -> IORef (Seq Instr.Assign) -> AST.Exp -> IO GenName
 compile stateRef seqRef exp = case exp of
   AST.Var v -> lookupLocal stateRef v
-  AST.Lit l -> undefined
-  AST.Call fnName args -> undefined
+  AST.Lit l -> do
+    name <- freshLocal stateRef "lit"
+    writeAssign seqRef name (Instr.Lit l)
+  AST.Call fnName args -> do
+    argNames <- traverse (compile stateRef seqRef) args
+    name <- freshLocal stateRef "call"
+    writeAssign seqRef name (Instr.Call fnName argNames)
