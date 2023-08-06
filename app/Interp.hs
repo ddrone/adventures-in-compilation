@@ -11,6 +11,7 @@ import qualified Data.Text as Text
 import qualified Data.Map as Map
 
 import AST
+import Utils (exactZip)
 
 type Value = LangInt
 
@@ -45,12 +46,6 @@ fnLookup stateRef fnName = do
   case Map.lookup fnName funs of
     Nothing -> throwIO (FnLookupFail fnName)
     Just fun -> pure fun
-
-exactZip :: [a] -> [b] -> Maybe [(a, b)]
-exactZip xs ys = case (xs, ys) of
-  ([], []) -> Just []
-  (x : xs, y : ys) -> ((x, y) :) <$> exactZip xs ys
-  _ -> Nothing
 
 apply :: IORef EvalState -> Function -> [Value] -> IO Value
 apply stateRef fun args = do
