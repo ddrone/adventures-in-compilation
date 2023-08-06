@@ -1,6 +1,8 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Interp where
 
 import Prelude hiding (lookup)
+import Control.Arrow
 import Control.Exception
 import Data.Map (Map)
 import Data.IORef
@@ -89,3 +91,16 @@ evalBlock stateRef stmts = case stmts of
       assign stateRef v value
       evalBlock stateRef rest
     Return e -> eval stateRef e
+
+initFnEnv :: Program -> FnEnv
+initFnEnv = Map.fromList . map (fnName &&& id)
+
+evalProgram :: Program -> IO Value
+evalProgram program = do
+  stateRef <- newIORef $
+    EvalState
+    { esLocals = Map.empty
+    , esFunctions = initFnEnv program
+    , esCurrentFunction = "<toplevel>"
+    }
+  eval stateRef (Call "main" [])

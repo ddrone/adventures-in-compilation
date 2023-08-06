@@ -5,6 +5,7 @@ import qualified Data.Text.IO as TextIO
 import System.Environment (getArgs)
 import Data.Foldable (forM_)
 import Text.Megaparsec (runParser)
+import Interp (evalProgram)
 
 main :: IO ()
 main = do
@@ -13,4 +14,4 @@ main = do
     contents <- TextIO.readFile file
     case runParser program file contents of
       Left err -> print err
-      Right p -> print p
+      Right p -> print =<< evalProgram p
