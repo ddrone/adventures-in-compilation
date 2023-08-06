@@ -6,7 +6,7 @@ import Control.Exception
 import Data.IORef
 import Data.Map (Map)
 import Data.Typeable
-import Data.Sequence (Seq)
+import Data.Sequence (Seq, (|>))
 import qualified Data.Map as Map
 
 import AST (Ident)
@@ -44,7 +44,7 @@ freshLocal stateRef hint = do
 
 writeAssign :: IORef (Seq Instr.Assign) -> GenName -> Instr.AssignSource -> IO GenName
 writeAssign seqRef target source = do
-  modifyIORef seqRef (<> Sequence.singleton (Instr.Assign target source))
+  modifyIORef seqRef (|> Instr.Assign target source)
   pure target
 
 compile :: IORef CompileState -> IORef (Seq Instr.Assign) -> AST.Exp -> IO GenName
