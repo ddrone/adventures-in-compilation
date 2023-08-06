@@ -78,7 +78,7 @@ assign :: IORef EvalState -> Ident -> Value -> IO ()
 assign stateRef var val = do
   localEnv <- esLocals <$> readIORef stateRef
   let newEnv = Map.insert var val localEnv
-  modifyIORef stateRef $ \s -> s { esLocals = localEnv }
+  modifyIORef stateRef $ \s -> s { esLocals = newEnv }
 
 evalBlock :: IORef EvalState -> Block -> IO Value
 evalBlock stateRef stmts = case stmts of
