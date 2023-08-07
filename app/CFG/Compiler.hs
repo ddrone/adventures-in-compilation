@@ -3,9 +3,11 @@ module CFG.Compiler where
 import Prelude hiding (lookup)
 
 import Control.Exception
+import Control.Monad (when)
 import Data.IORef
 import Data.Foldable (toList)
 import Data.Map (Map)
+import Data.Maybe (catMaybes)
 import Data.Typeable
 import Data.Sequence (Seq, (|>))
 import qualified Data.Map as Map
@@ -26,6 +28,7 @@ data CompileException
   = LookupFail Ident
   | FnLookupFail Ident
   | FnCallFail Ident Int Int
+  | NoReturn Ident
   deriving (Typeable, Show)
 
 instance Exception CompileException
@@ -81,4 +84,18 @@ compileStmt fnName stateRef seqRef stmt = case stmt of
     name <- compile stateRef seqRef exp
     blockName <- freshBlockName stateRef fnName
     assigns <- readIORef seqRef
+    writeIORef seqRef Sequence.empty
     pure $ Just (Instr.Block blockName (toList assigns) (Instr.Ret name))
+
+compileBlock
+  :: Ident
+  -> IORef CompileState
+  -> IORef (Seq Instr.Assign)
+  -> AST.Block
+  -> IO [Instr.Block]
+compileBlock fnName stateRef seqRef stmts = do
+  blocks <- catMaybes <$> traverse (compileStmt fnName stateRef seqRef) stmts
+  rest <- readIORef seqRef
+  writeIORef seqRef Sequence.empty
+  when (Sequence.length rest > 0) $ throwIO (NoReturn fnName)
+  pure blocks
