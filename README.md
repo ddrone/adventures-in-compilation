@@ -4,8 +4,10 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 ## Adventure 1: simple SSA construction
 
-- [x] Implement compilation of statements into blocks
-- [x] Implement compilation of functions into blocks
-- [ ] Implement traversal on the blocks to find the unreachable ones
-- [ ] Using the previous item, implement "unreachable code" analysis; this might need backwards mapping from blocks to statements
-- [ ] Only then start adding interesting control flow (conditionals and while-loops)
+- [x] Implement compilation of statements into CFG blocks
+- [x] Implement compilation of functions into CFG blocks
+- [ ] Print out the CFG in some human-readable format
+- [ ] Add conditionals to the language
+- [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
+- [ ] Implement code generation to x86-64 assembly
+- [ ] Only then add while-loops to the language
