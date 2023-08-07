@@ -4,7 +4,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 ## Adventure 1: simple SSA construction
 
-- [ ] Implement compilation of statements into blocks
+- [x] Implement compilation of statements into blocks
 - [ ] Implement compilation of functions into blocks
 - [ ] Implement traversal on the blocks to find the unreachable ones
 - [ ] Using the previous item, implement "unreachable code" analysis; this might need backwards mapping from blocks to statements

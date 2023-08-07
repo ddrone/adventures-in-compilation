@@ -4,6 +4,7 @@ import Prelude hiding (lookup)
 
 import Control.Exception
 import Data.IORef
+import Data.Foldable (toList)
 import Data.Map (Map)
 import Data.Typeable
 import Data.Sequence (Seq, (|>))
@@ -17,7 +18,7 @@ import qualified Data.Sequence as Sequence
 
 data CompileState = CompileState
   { csLocals :: Map Ident GenName
-  , csBlocks :: Map Ident GenName
+  , csBlocks :: Map Ident Int
   , csNextGen :: Int
   }
 
@@ -42,6 +43,13 @@ freshLocal stateRef hint = do
   modifyIORef stateRef $ \s -> s { csNextGen = id + 1 }
   pure (Instr.Gen hint id)
 
+freshBlockName :: IORef CompileState -> Ident -> IO Instr.BlockName
+freshBlockName stateRef hint = do
+  maybeId <- Map.lookup hint . csBlocks <$> readIORef stateRef
+  let actualId = maybe 0 (+ 1) maybeId
+  modifyIORef stateRef $ \s -> s { csBlocks = Map.insert hint actualId (csBlocks s) }
+  pure (Instr.BlockName hint actualId)
+
 writeAssign :: IORef (Seq Instr.Assign) -> GenName -> Instr.AssignSource -> IO GenName
 writeAssign seqRef target source = do
   modifyIORef seqRef (|> Instr.Assign target source)
@@ -57,3 +65,20 @@ compile stateRef seqRef exp = case exp of
     argNames <- traverse (compile stateRef seqRef) args
     name <- freshLocal stateRef "call"
     writeAssign seqRef name (Instr.Call fnName argNames)
+
+compileStmt
+  :: Ident
+  -> IORef CompileState
+  -> IORef (Seq Instr.Assign)
+  -> AST.Stmt
+  -> IO (Maybe Instr.Block)
+compileStmt fnName stateRef seqRef stmt = case stmt of
+  AST.Assign v exp -> do
+    name <- compile stateRef seqRef exp
+    writeAssign seqRef (Instr.Src v) (Instr.Var name)
+    pure Nothing
+  AST.Return exp -> do
+    name <- compile stateRef seqRef exp
+    blockName <- freshBlockName stateRef fnName
+    assigns <- readIORef seqRef
+    pure $ Just (Instr.Block blockName (toList assigns) (Instr.Ret name))

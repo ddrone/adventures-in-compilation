@@ -9,6 +9,12 @@ data GenName
   -- but only as a hint. Gen values can be compared only via the second parameter.
   deriving (Show)
 
+data BlockName = BlockName
+  { bnFnName :: Ident
+  , bnId :: Int
+  }
+  deriving (Show)
+
 data AssignSource
   = Var GenName
   | Lit LangInt
@@ -26,7 +32,7 @@ data BlockEnd
   deriving (Show)
 
 data Block = Block
-  { blockName :: GenName -- names of blocks are in separate namespace from names of variables
+  { blockName :: BlockName
   , blockAssigns :: [Assign]
   , blockEnd :: BlockEnd
   }
