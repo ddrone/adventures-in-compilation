@@ -37,3 +37,12 @@ data Block = Block
   , blockEnd :: BlockEnd
   }
   deriving (Show)
+
+-- Potentially looks quite similar to AST.Function, but I'm not sure whether it
+-- makes sense to generalize the data structure for it right now.
+data Function = Function
+  { fnName :: Ident
+  , fnArgs :: [Ident]
+  , fnBody :: [Block]
+  }
+  deriving (Show)

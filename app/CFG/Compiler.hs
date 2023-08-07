@@ -99,3 +99,12 @@ compileBlock fnName stateRef seqRef stmts = do
   writeIORef seqRef Sequence.empty
   when (Sequence.length rest > 0) $ throwIO (NoReturn fnName)
   pure blocks
+
+compileFunction
+  :: IORef CompileState
+  -> IORef (Seq Instr.Assign)
+  -> AST.Function
+  -> IO Instr.Function
+compileFunction stateRef seqRef (AST.Function name args body) = do
+  blocks <- compileBlock name stateRef seqRef body
+  pure (Instr.Function name args blocks)
