@@ -1,4 +1,4 @@
-module Instr where
+module CFG.Instr where
 
 import AST (Ident, LangInt)
 

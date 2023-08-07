@@ -1,4 +1,4 @@
-module Compiler where
+module CFG.Compiler where
 
 import Prelude hiding (lookup)
 
@@ -10,9 +10,9 @@ import Data.Sequence (Seq, (|>))
 import qualified Data.Map as Map
 
 import AST (Ident)
-import Instr (GenName)
+import CFG.Instr (GenName)
 import qualified AST
-import qualified Instr
+import qualified CFG.Instr as Instr
 import qualified Data.Sequence as Sequence
 
 data CompileState = CompileState
