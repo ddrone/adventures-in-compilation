@@ -11,3 +11,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
 - [ ] Implement code generation to x86-64 assembly
 - [ ] Only then add while-loops to the language
+
+## Adventure 2: graph algorithms for SSA construction
+
+- [ ] Finding dominators in directed graph
+- [ ] Building domination tree
+- [ ] Computing domination frontier
