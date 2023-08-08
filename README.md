@@ -14,6 +14,6 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 ## Adventure 2: graph algorithms for SSA construction
 
-- [ ] Finding dominators in directed graph
+- [x] Finding dominators in directed graph
 - [ ] Building domination tree
 - [ ] Computing domination frontier
