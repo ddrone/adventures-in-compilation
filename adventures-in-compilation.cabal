@@ -16,6 +16,7 @@ executable adventures-in-compilation
         , CFG.Compiler
         , Graph.Defs
         , Graph.Dominator
+        , Graph.DominatorTree
     build-depends:    base ^>=4.18.0.0
         , text
         , containers
