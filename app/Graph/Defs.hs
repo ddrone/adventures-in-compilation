@@ -26,3 +26,6 @@ fromEdges = foldr insertEdge emptyGraph
 
 edgesFrom :: Graph -> Int -> [Int]
 edgesFrom g v = fromMaybe [] (IntMap.lookup v (graphEdges g))
+
+edgesTo :: Graph -> Int -> [Int]
+edgesTo g v = fromMaybe [] (IntMap.lookup v (graphBackEdges g))
