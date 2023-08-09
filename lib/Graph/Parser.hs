@@ -12,15 +12,17 @@ import qualified Data.Text as Text
 import qualified Data.Set as Set
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
+import qualified Data.Text.IO as TextIO
 
 import Parser (Parser)
-import Graph.Defs (Graph, fromEdges)
+import Graph.Defs (Graph, fromEdges, allEdges)
+import Graph.DominatorTree
 import qualified Parser
 
 nodeName :: Parser Text
 nodeName = Parser.lexeme $ do
   first <- letterChar
-  rest <- many (alphaNumChar <|> char '_' <|> char '-')
+  rest <- many (alphaNumChar <|> char '_' <|> char '-' <|> char '.')
   pure (Text.pack (first : rest))
 
 data NodeDef = NodeDef
@@ -38,19 +40,43 @@ nodeDef = do
   pure (NodeDef from to)
 
 data ParsedGraph = ParsedGraph
-  { pgNames :: IntMap Text
+  { pgRoot :: Int
+  , pgNames :: IntMap Text
   , pgGraph :: Graph
   }
 
-buildGraph :: [NodeDef] -> ParsedGraph
-buildGraph nodeDefs = do
+buildGraph :: Text -> [NodeDef] -> ParsedGraph
+buildGraph root nodeDefs = do
   let addNode (NodeDef from to) nodeSet = foldr Set.insert nodeSet (from : to)
   let allNodes = zip (enumFrom (0 :: Int)) . Set.toList $ foldr addNode Set.empty nodeDefs
   let nameToId = Map.fromList (swap <$> allNodes)
   let getId v = fromJust (Map.lookup v nameToId)
   let nodeToEdges (NodeDef from to) = map ((,) (getId from) . getId) to
   let graph = fromEdges (concatMap nodeToEdges nodeDefs)
-  ParsedGraph (IntMap.fromList allNodes) graph
+  ParsedGraph (getId root) (IntMap.fromList allNodes) graph
 
 toplevelGraph :: Parser ParsedGraph
-toplevelGraph = Parser.spaceConsumer *> (buildGraph <$> many nodeDef)
+toplevelGraph = do
+  Parser.spaceConsumer
+  root <- nodeName
+  Parser.symbol ":"
+  buildGraph root <$> many nodeDef
+
+printGraphWithDominatorTree :: ParsedGraph -> IO ()
+printGraphWithDominatorTree pg = do
+  let dt = dominatorTree (pgRoot pg) (pgGraph pg)
+  let
+    printVert x =
+      TextIO.putStr (fromJust (IntMap.lookup x (pgNames pg)))
+  let
+    printEdgeCommon (x, y) = do
+      putStr "  "
+      printVert x
+      putStr " -> "
+      printVert y
+    printEdge e = printEdgeCommon e >> putStrLn ""
+    printIDom e = printEdgeCommon e >> putStrLn " [style=dashed]"
+  putStrLn "digraph G {"
+  mapM_ printEdge (allEdges (pgGraph pg))
+  mapM_ printIDom (IntMap.toList dt)
+  putStrLn "}"

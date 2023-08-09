@@ -29,3 +29,8 @@ edgesFrom g v = fromMaybe [] (IntMap.lookup v (graphEdges g))
 
 edgesTo :: Graph -> Int -> [Int]
 edgesTo g v = fromMaybe [] (IntMap.lookup v (graphBackEdges g))
+
+allEdges :: Graph -> [(Int, Int)]
+allEdges g =
+  let f (x, y) = map ((,) x) y in
+  concatMap f $ IntMap.assocs (graphEdges g)

@@ -34,6 +34,9 @@ executable interpreter
         , text
         , megaparsec
 
-executable domination-graph
+executable dominator-graph
     main-is:          app/DominationGraph.hs
     build-depends:    base ^>=4.18.0.0
+        , adventures-in-compilation
+        , text
+        , megaparsec

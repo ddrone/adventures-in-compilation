@@ -1,0 +1,11 @@
+# Example from https://habr.com/ru/articles/737646/
+
+entry:
+
+entry -> if_true if_false;
+if_true -> loop loop_done;
+if_false -> merge;
+loop -> backedge merge;
+backedge -> loop loop_done;
+merge -> done;
+loop_done -> done;
