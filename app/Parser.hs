@@ -12,7 +12,7 @@ import AST
 type Parser = Parsec Void Text
 
 program :: Parser Program
-program = many function
+program = spaceConsumer *> many function
 
 function :: Parser Function
 function =
@@ -21,17 +21,22 @@ function =
     (brackets (sepBy ident (symbol ","))) <*>
     block
 
+spaceConsumer :: Parser ()
+spaceConsumer = Lexer.space space1 (Lexer.skipLineComment "#") (Lexer.skipBlockComment "/*" "*/")
+
 symbol :: Text -> Parser Text
-symbol = Lexer.symbol space
+symbol = Lexer.symbol spaceConsumer
+
+lexeme :: Parser a -> Parser a
+lexeme = Lexer.lexeme spaceConsumer
 
 number :: Parser LangInt
-number = Lexer.decimal <* space
+number = lexeme Lexer.decimal
 
 ident :: Parser Ident
-ident = do
+ident = lexeme $ do
   first <- letterChar
   rest <- many alphaNumChar
-  space
   pure (Text.pack (first : rest))
 
 brackets = between (symbol "(") (symbol ")")

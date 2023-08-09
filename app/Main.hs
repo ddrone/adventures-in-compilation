@@ -14,4 +14,6 @@ main = do
     contents <- TextIO.readFile file
     case runParser program file contents of
       Left err -> print err
-      Right p -> print =<< evalProgram p
+      Right p -> do
+        print p
+        print =<< evalProgram p

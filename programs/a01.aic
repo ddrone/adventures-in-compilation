@@ -1,9 +1,14 @@
+# This is a line comment to check whether parsing of those works
 function simple(x, y) {
   z = x;
   t = y;
   return t;
 }
 
+/*
+  This is a block comment,
+  also need to check whether it works.
+*/
 function main() {
   t = 10;
   a = 20;
