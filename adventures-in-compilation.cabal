@@ -33,3 +33,7 @@ executable interpreter
         , adventures-in-compilation
         , text
         , megaparsec
+
+executable domination-graph
+    main-is:          app/DominationGraph.hs
+    build-depends:    base ^>=4.18.0.0
