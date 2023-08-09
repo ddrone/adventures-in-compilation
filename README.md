@@ -16,4 +16,6 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - [x] Finding dominators in directed graph
 - [x] Building domination tree
+- [ ] Write a parser for a simple textual description of graphs
+- [ ] Write a CLI that will read a graph and spit out in Graphviz with dashed edges for parent relation in domination tree
 - [ ] Computing domination frontier
