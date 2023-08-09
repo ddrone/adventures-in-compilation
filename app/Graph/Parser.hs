@@ -51,3 +51,6 @@ buildGraph nodeDefs = do
   let nodeToEdges (NodeDef from to) = map ((,) (getId from) . getId) to
   let graph = fromEdges (concatMap nodeToEdges nodeDefs)
   ParsedGraph (IntMap.fromList allNodes) graph
+
+toplevelGraph :: Parser ParsedGraph
+toplevelGraph = Parser.spaceConsumer *> (buildGraph <$> many nodeDef)
