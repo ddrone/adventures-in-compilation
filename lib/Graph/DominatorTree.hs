@@ -3,13 +3,16 @@ module Graph.DominatorTree where
 import Control.Monad (unless)
 import Data.IntSet (IntSet)
 import Data.IntMap (IntMap)
+import Data.Text (Text, unpack)
 import Data.STRef
+import Debug.Trace (traceShowM, traceM)
 import GHC.ST (runST)
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
 import Graph.Defs
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromJust)
+import Graph.Parser (ParsedGraph (ParsedGraph))
 
 -- Kind of least common ancestor, but really bad & inefficient implementation
 lca :: Int -> [Int] -> [Int] -> Int
@@ -22,8 +25,8 @@ commonSubseq xs ys = case (xs, ys) of
   (x : xs, y : ys) | x == y -> x : commonSubseq xs ys
   _ -> []
 
-dominatorTree :: Int -> Graph -> IntMap Int
-dominatorTree root g = runST $ do
+dominatorTree :: ParsedGraph -> IntMap Int
+dominatorTree (ParsedGraph root names g) = runST $ do
   parent <- newSTRef IntMap.empty
   let getParent v = IntMap.lookup v <$> readSTRef parent
   let parentSequence v = do
@@ -39,6 +42,7 @@ dominatorTree root g = runST $ do
   let allDominators v = do
         let prevs = edgesTo g v
         prevParents <- map reverse . catMaybes <$> traverse parentSequenceOuter prevs
+        traceShowM prevParents
         pure (foldr1 commonSubseq prevParents)
   let computeParent v = do
         let prevs = edgesTo g v
@@ -56,6 +60,7 @@ dominatorTree root g = runST $ do
       if skip
         then pure ()
         else do
+          traceM ("Traversing " ++ (unpack $ fromJust $ IntMap.lookup v names))
           modifySTRef visited (IntSet.insert v)
           unless (v == root) $ updateParent v
           bfs (rest ++ edgesFrom g v)

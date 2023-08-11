@@ -40,3 +40,4 @@ executable dominator-graph
         , adventures-in-compilation
         , text
         , megaparsec
+        , containers

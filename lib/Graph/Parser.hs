@@ -16,7 +16,6 @@ import qualified Data.Text.IO as TextIO
 
 import Parser (Parser)
 import Graph.Defs (Graph, fromEdges, allEdges)
-import Graph.DominatorTree
 import qualified Parser
 
 nodeName :: Parser Text
@@ -61,22 +60,3 @@ toplevelGraph = do
   root <- nodeName
   Parser.symbol ":"
   buildGraph root <$> many nodeDef
-
-printGraphWithDominatorTree :: ParsedGraph -> IO ()
-printGraphWithDominatorTree pg = do
-  let dt = dominatorTree (pgRoot pg) (pgGraph pg)
-  let
-    printVert x =
-      TextIO.putStr (fromJust (IntMap.lookup x (pgNames pg)))
-  let
-    printEdgeCommon (x, y) = do
-      putStr "  "
-      printVert x
-      putStr " -> "
-      printVert y
-    printEdge e = printEdgeCommon e >> putStrLn ""
-    printIDom e = printEdgeCommon e >> putStrLn " [style=dashed]"
-  putStrLn "digraph G {"
-  mapM_ printEdge (allEdges (pgGraph pg))
-  mapM_ printIDom (IntMap.toList dt)
-  putStrLn "}"
