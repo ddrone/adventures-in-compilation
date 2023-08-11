@@ -76,5 +76,5 @@ dominatorTree (ParsedGraph root names g) = runST $ do
 invertTree :: Int -> IntMap Int -> Tree Int
 invertTree root parent = do
   let children = multimapFromList $ map swap $ IntMap.toList parent
-  let build v = Node v $ map build $ fromJust $ IntMap.lookup v children
+  let build v = Node v $ map build $ maybe [] id $ IntMap.lookup v children
   build root

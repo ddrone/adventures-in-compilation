@@ -5,6 +5,7 @@ import Data.Tree
 import Data.IntSet (IntSet)
 import Data.IntMap (IntMap)
 import Data.STRef
+import Debug.Trace (traceM, traceShowM)
 import GHC.ST (runST)
 import qualified Data.IntSet as IntSet
 import qualified Data.IntMap as IntMap
@@ -30,5 +31,5 @@ dominationFrontier pg@(ParsedGraph root _ g) = do
   let dt = flatten $ treeWithChildNodes $ invertTree root $ dominatorTree pg
   let computeFrontier root children = do
         let outgoingEdges = foldMap (IntSet.fromList . edgesFrom g) (root : IntSet.toList children)
-        IntSet.difference outgoingEdges outgoingEdges
+        IntSet.difference outgoingEdges children
   IntMap.fromList $ map (fst &&& uncurry computeFrontier) dt

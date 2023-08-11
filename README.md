@@ -20,4 +20,4 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Write a CLI that will read a graph and spit out in Graphviz with dashed edges for parent relation in domination tree
 - [x] Debug the dominator tree algorithm
 - [x] Computing domination frontier
-- [ ] Write a CLI to print out domination frontier for a graph
+- [x] Write a CLI to print out domination frontier for a graph
