@@ -39,12 +39,12 @@ dominatorTree (ParsedGraph root names g) = runST $ do
         case next of
           Nothing -> pure Nothing
           Just _ -> Just <$> parentSequence v
-  let printV = unpack . fromJust . flip IntMap.lookup names
+  -- Helper function intended to add node names to tracing messages,
+  -- commented out while unused.
+  -- let printV = unpack . fromJust . flip IntMap.lookup names
   let allDominators v = do
         let prevs = edgesTo g v
-        traceShowM $ map printV prevs
         prevParents <- map reverse . catMaybes <$> traverse parentSequenceOuter prevs
-        traceShowM $ map (map printV) prevParents
         pure (foldr1 commonSubseq prevParents)
   let computeParent v = do
         let prevs = edgesTo g v
@@ -53,7 +53,6 @@ dominatorTree (ParsedGraph root names g) = runST $ do
           _ -> head . reverse <$> allDominators v
   let updateParent v = do
         computed <- computeParent v
-        traceM ("Got parent " ++ printV computed)
         modifySTRef parent (IntMap.insert v computed)
 
   visited <- newSTRef IntSet.empty
@@ -61,9 +60,8 @@ dominatorTree (ParsedGraph root names g) = runST $ do
     bfs (v : rest) = do
       skip <- IntSet.member v <$> readSTRef visited
       if skip
-        then pure ()
+        then bfs rest
         else do
-          traceM ("Traversing " ++ printV v)
           modifySTRef visited (IntSet.insert v)
           unless (v == root) $ updateParent v
           bfs (rest ++ edgesFrom g v)
