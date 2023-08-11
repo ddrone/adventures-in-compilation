@@ -18,5 +18,5 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Building domination tree
 - [x] Write a parser for a simple textual description of graphs
 - [x] Write a CLI that will read a graph and spit out in Graphviz with dashed edges for parent relation in domination tree
-- [ ] Debug the dominator tree algorithm
+- [x] Debug the dominator tree algorithm
 - [ ] Computing domination frontier
