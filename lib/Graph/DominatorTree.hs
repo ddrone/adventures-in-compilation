@@ -9,6 +9,7 @@ import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
 import Graph.Defs
+import Data.Maybe (catMaybes)
 
 -- Kind of least common ancestor, but really bad & inefficient implementation
 lca :: Int -> [Int] -> [Int] -> Int
@@ -30,9 +31,14 @@ dominatorTree root g = runST $ do
         case next of
           Nothing -> pure [root]
           Just n -> (n :) <$> parentSequence n
+  let parentSequenceOuter v = do
+        next <- getParent v
+        case next of
+          Nothing -> pure Nothing
+          Just _ -> Just <$> parentSequence v
   let allDominators v = do
         let prevs = edgesTo g v
-        prevParents <- map reverse <$> traverse parentSequence prevs
+        prevParents <- map reverse . catMaybes <$> traverse parentSequenceOuter prevs
         pure (foldr1 commonSubseq prevParents)
   let computeParent v = do
         let prevs = edgesTo g v
