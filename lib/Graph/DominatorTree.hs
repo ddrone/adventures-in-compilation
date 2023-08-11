@@ -45,13 +45,14 @@ dominatorTree root g = runST $ do
 
   visited <- newSTRef IntSet.empty
   let
-    dfs v = do
+    bfs (v : rest) = do
       skip <- IntSet.member v <$> readSTRef visited
       if skip
         then pure ()
         else do
           modifySTRef visited (IntSet.insert v)
           unless (v == root) $ updateParent v
-          mapM_ dfs (edgesFrom g v)
-  dfs root
+          bfs (rest ++ edgesFrom g v)
+    bfs [] = pure ()
+  bfs [root]
   readSTRef parent
