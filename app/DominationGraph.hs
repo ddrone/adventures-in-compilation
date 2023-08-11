@@ -28,8 +28,8 @@ printGraphWithDominatorTree pg = do
       putStr " -> "
       printVert y
     printEdge e = printEdgeCommon e >> putStrLn ""
-    printIDom e = printEdgeCommon e >> putStrLn " [style=dashed]"
-    printDomFront e = printEdgeCommon e >> putStrLn " [style=dotted]"
+    printIDom e = printEdgeCommon e >> putStrLn " [style=dashed,color=orange]"
+    printDomFront e = printEdgeCommon e >> putStrLn " [style=dotted,color=blue]"
   putStrLn "digraph G {"
   mapM_ printEdge (allEdges (pgGraph pg))
   mapM_ printIDom (IntMap.toList dt)
