@@ -57,14 +57,15 @@ dominatorTree (ParsedGraph root names g) = runST $ do
 
   visited <- newSTRef IntSet.empty
   let
-    bfs (v : rest) = do
-      skip <- IntSet.member v <$> readSTRef visited
-      if skip
-        then bfs rest
-        else do
-          modifySTRef visited (IntSet.insert v)
-          unless (v == root) $ updateParent v
-          bfs (rest ++ edgesFrom g v)
-    bfs [] = pure ()
+    bfs vs = case vs of
+      (v : rest) -> do
+        skip <- IntSet.member v <$> readSTRef visited
+        if skip
+          then bfs rest
+          else do
+            modifySTRef visited (IntSet.insert v)
+            unless (v == root) $ updateParent v
+            bfs (rest ++ edgesFrom g v)
+      [] -> pure ()
   bfs [root]
   readSTRef parent
