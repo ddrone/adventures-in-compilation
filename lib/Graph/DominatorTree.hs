@@ -35,8 +35,13 @@ dominatorTree root g = runST $ do
         prevParents <- map reverse <$> traverse parentSequence prevs
         pure (foldr1 commonSubseq prevParents)
   let computeParent v = do
-        dominators <- reverse <$> allDominators v
-        modifySTRef parent (IntMap.insert v (head dominators))
+        let prevs = edgesTo g v
+        case prevs of
+          [single] -> pure single
+          _ -> head . reverse <$> allDominators v
+  let updateParent v = do
+        computed <- computeParent v
+        modifySTRef parent (IntMap.insert v computed)
 
   visited <- newSTRef IntSet.empty
   let
@@ -46,7 +51,7 @@ dominatorTree root g = runST $ do
         then pure ()
         else do
           modifySTRef visited (IntSet.insert v)
-          unless (v == root) $ computeParent v
+          unless (v == root) $ updateParent v
           mapM_ dfs (edgesFrom g v)
   dfs root
   readSTRef parent
