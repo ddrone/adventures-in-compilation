@@ -4,6 +4,8 @@ import Control.Monad (unless)
 import Data.IntSet (IntSet)
 import Data.IntMap (IntMap)
 import Data.Text (Text, unpack)
+import Data.Tree
+import Data.Tuple (swap)
 import Data.STRef
 import Debug.Trace (traceShowM, traceM)
 import GHC.ST (runST)
@@ -13,6 +15,7 @@ import qualified Data.IntSet as IntSet
 import Graph.Defs
 import Data.Maybe (catMaybes, fromJust)
 import Graph.Parser (ParsedGraph (ParsedGraph))
+import Utils (multimapFromList)
 
 -- Kind of least common ancestor, but really bad & inefficient implementation
 lca :: Int -> [Int] -> [Int] -> Int
@@ -69,3 +72,9 @@ dominatorTree (ParsedGraph root names g) = runST $ do
       [] -> pure ()
   bfs [root]
   readSTRef parent
+
+invertTree :: Int -> IntMap Int -> Tree Int
+invertTree root parent = do
+  let children = multimapFromList $ map swap $ IntMap.toList parent
+  let build v = Node v $ map build $ fromJust $ IntMap.lookup v children
+  build root

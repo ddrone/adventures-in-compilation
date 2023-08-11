@@ -11,3 +11,6 @@ exactZip xs ys = case (xs, ys) of
 
 multimapInsert :: Int -> a -> IntMap [a] -> IntMap [a]
 multimapInsert key value = IntMap.insertWith (++) key [value]
+
+multimapFromList :: [(Int, a)] -> IntMap [a]
+multimapFromList = foldr (uncurry multimapInsert) IntMap.empty
