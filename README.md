@@ -13,7 +13,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement interpretation of binary expressions
 - [x] Implement compilation of binary expressions
 - [x] (Maintenance) Add a warning about non-exhaustive pattern matching to the project
-- [ ] Implement boolean comparisons in the interpreter
+- [x] Implement boolean comparisons in the interpreter
 - [ ] Add conditionals to the language
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
 - [ ] Implement code generation to x86-64 assembly
