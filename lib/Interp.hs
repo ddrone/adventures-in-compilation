@@ -59,6 +59,14 @@ apply stateRef fun args = do
   writeIORef stateRef savedState
   pure value
 
+evalBinop :: Binop -> Value -> Value -> Value
+evalBinop bop = case bop of
+  Add -> (+)
+  Sub -> (-)
+  Mul -> (*)
+  Div -> div
+  Mod -> mod
+
 eval :: IORef EvalState -> Exp -> IO Value
 eval stateRef exp = case exp of
   Var v -> lookup stateRef v
@@ -67,6 +75,7 @@ eval stateRef exp = case exp of
     argValues <- mapM (eval stateRef) args
     fn <- fnLookup stateRef fnName
     apply stateRef fn argValues
+  Bin op l r -> evalBinop op <$> eval stateRef l <*> eval stateRef r
 
 assign :: IORef EvalState -> Ident -> Value -> IO ()
 assign stateRef var val = do
