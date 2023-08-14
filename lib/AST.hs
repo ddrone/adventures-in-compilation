@@ -55,6 +55,7 @@ data Exp
 data Stmt
   = Assign Ident Exp
   | Return Exp
+  | If Exp Block Block
   deriving (Show)
 
 data Function = Function

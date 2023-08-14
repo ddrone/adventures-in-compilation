@@ -53,24 +53,37 @@ term =
 
 expr = makeExprParser term table
 
+elseBlock :: Parser Block
+elseBlock = choice
+  [ symbol "else" >> block
+  , pure []
+  ]
+
 stmt :: Parser Stmt
 stmt = choice
-  [ Return <$> (symbol "return" *> expr)
+  [ Return <$> (symbol "return" *> expr <* symbol ";")
   , do
       var <- ident
       symbol "="
       e <- expr
+      symbol ";"
       pure (Assign var e)
+  , do
+      symbol "if"
+      cond <- brackets expr
+      cons <- block
+      alt <- elseBlock
+      pure (If cond cons alt)
   ]
 
 block :: Parser Block
-block = curlyBraces (many (stmt <* symbol ";"))
+block = curlyBraces (many stmt)
 
 table =
   [ [ unary Not ]
   , map binary [ Mul, Div, Mod ]
   , map binary [ Add, Sub ]
-  , map binary [ Lt, Le, Gt, Ge ]
+  , map binary [ Le, Lt, Ge, Gt ]
   , [ binary Equal ]
   , [ binary And ]
   , [ binary Or ]

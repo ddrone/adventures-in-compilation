@@ -14,3 +14,13 @@ function main() {
   a = 20;
   return simple(a, t);
 }
+
+function opTest() {
+  t = 10;
+  a = 20;
+  b1 = t <= a;
+  b2 = t > a;
+  b3 = b1 && b2;
+  b4 = b1 || b2;
+  return b4;
+}
