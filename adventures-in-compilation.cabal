@@ -12,6 +12,7 @@ library
         , Utils
         , CFG.Instr
         , CFG.Compiler
+        , CFG.Printer
         , Graph.Defs
         , Graph.DominationFrontier
         , Graph.Dominator
