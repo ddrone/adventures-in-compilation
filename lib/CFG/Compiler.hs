@@ -111,4 +111,11 @@ compileFunction stateRef seqRef (AST.Function name args body) = do
 
 -- TODO: implement the function
 compileToplevel :: AST.Program -> IO [Instr.Function]
-compileToplevel _ = pure []
+compileToplevel fns = do
+  cs <- newIORef $ CompileState
+    { csLocals = Map.empty
+    , csBlocks = Map.empty
+    , csNextGen = 0
+    }
+  seq <- newIORef Sequence.empty
+  mapM (compileFunction cs seq) fns
