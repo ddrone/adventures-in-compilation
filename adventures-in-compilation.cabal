@@ -15,6 +15,7 @@ common shared-properties
         , array
         , parser-combinators
     default-language: Haskell2010
+    ghc-options:      -Wincomplete-patterns
 
 common binary
     import: shared-properties

@@ -12,7 +12,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Debug the compiler on programs/a01.aic
 - [x] Implement interpretation of binary expressions
 - [x] Implement compilation of binary expressions
-- [ ] (Maintenance) Add a warning about non-exhaustive pattern matching to the project
+- [x] (Maintenance) Add a warning about non-exhaustive pattern matching to the project
 - [ ] Implement boolean comparisons in the interpreter
 - [ ] Add conditionals to the language
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
