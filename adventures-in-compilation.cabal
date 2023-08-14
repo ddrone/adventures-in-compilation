@@ -13,6 +13,7 @@ common shared-properties
         , mtl
         , megaparsec
         , array
+        , parser-combinators
     default-language: Haskell2010
 
 common binary

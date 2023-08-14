@@ -1,5 +1,6 @@
 module Parser where
 
+import Control.Monad.Combinators.Expr
 import Data.Text (Text)
 import Data.Void (Void)
 import Text.Megaparsec
@@ -42,12 +43,15 @@ ident = lexeme $ do
 brackets = between (symbol "(") (symbol ")")
 curlyBraces = between (symbol "{") (symbol "}")
 
-expr :: Parser Exp
-expr =
+term :: Parser Exp
+term =
+  (brackets expr) <|>
   (Lit <$> number) <|>
   do
     head <- ident
     (Call head <$> brackets (sepBy expr (symbol ","))) <|> pure (Var head)
+
+expr = makeExprParser term table
 
 stmt :: Parser Stmt
 stmt = choice
@@ -61,3 +65,10 @@ stmt = choice
 
 block :: Parser Block
 block = curlyBraces (many (stmt <* symbol ";"))
+
+table =
+  [ [ binary Mul, binary Div, binary Mod ]
+  , [ binary Add, binary Sub ]
+  ]
+
+binary op = InfixL (Bin op <$ symbol (binopRepr op))
