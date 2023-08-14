@@ -5,7 +5,22 @@ version:            0.1.0.0
 author:             Andrew Shulaev
 maintainer:         ash.drone@gmail.com
 
+common shared-properties
+    build-depends:    base ^>=4.18.0.0
+        , text
+        , containers
+        , transformers
+        , mtl
+        , megaparsec
+        , array
+    default-language: Haskell2010
+
+common binary
+    import: shared-properties
+    build-depends: adventures-in-compilation
+
 library
+    import: shared-properties
     exposed-modules:  AST
         , Interp
         , Parser
@@ -18,28 +33,13 @@ library
         , Graph.Dominator
         , Graph.DominatorTree
         , Graph.Parser
-    build-depends:    base ^>=4.18.0.0
-        , text
-        , containers
-        , transformers
-        , mtl
-        , megaparsec
-        , array
     extensions:       OverloadedStrings
     hs-source-dirs:   lib
-    default-language: Haskell2010
 
 executable interpreter
+    import:           binary
     main-is:          app/Main.hs
-    build-depends:    base ^>=4.18.0.0
-        , adventures-in-compilation
-        , text
-        , megaparsec
 
 executable dominator-graph
+    import:           binary
     main-is:          app/DominationGraph.hs
-    build-depends:    base ^>=4.18.0.0
-        , adventures-in-compilation
-        , text
-        , megaparsec
-        , containers

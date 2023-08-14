@@ -7,7 +7,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement compilation of statements into CFG blocks
 - [x] Implement compilation of functions into CFG blocks
 - [x] Print out the CFG in some human-readable format
-- [ ] (Maintenance) Extract Cabal dependencies into a common block to avoid repetition
+- [x] (Maintenance) Extract Cabal dependencies into a common block to avoid repetition
 - [ ] Add a new executable "compiler" that will print the CFG at the moment
 - [ ] Add conditionals to the language
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
