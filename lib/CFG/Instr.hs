@@ -51,5 +51,6 @@ data Function = Function
   { fnName :: Ident
   , fnArgs :: [Ident]
   , fnBody :: [Block]
+  , fnStartLabel :: BlockName
   }
   deriving (Show)

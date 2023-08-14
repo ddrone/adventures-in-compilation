@@ -66,6 +66,7 @@ printBlock (Block name asns be) =
   map indent (map printAssign asns ++ [printBlockEnd be])
 
 printFunction :: Function -> [Text]
-printFunction (Function name args body) =
+printFunction (Function name args body startBlock) =
   Text.concat [ "function ", name, "(", Text.intercalate "," args, ") {"] :
+  Text.concat [ "  start_from ", printBlockName startBlock ] :
   concatMap printBlock body ++ ["}"]

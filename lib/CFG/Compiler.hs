@@ -141,7 +141,7 @@ compileFunction stateRef seqRef (AST.Function name args body) = do
   modifyIORef stateRef $ \s -> s { csOutput = Sequence.empty }
   if done
     -- Probably need to clear output blocks as well
-    then pure (Instr.Function name args blocks)
+    then pure (Instr.Function name args blocks startBlock)
     else throwIO (NoReturn name)
 
 -- TODO: implement the function

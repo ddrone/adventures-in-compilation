@@ -2,6 +2,7 @@ module Main where
 
 import System.Environment (getArgs)
 import Data.Foldable (forM_)
+import Data.List (intersperse)
 import Text.Megaparsec (runParser)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
@@ -19,5 +20,5 @@ main = do
       Left err -> print err
       Right p -> do
         fns <- compileToplevel p
-        let lines = concatMap printFunction fns
+        let lines = concat $ intersperse [Text.pack ""] $ map printFunction fns
         TextIO.putStrLn (Text.unlines lines)
