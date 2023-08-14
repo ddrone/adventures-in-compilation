@@ -9,7 +9,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Print out the CFG in some human-readable format
 - [x] (Maintenance) Extract Cabal dependencies into a common block to avoid repetition
 - [x] Add a new executable "compiler" that will print the CFG at the moment
-- [ ] Debug the compiler on an example program
+- [ ] Debug the compiler on programs/a01.aic
 - [ ] Add conditionals to the language
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
 - [ ] Implement code generation to x86-64 assembly
