@@ -138,6 +138,7 @@ compileFunction stateRef seqRef (AST.Function name args body) = do
   startBlock <- freshBlockName stateRef name
   done <- compileBlock name stateRef seqRef startBlock body
   blocks <- toList . csOutput <$> readIORef stateRef
+  modifyIORef stateRef $ \s -> s { csOutput = Sequence.empty }
   if done
     -- Probably need to clear output blocks as well
     then pure (Instr.Function name args blocks)
