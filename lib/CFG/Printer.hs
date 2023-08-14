@@ -3,6 +3,7 @@ module CFG.Printer where
 import Data.Text (Text)
 import qualified Data.Text as Text
 
+import AST (binopRepr)
 import CFG.Instr
 
 printName :: GenName -> Text
@@ -23,6 +24,13 @@ printAssignSource as = case as of
     , "("
     , Text.intercalate ", " $ map printName args
     , ")"
+    ]
+  Bin op l r -> Text.concat
+    [ printName l
+    , " "
+    , binopRepr op
+    , " "
+    , printName r
     ]
 
 printAssign :: Assign -> Text

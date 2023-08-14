@@ -60,6 +60,11 @@ compile stateRef seqRef exp = case exp of
     argNames <- traverse (compile stateRef seqRef) args
     name <- freshLocal stateRef "call"
     writeAssign seqRef name (Instr.Call fnName argNames)
+  AST.Bin op l r -> do
+    lname <- compile stateRef seqRef l
+    rname <- compile stateRef seqRef r
+    name <- freshLocal stateRef "bin"
+    writeAssign seqRef name (Instr.Bin op lname rname)
 
 compileStmt
   :: Ident

@@ -11,7 +11,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add a new executable "compiler" that will print the CFG at the moment
 - [x] Debug the compiler on programs/a01.aic
 - [x] Implement interpretation of binary expressions
-- [ ] Implement compilation of binary expressions
+- [x] Implement compilation of binary expressions
 - [ ] (Maintenance) Add a warning about non-exhaustive pattern matching to the project
 - [ ] Implement boolean comparisons in the interpreter
 - [ ] Add conditionals to the language
