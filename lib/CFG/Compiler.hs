@@ -17,10 +17,12 @@ import CFG.Instr (GenName)
 import qualified AST
 import qualified CFG.Instr as Instr
 import qualified Data.Sequence as Sequence
+import qualified CFG.Instr as Inst
 
 data CompileState = CompileState
   { csBlocks :: Map Ident Int
   , csNextGen :: Int
+  , csOutput :: Seq Instr.Block
   }
 
 data CompileException
@@ -28,6 +30,7 @@ data CompileException
   | FnLookupFail Ident
   | FnCallFail Ident Int Int
   | NoReturn Ident
+  | UnreachableCode Ident
   deriving (Typeable, Show)
 
 instance Exception CompileException
@@ -70,36 +73,59 @@ compile stateRef seqRef exp = case exp of
     name <- freshLocal stateRef "unary"
     writeAssign seqRef name (Instr.Unary op name)
 
-compileStmt
-  :: Ident
-  -> IORef CompileState
+writeBlock
+  :: IORef CompileState
   -> IORef (Seq Instr.Assign)
-  -> AST.Stmt
-  -> IO (Maybe Instr.Block)
-compileStmt fnName stateRef seqRef stmt = case stmt of
-  AST.Assign v exp -> do
-    name <- compile stateRef seqRef exp
-    writeAssign seqRef (Instr.Src v) (Instr.Var name)
-    pure Nothing
-  AST.Return exp -> do
-    name <- compile stateRef seqRef exp
-    blockName <- freshBlockName stateRef fnName
-    assigns <- readIORef seqRef
-    writeIORef seqRef Sequence.empty
-    pure $ Just (Instr.Block blockName (toList assigns) (Instr.Ret name))
+  -> Instr.BlockName
+  -> Instr.BlockEnd
+  -> IO Bool
+writeBlock stateRef seqRef name ret = do
+  body <- toList <$> readIORef seqRef
+  writeIORef seqRef Sequence.empty
+  modifyIORef stateRef $ \s -> s { csOutput = csOutput s |> Instr.Block name body ret }
+  pure True
 
 compileBlock
   :: Ident
   -> IORef CompileState
   -> IORef (Seq Instr.Assign)
+  -> Instr.BlockName
   -> AST.Block
-  -> IO [Instr.Block]
-compileBlock fnName stateRef seqRef stmts = do
-  blocks <- catMaybes <$> traverse (compileStmt fnName stateRef seqRef) stmts
-  rest <- readIORef seqRef
-  writeIORef seqRef Sequence.empty
-  when (Sequence.length rest > 0) $ throwIO (NoReturn fnName)
-  pure blocks
+  -> IO Bool
+compileBlock fnName stateRef seqRef blockName stmts =
+  case stmts of
+    [] -> pure False
+    (first : rest) -> case first of
+      AST.Assign v exp -> do
+        name <- compile stateRef seqRef exp
+        writeAssign seqRef (Instr.Src v) (Instr.Var name)
+        compileBlock fnName stateRef seqRef blockName rest
+      AST.Return exp -> do
+        name <- compile stateRef seqRef exp
+        writeBlock stateRef seqRef blockName (Instr.Ret name)
+        compileBlock fnName stateRef seqRef blockName rest
+      AST.If cond cons alt -> do
+        name <- compile stateRef seqRef cond
+        consRef <- newIORef Sequence.empty
+        consName <- freshBlockName stateRef fnName
+        consDone <- compileBlock fnName stateRef consRef consName cons
+        altRef <- newIORef Sequence.empty
+        altName <- freshBlockName stateRef fnName
+        altDone <- compileBlock fnName stateRef altRef altName alt
+        writeBlock stateRef seqRef blockName (Instr.CondJump name consName altName)
+        if consDone && altDone
+          then case rest of
+            [] -> pure True
+            _ -> throwIO (UnreachableCode fnName)
+          else do
+            nextBlock <- freshBlockName stateRef fnName
+            when (not consDone) $ do
+              writeBlock stateRef consRef consName (Inst.Jump nextBlock)
+              pure ()
+            when (not altDone) $ do
+              writeBlock stateRef altRef altName (Inst.Jump nextBlock)
+              pure ()
+            compileBlock fnName stateRef seqRef nextBlock rest
 
 compileFunction
   :: IORef CompileState
@@ -107,8 +133,13 @@ compileFunction
   -> AST.Function
   -> IO Instr.Function
 compileFunction stateRef seqRef (AST.Function name args body) = do
-  blocks <- compileBlock name stateRef seqRef body
-  pure (Instr.Function name args blocks)
+  startBlock <- freshBlockName stateRef name
+  done <- compileBlock name stateRef seqRef startBlock body
+  blocks <- toList . csOutput <$> readIORef stateRef
+  if done
+    -- Probably need to clear output blocks as well
+    then pure (Instr.Function name args blocks)
+    else throwIO (NoReturn name)
 
 -- TODO: implement the function
 compileToplevel :: AST.Program -> IO [Instr.Function]
@@ -116,6 +147,7 @@ compileToplevel fns = do
   cs <- newIORef $ CompileState
     { csBlocks = Map.empty
     , csNextGen = 0
+    , csOutput = Sequence.empty
     }
   seq <- newIORef Sequence.empty
   mapM (compileFunction cs seq) fns

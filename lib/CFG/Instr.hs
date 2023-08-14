@@ -1,5 +1,8 @@
 module CFG.Instr where
 
+import Data.Map (Map)
+import qualified Data.Map as Map
+
 import AST (Ident, LangInt, Binop, Unop)
 
 data GenName
@@ -13,7 +16,7 @@ data BlockName = BlockName
   { bnFnName :: Ident
   , bnId :: Int
   }
-  deriving (Show)
+  deriving (Show, Eq, Ord)
 
 data AssignSource
   = Var GenName
@@ -31,6 +34,8 @@ data Assign = Assign
 
 data BlockEnd
   = Ret GenName
+  | Jump BlockName
+  | CondJump GenName BlockName BlockName
   deriving (Show)
 
 data Block = Block

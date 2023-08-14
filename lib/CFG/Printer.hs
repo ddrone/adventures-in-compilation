@@ -47,6 +47,15 @@ printAssign (Assign tgt src) = Text.concat
 printBlockEnd :: BlockEnd -> Text
 printBlockEnd be = case be of
   Ret n -> Text.concat [ "ret ", printName n ]
+  Jump n -> Text.concat [ "jmp ", printBlockName n ]
+  CondJump cond cons alt -> Text.concat
+    [ "jmp_if "
+    , printName cond
+    , " "
+    , printBlockName cons
+    , " "
+    , printBlockName alt
+    ]
 
 indent :: Text -> Text
 indent = ("  " <>)
