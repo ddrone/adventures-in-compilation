@@ -103,7 +103,9 @@ compileBlock fnName stateRef seqRef blockName stmts =
       AST.Return exp -> do
         name <- compile stateRef seqRef exp
         writeBlock stateRef seqRef blockName (Instr.Ret name)
-        compileBlock fnName stateRef seqRef blockName rest
+        case rest of
+          [] -> pure True
+          _ -> throwIO (UnreachableCode fnName)
       AST.If cond cons alt -> do
         name <- compile stateRef seqRef cond
         consRef <- newIORef Sequence.empty
