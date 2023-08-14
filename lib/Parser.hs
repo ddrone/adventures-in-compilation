@@ -67,8 +67,14 @@ block :: Parser Block
 block = curlyBraces (many (stmt <* symbol ";"))
 
 table =
-  [ [ binary Mul, binary Div, binary Mod ]
-  , [ binary Add, binary Sub ]
+  [ [ unary Not ]
+  , map binary [ Mul, Div, Mod ]
+  , map binary [ Add, Sub ]
+  , map binary [ Lt, Le, Gt, Ge ]
+  , [ binary Equal ]
+  , [ binary And ]
+  , [ binary Or ]
   ]
 
 binary op = InfixL (Bin op <$ symbol (binopRepr op))
+unary op = Prefix (Unary op <$ symbol (unopRepr op))

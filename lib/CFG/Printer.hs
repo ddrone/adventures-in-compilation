@@ -3,7 +3,7 @@ module CFG.Printer where
 import Data.Text (Text)
 import qualified Data.Text as Text
 
-import AST (binopRepr)
+import AST (binopRepr, unopRepr)
 import CFG.Instr
 
 printName :: GenName -> Text
@@ -31,6 +31,10 @@ printAssignSource as = case as of
     , binopRepr op
     , " "
     , printName r
+    ]
+  Unary op e -> Text.concat
+    [ unopRepr op
+    , printName e
     ]
 
 printAssign :: Assign -> Text

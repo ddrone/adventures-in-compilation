@@ -6,12 +6,23 @@ import Data.Text (Text)
 type LangInt = Int64
 type Ident = Text
 
+data Unop
+  = Not
+  deriving (Show)
+
 data Binop
   = Add
   | Sub
   | Mul
   | Div
   | Mod
+  | Lt
+  | Le
+  | Gt
+  | Ge
+  | Equal
+  | And
+  | Or
   deriving (Show)
 
 binopRepr :: Binop -> Text
@@ -21,12 +32,24 @@ binopRepr op = case op of
   Mul -> "*"
   Div -> "/"
   Mod -> "%"
+  Lt -> "<"
+  Le -> "<="
+  Gt -> ">"
+  Ge -> ">="
+  Equal -> "=="
+  And -> "&&"
+  Or -> "||"
+
+unopRepr :: Unop -> Text
+unopRepr op = case op of
+  Not -> "!"
 
 data Exp
   = Var Ident
   | Lit LangInt
   | Call Ident [Exp]
   | Bin Binop Exp Exp
+  | Unary Unop Exp
   deriving (Show)
 
 data Stmt

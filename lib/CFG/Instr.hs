@@ -1,6 +1,6 @@
 module CFG.Instr where
 
-import AST (Ident, LangInt, Binop)
+import AST (Ident, LangInt, Binop, Unop)
 
 data GenName
   = Src Ident
@@ -20,6 +20,7 @@ data AssignSource
   | Lit LangInt
   | Call Ident [GenName]
   | Bin Binop GenName GenName
+  | Unary Unop GenName
   deriving (Show)
 
 data Assign = Assign

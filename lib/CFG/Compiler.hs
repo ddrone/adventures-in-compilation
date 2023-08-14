@@ -65,6 +65,10 @@ compile stateRef seqRef exp = case exp of
     rname <- compile stateRef seqRef r
     name <- freshLocal stateRef "bin"
     writeAssign seqRef name (Instr.Bin op lname rname)
+  AST.Unary op e -> do
+    innerName <- compile stateRef seqRef e
+    name <- freshLocal stateRef "unary"
+    writeAssign seqRef name (Instr.Unary op name)
 
 compileStmt
   :: Ident
