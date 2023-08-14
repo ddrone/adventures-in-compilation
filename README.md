@@ -14,7 +14,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement compilation of binary expressions
 - [x] (Maintenance) Add a warning about non-exhaustive pattern matching to the project
 - [x] Implement boolean comparisons in the interpreter
-- [ ] Add conditionals to the language
+- [x] Add conditionals to the language
+- [x] Implement interpretation of conditionals
+- [ ] Implement compilation of conditionals
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
 - [ ] Implement code generation to x86-64 assembly
 - [ ] Only then add while-loops to the language

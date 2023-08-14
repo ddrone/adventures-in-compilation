@@ -34,6 +34,7 @@ data EvalException
   | NoReturn Ident
   | WrongBinType Binop
   | WrongUnaryType Unop
+  | WrongCondition
   deriving (Typeable, Show)
 
 instance Exception EvalException where
@@ -124,6 +125,14 @@ evalBlock stateRef stmts = case stmts of
       assign stateRef v value
       evalBlock stateRef rest
     Return e -> eval stateRef e
+    If cond cons alt -> do
+      value <- eval stateRef cond
+      condValue <- case value of
+        BoolV v -> pure v
+        _ -> throwIO WrongCondition
+      if condValue
+        then evalBlock stateRef (cons ++ rest)
+        else evalBlock stateRef (alt ++ rest)
 
 initFnEnv :: Program -> FnEnv
 initFnEnv = Map.fromList . map (fnName &&& id)
