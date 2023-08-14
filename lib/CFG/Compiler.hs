@@ -108,3 +108,7 @@ compileFunction
 compileFunction stateRef seqRef (AST.Function name args body) = do
   blocks <- compileBlock name stateRef seqRef body
   pure (Instr.Function name args blocks)
+
+-- TODO: implement the function
+compileToplevel :: AST.Program -> IO [Instr.Function]
+compileToplevel _ = pure []

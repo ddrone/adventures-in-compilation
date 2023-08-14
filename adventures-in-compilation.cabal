@@ -43,3 +43,7 @@ executable interpreter
 executable dominator-graph
     import:           binary
     main-is:          app/DominationGraph.hs
+
+executable compiler
+    import:           binary
+    main-is:          app/Compiler.hs
