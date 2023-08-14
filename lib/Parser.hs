@@ -63,17 +63,17 @@ stmt :: Parser Stmt
 stmt = choice
   [ Return <$> (symbol "return" *> expr <* symbol ";")
   , do
-      var <- ident
-      symbol "="
-      e <- expr
-      symbol ";"
-      pure (Assign var e)
-  , do
       symbol "if"
       cond <- brackets expr
       cons <- block
       alt <- elseBlock
       pure (If cond cons alt)
+  , do
+      var <- ident
+      symbol "="
+      e <- expr
+      symbol ";"
+      pure (Assign var e)
   ]
 
 block :: Parser Block

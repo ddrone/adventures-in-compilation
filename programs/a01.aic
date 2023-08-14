@@ -24,3 +24,9 @@ function opTest() {
   b4 = b1 || b2;
   return b4;
 }
+
+function ifTest(x) {
+  if (y) {
+    return 0;
+  }
+}
