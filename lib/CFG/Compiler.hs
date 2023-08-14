@@ -19,8 +19,7 @@ import qualified CFG.Instr as Instr
 import qualified Data.Sequence as Sequence
 
 data CompileState = CompileState
-  { csLocals :: Map Ident GenName
-  , csBlocks :: Map Ident Int
+  { csBlocks :: Map Ident Int
   , csNextGen :: Int
   }
 
@@ -32,13 +31,6 @@ data CompileException
   deriving (Typeable, Show)
 
 instance Exception CompileException
-
-lookupLocal :: IORef CompileState -> Ident -> IO GenName
-lookupLocal stateRef name = do
-  locals <- csLocals <$> readIORef stateRef
-  case Map.lookup name locals of
-    Nothing -> throwIO (LookupFail name)
-    Just value -> pure value
 
 freshLocal :: IORef CompileState -> Ident -> IO GenName
 freshLocal stateRef hint = do
@@ -60,7 +52,7 @@ writeAssign seqRef target source = do
 
 compile :: IORef CompileState -> IORef (Seq Instr.Assign) -> AST.Exp -> IO GenName
 compile stateRef seqRef exp = case exp of
-  AST.Var v -> lookupLocal stateRef v
+  AST.Var v -> pure (Instr.Src v)
   AST.Lit l -> do
     name <- freshLocal stateRef "lit"
     writeAssign seqRef name (Instr.Lit l)
@@ -113,8 +105,7 @@ compileFunction stateRef seqRef (AST.Function name args body) = do
 compileToplevel :: AST.Program -> IO [Instr.Function]
 compileToplevel fns = do
   cs <- newIORef $ CompileState
-    { csLocals = Map.empty
-    , csBlocks = Map.empty
+    { csBlocks = Map.empty
     , csNextGen = 0
     }
   seq <- newIORef Sequence.empty

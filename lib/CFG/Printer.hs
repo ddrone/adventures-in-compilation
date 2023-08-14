@@ -46,5 +46,5 @@ printBlock (Block name asns be) =
 
 printFunction :: Function -> [Text]
 printFunction (Function name args body) =
-  Text.concat [ "function ", name, "(", Text.intercalate "," args, ")"] :
-  concatMap printBlock body
+  Text.concat [ "function ", name, "(", Text.intercalate "," args, ") {"] :
+  concatMap printBlock body ++ ["}"]
