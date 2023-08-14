@@ -1,11 +1,11 @@
 function absolute(x) {
   if (x < 0) {
-    return 0 - x;
+    return -x;
   } else {
     return x;
   }
 }
 
 function main() {
-  return absolute(5) + absolute(0 - 10);
+  return absolute(5) + absolute(-10);
 }

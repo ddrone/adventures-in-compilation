@@ -8,6 +8,7 @@ type Ident = Text
 
 data Unop
   = Not
+  | Neg
   deriving (Show)
 
 data Binop
@@ -43,6 +44,7 @@ binopRepr op = case op of
 unopRepr :: Unop -> Text
 unopRepr op = case op of
   Not -> "!"
+  Neg -> "-"
 
 data Exp
   = Var Ident

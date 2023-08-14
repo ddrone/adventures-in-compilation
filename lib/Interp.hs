@@ -66,20 +66,20 @@ apply stateRef fun args = do
   writeIORef stateRef savedState
   pure value
 
-valueNum :: Binop -> Value -> IO LangInt
-valueNum op v = case v of
+valueNum :: EvalException -> Value -> IO LangInt
+valueNum exn v = case v of
   IntV n -> pure n
-  _ -> throwIO (WrongBinType op)
+  _ -> throwIO exn
 
-valueBool :: Binop -> Value -> IO Bool
-valueBool op v = case v of
+valueBool :: EvalException -> Value -> IO Bool
+valueBool exn v = case v of
   BoolV b -> pure b
-  _ -> throwIO (WrongBinType op)
+  _ -> throwIO exn
 
 evalBinop :: Binop -> Value -> Value -> IO Value
 evalBinop bop x y =
-  let get = valueNum bop in
-  let getB = valueBool bop in
+  let get = valueNum (WrongBinType bop) in
+  let getB = valueBool (WrongBinType bop) in
   case bop of
     Add -> IntV <$> ((+) <$> get x <*> get y)
     Sub -> IntV <$> ((-) <$> get x <*> get y)
@@ -95,7 +95,12 @@ evalBinop bop x y =
     Or -> BoolV <$> ((||) <$> getB x <*> getB y)
 
 evalUnop :: Unop -> Value -> IO Value
-evalUnop uop x = undefined
+evalUnop uop x =
+  let get = valueNum (WrongUnaryType uop) in
+  let getB = valueBool (WrongUnaryType uop) in
+  case uop of
+    Not -> BoolV . not <$> getB x
+    Neg -> IntV . negate <$> get x
 
 eval :: IORef EvalState -> Exp -> IO Value
 eval stateRef exp = case exp of

@@ -80,7 +80,7 @@ block :: Parser Block
 block = curlyBraces (many stmt)
 
 table =
-  [ [ unary Not ]
+  [ map unary [ Not, Neg ]
   , map binary [ Mul, Div, Mod ]
   , map binary [ Add, Sub ]
   , map binary [ Le, Lt, Ge, Gt ]
