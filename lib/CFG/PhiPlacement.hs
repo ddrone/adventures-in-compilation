@@ -11,6 +11,9 @@ import qualified Data.Set as Set
 
 import AST (Ident)
 import CFG.Instr
+import CFG.Printer (printBlockName)
+import Graph.DominationFrontier (dominationFrontier)
+import Graph.Parser (NodeDef (NodeDef), ParsedGraph, buildGraph)
 
 addGenName :: Set Ident -> GenName -> Set Ident
 addGenName used gn = case gn of
@@ -37,6 +40,26 @@ usedVariables fns = foldr addFunction Map.empty fns
 -- phi-nodes inserted when generating the SSA form.
 type PhiMap = Map BlockName [Ident]
 
+exitNodes :: BlockEnd -> [BlockName]
+exitNodes be = case be of
+  Ret _ -> []
+  Jump out -> [out]
+  CondJump _ cons alt -> [cons, alt]
+
+blockToNodeDef :: Block -> NodeDef
+blockToNodeDef block = do
+  let nodeName = printBlockName (blockName block)
+  let nodeOuts = map printBlockName (exitNodes (blockEnd block))
+  NodeDef nodeName nodeOuts
+
+functionToParsedGraph :: Function -> ParsedGraph
+functionToParsedGraph fn = do
+  let root = printBlockName (fnStartLabel fn)
+  let nodes = map blockToNodeDef (fnBody fn)
+  buildGraph root nodes
+
 phiPlacement :: Function -> PhiMap
-phiPlacement = runST $ do
+phiPlacement fn = runST $ do
+  let pg = functionToParsedGraph fn
+  let df = dominationFrontier pg
   undefined

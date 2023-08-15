@@ -17,7 +17,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add conditionals to the language
 - [x] Implement interpretation of conditionals
 - [x] Implement compilation of conditionals
-- [ ] Compute the domination frontier for the CFG
+- [x] Compute the domination frontier for the CFG
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
 - [ ] Implement code generation to x86-64 assembly
 - [ ] Only then add while-loops to the language
