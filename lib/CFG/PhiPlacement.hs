@@ -18,11 +18,15 @@ addGenName used gn = case gn of
 addInstr :: Assign -> Set Ident -> Set Ident
 addInstr assn used = addGenName used (asgnTarget assn)
 
-addBlock :: Block -> Set Ident -> Set Ident
-addBlock block used = foldr addInstr used (blockAssigns block)
+type VariableMap = Map BlockName [Ident]
 
-addFunction :: Function -> Set Ident -> Set Ident
+addBlock :: Block -> VariableMap -> VariableMap
+addBlock block map =
+  let toAdd = foldr addInstr Set.empty (blockAssigns block) in
+  Map.insert (blockName block) (toList toAdd) map
+
+addFunction :: Function -> VariableMap -> VariableMap
 addFunction fn used = foldr addBlock used (fnBody fn)
 
-usedVariables :: [Function] -> [Ident]
-usedVariables fns = toList (foldr addFunction Set.empty fns)
+usedVariables :: [Function] -> VariableMap
+usedVariables fns = foldr addFunction Map.empty fns
