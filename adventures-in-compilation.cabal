@@ -27,8 +27,9 @@ library
         , Interp
         , Parser
         , Utils
-        , CFG.Instr
         , CFG.Compiler
+        , CFG.Instr
+        , CFG.PhiPlacement
         , CFG.Printer
         , Graph.Defs
         , Graph.DominationFrontier
