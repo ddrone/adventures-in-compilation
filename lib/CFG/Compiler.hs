@@ -71,7 +71,7 @@ compile stateRef seqRef exp = case exp of
   AST.Unary op e -> do
     innerName <- compile stateRef seqRef e
     name <- freshLocal stateRef "unary"
-    writeAssign seqRef name (Instr.Unary op name)
+    writeAssign seqRef name (Instr.Unary op innerName)
 
 writeBlock
   :: IORef CompileState
