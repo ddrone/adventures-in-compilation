@@ -17,7 +17,6 @@ import qualified Data.IntSet as IntSet
 
 import AST (Ident)
 import CFG.Instr
-import CFG.Printer (printBlockName)
 import Graph.DominationFrontier (dominationFrontier)
 import Graph.Parser (NodeDef (NodeDef), ParsedGraph (pgIds), buildGraph)
 import Utils (regularMultimapInsert)

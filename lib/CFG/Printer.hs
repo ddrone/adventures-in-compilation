@@ -1,19 +1,18 @@
 module CFG.Printer where
 
 import Data.Text (Text)
+import qualified Data.Map as Map
 import qualified Data.Text as Text
 
-import AST (binopRepr, unopRepr)
+import AST (binopRepr, unopRepr, Ident)
 import CFG.Instr
+import CFG.PhiPlacement (PhiMap, phiPlacement)
+import Data.Maybe (fromMaybe)
 
 printName :: GenName -> Text
 printName gn = case gn of
   Src s -> s
   Gen s n -> Text.concat [s, "%", Text.pack (show n)]
-
-printBlockName :: BlockName -> Text
-printBlockName (BlockName fn n) =
-  Text.concat [fn, "$", Text.pack (show n)]
 
 printAssignSource :: AssignSource -> Text
 printAssignSource as = case as of
@@ -60,13 +59,16 @@ printBlockEnd be = case be of
 indent :: Text -> Text
 indent = ("  " <>)
 
-printBlock :: Block -> [Text]
-printBlock (Block name asns be) =
+printBlock :: Block -> [Ident] -> [Text]
+printBlock (Block name asns be) phi =
   Text.concat [ printBlockName name, ":" ] :
+  Text.concat [ "phi(", Text.intercalate "," phi, ")"] :
   map indent (map printAssign asns ++ [printBlockEnd be])
 
 printFunction :: Function -> [Text]
-printFunction (Function name args body startBlock) =
+printFunction fn@(Function name args body startBlock) =
+  let phiMap = phiPlacement fn in
   Text.concat [ "function ", name, "(", Text.intercalate "," args, ") {"] :
   Text.concat [ "  start_from ", printBlockName startBlock ] :
-  concatMap printBlock body ++ ["}"]
+  let pb block = printBlock block (fromMaybe [] $ Map.lookup (blockName block) phiMap) in
+  concatMap pb body ++ ["}"]

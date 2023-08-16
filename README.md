@@ -20,7 +20,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Compute the domination frontier for the CFG
 - [ ] Implement conversion of CFG to SSA-form, adding phi-nodes
   - [x] Implement phi-placement algorithm
-  - [ ] Print the set of variables that have to have phi-nodes for each block in compiler output
+  - [x] Print the set of variables that have to have phi-nodes for each block in compiler output
   - [ ] Implement the renumbering algorithm
 - [ ] Implement code generation to x86-64 assembly
 - [ ] Only then add while-loops to the language

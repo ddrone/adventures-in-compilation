@@ -1,7 +1,9 @@
 module CFG.Instr where
 
 import Data.Map (Map)
+import Data.Text (Text)
 import qualified Data.Map as Map
+import qualified Data.Text as Text
 
 import AST (Ident, LangInt, Binop, Unop)
 
@@ -17,6 +19,10 @@ data BlockName = BlockName
   , bnId :: Int
   }
   deriving (Show, Eq, Ord)
+
+printBlockName :: BlockName -> Text
+printBlockName (BlockName fn n) =
+  Text.concat [fn, "$", Text.pack (show n)]
 
 data AssignSource
   = Var GenName

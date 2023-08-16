@@ -6,6 +6,16 @@ function absolute(x) {
   }
 }
 
+function twiceAbsolute(x) {
+  if (x < 0) {
+    y = -x;
+  }
+  else {
+    y = x;
+  }
+  return 2 * y;
+}
+
 function main() {
   return absolute(5) + absolute(-10);
 }
