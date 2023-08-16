@@ -29,7 +29,7 @@ commonSubseq xs ys = case (xs, ys) of
   _ -> []
 
 dominatorTree :: ParsedGraph -> IntMap Int
-dominatorTree (ParsedGraph root names g) = runST $ do
+dominatorTree (ParsedGraph root names g _) = runST $ do
   parent <- newSTRef IntMap.empty
   let getParent v = IntMap.lookup v <$> readSTRef parent
   let parentSequence v = do

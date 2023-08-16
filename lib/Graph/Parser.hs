@@ -42,6 +42,7 @@ data ParsedGraph = ParsedGraph
   { pgRoot :: Int
   , pgNames :: IntMap Text
   , pgGraph :: Graph
+  , pgIds :: Map Text Int
   }
 
 buildGraph :: Text -> [NodeDef] -> ParsedGraph
@@ -52,7 +53,7 @@ buildGraph root nodeDefs = do
   let getId v = fromJust (Map.lookup v nameToId)
   let nodeToEdges (NodeDef from to) = map ((,) (getId from) . getId) to
   let graph = fromEdges (concatMap nodeToEdges nodeDefs)
-  ParsedGraph (getId root) (IntMap.fromList allNodes) graph
+  ParsedGraph (getId root) (IntMap.fromList allNodes) graph nameToId
 
 toplevelGraph :: Parser ParsedGraph
 toplevelGraph = do

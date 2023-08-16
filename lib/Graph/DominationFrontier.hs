@@ -27,7 +27,7 @@ treeWithChildNodes (Node root children) = do
   Node (root, allChildren) mappedChildren
 
 dominationFrontier :: ParsedGraph -> IntMap IntSet
-dominationFrontier pg@(ParsedGraph root _ g) = do
+dominationFrontier pg@(ParsedGraph root _ g _) = do
   let dt = flatten $ treeWithChildNodes $ invertTree root $ dominatorTree pg
   let computeFrontier root children = do
         let outgoingEdges = foldMap (IntSet.fromList . edgesFrom g) (root : IntSet.toList children)
