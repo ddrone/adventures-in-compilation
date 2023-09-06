@@ -152,3 +152,55 @@ assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
 assignHomesAndCountVars instrs =
   let (result, map) = runState (mapM ahInstr instrs) Map.empty in
   (Map.size map, result)
+
+immediateLimit :: Int64
+immediateLimit = 2 ^ 16
+
+rax = X86.Reg Rax
+
+patchInstruction :: X86.GenInstr Void -> [X86.GenInstr Void]
+patchInstruction = \case
+  Movq src@X86.Deref{} dest@X86.Deref{} ->
+    [ Movq src rax
+    , Movq rax dest
+    ]
+  Movq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
+    [ Movq src rax
+    , Movq rax dest
+    ]
+  Addq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
+    [ Movq src rax
+    , Addq rax dest
+    ]
+  Subq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
+    [ Movq src rax
+    , Subq rax dest
+    ]
+  other -> [other]
+
+patchInstructions :: [X86.GenInstr Void] -> [X86.GenInstr Void]
+patchInstructions = concatMap patchInstruction
+
+generateWrapper :: Int -> ([X86.GenInstr Void], [X86.GenInstr Void])
+generateWrapper localsCount =
+  let stackIncrease = fromIntegral (8 * (localsCount + (localsCount `mod` 2)))
+      prefix =
+        [ Pushq (X86.Reg Rbp)
+        , Movq (X86.Reg Rsp) (X86.Reg Rbp)
+        , Subq (X86.Immediate stackIncrease) (X86.Reg Rsp)
+        ]
+      suffix =
+        [ Addq (X86.Immediate stackIncrease) (X86.Reg Rsp)
+        , Popq (X86.Reg Rbp)
+        , Retq
+        ]
+  in (prefix, suffix)
+
+compileAll :: AST.Module -> [X86.GenInstr Void]
+compileAll mod =
+  let rco = rcoModule mod
+      selected = selectInstructions rco
+      (count, assigned) = assignHomesAndCountVars selected
+      patched = patchInstructions assigned
+      (prefix, suffix) = generateWrapper count
+  in prefix ++ patched ++ suffix
