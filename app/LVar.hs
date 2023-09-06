@@ -5,6 +5,7 @@ import qualified Data.Text.IO as TextIO
 import System.Environment (getArgs)
 import Data.Foldable (forM_)
 import Text.Megaparsec (runParser)
+import LVar.Compiler (rcoModule)
 
 main = do
   files <- getArgs
@@ -13,4 +14,4 @@ main = do
     case runParser program file contents of
       Left err -> print err
       Right p -> do
-        print p
+        print (rcoModule p)
