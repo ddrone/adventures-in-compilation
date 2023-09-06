@@ -35,24 +35,24 @@ ident = lexeme $ do
   pure (Text.pack (first : rest))
 
 brackets = between (symbol "(") (symbol ")")
-curlyBraces = between (symbol "{") (symbol "}")
 
 term :: Parser Expr
 term =
   (brackets expr) <|>
-  (Const <$> number)
+  (Const <$> number) <|>
+  (Name <$> ident)
 
 expr = makeExprParser term table
 
 stmt :: Parser Stmt
 stmt = choice
-  [ Print <$> (symbol "print" *> symbol "(" *> expr <* symbol ")")
+  [ Print <$> (symbol "print" *> brackets expr)
   , do
       var <- ident
       symbol "="
       e <- expr
-      symbol ";"
       pure (Assign var e)
+  , Calc <$> expr
   ]
 
 table =
