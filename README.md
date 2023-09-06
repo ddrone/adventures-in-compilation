@@ -6,7 +6,10 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - [x] Add a new executable and package in the code
 - [x] Write a simple parser
-- [ ] Implement the compiler, following the implementation plan from the book
+- [x] Implement the compiler, following the implementation plan from the book
+- [ ] Write down the dumping of X86 instructions to textual assembly syntax to be able to compile and run programs
+- [ ] Test on some examples
+- [ ] Finish the challenge: implement partial evaluator for the language
 
 ## Adventure 1: simple SSA construction
 
