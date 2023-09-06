@@ -26,21 +26,21 @@ data Arg n
   | Reg Reg
   | Deref Reg Int64
   | Name n
-  deriving (Show)
+  deriving (Eq, Show)
 
-data Instr n
+data GenInstr n
   = Addq (Arg n) (Arg n)
   | Subq (Arg n) (Arg n)
   | Movq (Arg n) (Arg n)
   | Negq (Arg n)
   | Pushq (Arg n)
   | Popq (Arg n)
-  | Callq Text Int64
+  | Callq Text
   | Retq
   | Jump Text
   deriving (Show)
 
 data Program n = Program
-  { progInstrs :: [Instr n]
+  { progInstrs :: [GenInstr n]
   }
   deriving (Show)

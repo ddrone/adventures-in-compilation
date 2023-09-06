@@ -35,6 +35,7 @@ library
         , LVar.ASTMon
         , LVar.Compiler
         , LVar.Parser
+        , LVar.X86
         , Graph.Defs
         , Graph.DominationFrontier
         , Graph.Dominator
@@ -42,6 +43,7 @@ library
         , Graph.Parser
     extensions:       OverloadedStrings
         , LambdaCase
+        , MultiWayIf
     hs-source-dirs:   lib
 
 executable interpreter

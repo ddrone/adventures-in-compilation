@@ -8,7 +8,7 @@ import LVar.AST (Binop, Unop, GenModule)
 data Name
   = Source Text
   | Gen Int
-  deriving (Show)
+  deriving (Eq, Show)
 
 data Atom
   = Const Int64
