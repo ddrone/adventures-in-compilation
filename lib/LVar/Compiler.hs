@@ -20,7 +20,7 @@ rcoAtom e = case e of
   _ -> do
     (le, ls) <- rcoExpr e
     name <- fresh
-    pure (ASTMon.Name name, ls ++ [AST.Assign name le])
+    pure (ASTMon.Name name, ls ++ [ASTMon.Assign name le])
 
 rcoExpr :: AST.Expr -> RCO (ASTMon.Expr, [ASTMon.Stmt])
 rcoExpr e = case e of
@@ -39,10 +39,13 @@ rcoExpr e = case e of
 
 rcoStmt :: AST.Stmt -> RCO [ASTMon.Stmt]
 rcoStmt = \case
-  AST.Print e -> wrap AST.Print e
-  AST.Calc e -> wrap AST.Calc e
-  AST.Assign n e -> wrap (AST.Assign (ASTMon.Source n)) e
+  AST.Print e -> wrapAtom ASTMon.Print e
+  AST.Calc e -> wrap ASTMon.Calc e
+  AST.Assign n e -> wrap (ASTMon.Assign (ASTMon.Source n)) e
   where
+    wrapAtom f e = do
+      (ea, es) <- rcoAtom e
+      pure (es ++ [f ea])
     wrap f e = do
       (ea, es) <- rcoExpr e
       pure (es ++ [f ea])

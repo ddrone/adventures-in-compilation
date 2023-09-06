@@ -3,7 +3,7 @@ module LVar.ASTMon where
 import Data.Int (Int64)
 import Data.Text (Text)
 
-import LVar.AST (Binop, Unop, GenStmt, GenModule)
+import LVar.AST (Binop, Unop, GenModule)
 
 data Name
   = Source Text
@@ -22,6 +22,10 @@ data Expr
   | InputInt
   deriving (Show)
 
-type Stmt = GenStmt Name Expr
+data Stmt
+  = Print Atom
+  | Calc Expr
+  | Assign Name Expr
+  deriving (Show)
 
 type Module = GenModule Stmt
