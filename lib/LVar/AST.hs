@@ -1,19 +1,30 @@
-module LVar.Expr where
+module LVar.AST where
 
 import Data.Int (Int64)
+import Data.Text (Text)
 
 data Binop
   = Add
   | Sub
   deriving (Show)
 
+binopRepr :: Binop -> Text
+binopRepr = \case
+  Add -> "+"
+  Sub -> "-"
+
 data Unop
   = Neg
   deriving (Show)
 
+unopRepr :: Unop -> Text
+unopRepr = \case
+  Neg -> "-"
+
 data Expr
   = Const Int64
-  | Bin Expr Binop Expr
+  | Name Text
+  | Bin Binop Expr Expr
   | Unary Unop Expr
   | InputInt
   deriving (Show)
@@ -21,4 +32,10 @@ data Expr
 data Stmt
   = Print Expr
   | Calc Expr
+  | Assign Text Expr
+  deriving (Show)
+
+data Module = Module
+  { modStmts :: [Stmt]
+  }
   deriving (Show)

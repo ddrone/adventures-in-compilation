@@ -31,12 +31,15 @@ library
         , CFG.Instr
         , CFG.PhiPlacement
         , CFG.Printer
+        , LVar.AST
+        , LVar.Parser
         , Graph.Defs
         , Graph.DominationFrontier
         , Graph.Dominator
         , Graph.DominatorTree
         , Graph.Parser
     extensions:       OverloadedStrings
+        , LambdaCase
     hs-source-dirs:   lib
 
 executable interpreter
