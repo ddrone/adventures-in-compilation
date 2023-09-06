@@ -29,13 +29,17 @@ data Expr
   | InputInt
   deriving (Show)
 
-data Stmt
-  = Print Expr
-  | Calc Expr
-  | Assign Text Expr
+data GenStmt n e
+  = Print e
+  | Calc e
+  | Assign n e
   deriving (Show)
 
-data Module = Module
-  { modStmts :: [Stmt]
+type Stmt = GenStmt Text Expr
+
+data GenModule s = Module
+  { modStmts :: [s]
   }
   deriving (Show)
+
+type Module = GenModule Stmt
