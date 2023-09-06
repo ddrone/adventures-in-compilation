@@ -5,7 +5,7 @@ import qualified Data.Text.IO as TextIO
 import System.Environment (getArgs)
 import Data.Foldable (forM_)
 import Text.Megaparsec (runParser)
-import LVar.Compiler (rcoModule, selectInstructions)
+import LVar.Compiler (rcoModule, selectInstructions, assignHomesAndCountVars)
 
 main = do
   files <- getArgs
@@ -16,5 +16,5 @@ main = do
       Right p -> do
         let rco = rcoModule p
         print rco
-        let instrs = selectInstructions rco
+        let (count, instrs) = assignHomesAndCountVars (selectInstructions rco)
         mapM_ print instrs

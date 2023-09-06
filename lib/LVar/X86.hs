@@ -40,6 +40,18 @@ data GenInstr n
   | Jump Text
   deriving (Show)
 
+traverseInstr :: Applicative a => (Arg n -> a (Arg m)) -> GenInstr n -> a (GenInstr m)
+traverseInstr f = \case
+  Addq a1 a2 -> Addq <$> f a1 <*> f a2
+  Subq a1 a2 -> Subq <$> f a1 <*> f a2
+  Movq a1 a2 -> Movq <$> f a1 <*> f a2
+  Negq a -> Negq <$> f a
+  Pushq a -> Pushq <$> f a
+  Popq a -> Popq <$> f a
+  Callq t -> pure (Callq t)
+  Retq -> pure Retq
+  Jump t -> pure (Jump t)
+
 data Program n = Program
   { progInstrs :: [GenInstr n]
   }

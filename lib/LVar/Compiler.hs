@@ -1,6 +1,10 @@
 module LVar.Compiler where
 
 import Control.Monad.State
+import Data.Int (Int64)
+import Data.Map (Map)
+import Data.Void (Void)
+import qualified Data.Map as Map
 
 import LVar.X86 (GenInstr(..), Reg(..))
 import qualified LVar.AST as AST
@@ -119,3 +123,32 @@ selectStmt = \case
 
 selectInstructions :: ASTMon.Module -> [Instr]
 selectInstructions (AST.Module stmts) = concatMap selectStmt stmts
+
+type AH a = State (Map ASTMon.Name Int) a
+
+getIndex :: ASTMon.Name -> AH Int
+getIndex name = do
+  map <- get
+  case Map.lookup name map of
+    Nothing -> do
+      let result = Map.size map
+      modify (Map.insert name result)
+      pure result
+    Just v -> pure v
+
+ahArg :: Arg -> AH (X86.Arg Void)
+ahArg = \case
+  X86.Name n -> do
+    i <- getIndex n
+    pure (X86.Deref Rbp (-8 * (fromIntegral i + 1)))
+  X86.Immediate i -> pure (X86.Immediate i)
+  X86.Reg r -> pure (X86.Reg r)
+  X86.Deref r o -> pure (X86.Deref r o)
+
+ahInstr :: Instr -> AH (X86.GenInstr Void)
+ahInstr = X86.traverseInstr ahArg
+
+assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
+assignHomesAndCountVars instrs =
+  let (result, map) = runState (mapM ahInstr instrs) Map.empty in
+  (Map.size map, result)
