@@ -2,6 +2,12 @@
 
 Instead of trying to "implement a cool programming language", a project that I have started maybe a dozen times and never got far with, the idea here is to play with different algorithms of compilation on extremely simplistic languages.
 
+## Adventure 3: implement LVar from "Essentials of Compilation"
+
+- [ ] Add a new executable and package in the code
+- [ ] Write a simple parser
+- [ ] Implement the compiler, following the implementation plan from the book
+
 ## Adventure 1: simple SSA construction
 
 - [x] Implement compilation of statements into CFG blocks
@@ -22,6 +28,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Implement phi-placement algorithm
   - [x] Print the set of variables that have to have phi-nodes for each block in compiler output
   - [ ] Implement the renumbering algorithm
+- [ ] Implement conversion out of SSA form
 - [ ] Implement code generation to x86-64 assembly
 - [ ] Only then add while-loops to the language
 
