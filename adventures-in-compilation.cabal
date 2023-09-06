@@ -50,3 +50,7 @@ executable dominator-graph
 executable compiler
     import:           binary
     main-is:          app/Compiler.hs
+
+executable lvar
+    import:           binary
+    main-is:          app/LVar.hs
