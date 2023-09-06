@@ -5,7 +5,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 ## Adventure 3: implement LVar from "Essentials of Compilation"
 
 - [x] Add a new executable and package in the code
-- [ ] Write a simple parser
+- [x] Write a simple parser
 - [ ] Implement the compiler, following the implementation plan from the book
 
 ## Adventure 1: simple SSA construction
