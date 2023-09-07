@@ -40,6 +40,7 @@ term :: Parser Expr
 term =
   (brackets expr) <|>
   (Const <$> number) <|>
+  (symbol "input_int" >> symbol "(" >> symbol ")" >> pure InputInt) <|>
   (Name <$> ident)
 
 expr = makeExprParser term table

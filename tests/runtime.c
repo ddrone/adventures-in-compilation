@@ -7,3 +7,9 @@
 void print_int(int64_t x) {
   printf("%ld\n", x);
 }
+
+int64_t read_int() {
+  int64_t result;
+  scanf("%ld", &result);
+  return result;
+}

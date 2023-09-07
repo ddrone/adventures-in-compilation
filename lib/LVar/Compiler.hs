@@ -164,6 +164,14 @@ patchInstruction = \case
     [ Movq src rax
     , Movq rax dest
     ]
+  Addq src@X86.Deref{} dest@X86.Deref{} ->
+    [ Movq src rax
+    , Addq rax dest
+    ]
+  Subq src@X86.Deref{} dest@X86.Deref{} ->
+    [ Movq src rax
+    , Subq rax dest
+    ]
   Movq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
     [ Movq src rax
     , Movq rax dest
