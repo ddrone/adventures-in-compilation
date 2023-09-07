@@ -109,9 +109,9 @@ selectExpr dest = \case
         ]
   ASTMon.InputInt ->
     case dest of
-      X86.Reg Rax -> [ Callq "read_int" ]
+      X86.Reg Rax -> [ Callq "read_int" 0 ]
       _ ->
-        [ Callq "read_int"
+        [ Callq "read_int" 0
         , Movq (X86.Reg Rax) dest
         ]
 
@@ -119,7 +119,7 @@ selectStmt :: ASTMon.Stmt -> [Instr]
 selectStmt = \case
   ASTMon.Print n ->
     [ Movq (atom n) (X86.Reg Rdi)
-    , Callq "print_int"
+    , Callq "print_int" 1
     ]
   ASTMon.Calc e -> selectExpr (X86.Reg Rax) e
   ASTMon.Assign n e -> selectExpr (X86.Name n) e

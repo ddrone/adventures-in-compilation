@@ -54,7 +54,7 @@ data GenInstr n
   | Negq (Arg n)
   | Pushq (Arg n)
   | Popq (Arg n)
-  | Callq Text
+  | Callq Text Int -- arity of the called function - needed to compute live registers
   | Retq
   | Jump Text
   deriving (Show)
@@ -82,7 +82,7 @@ printInstr pn =
     Negq a -> unary "negq" a
     Pushq a -> unary "pushq" a
     Popq a -> unary "popq" a
-    Callq label -> Text.unwords ["callq", label]
+    Callq label _ -> Text.unwords ["callq", label]
     Retq -> "retq"
     Jump label -> Text.unwords ["jump", label]
 
@@ -101,7 +101,7 @@ traverseInstr f = \case
   Negq a -> Negq <$> f a
   Pushq a -> Pushq <$> f a
   Popq a -> Popq <$> f a
-  Callq t -> pure (Callq t)
+  Callq t c -> pure (Callq t c)
   Retq -> pure Retq
   Jump t -> pure (Jump t)
 
