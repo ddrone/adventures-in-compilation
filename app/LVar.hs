@@ -7,14 +7,26 @@ import Data.Foldable (forM_)
 import Text.Megaparsec (runParser)
 import LVar.Compiler (compileAll)
 import LVar.X86 (printProgram)
+import System.FilePath
+import System.Process
 
 main = do
   files <- getArgs
   forM_ files $ \file -> do
+    let assemblyName = replaceExtensions file "s"
+    let binaryName = case stripExtension "py" file of
+          Nothing -> error "File name should end with .py!"
+          Just name -> name
     contents <- TextIO.readFile file
     case runParser program file contents of
       Left err -> print err
       Right p -> do
         let instrs = compileAll p
         let code = printProgram instrs
-        TextIO.putStrLn code
+        TextIO.writeFile assemblyName code
+        callProcess "cc"
+          [ "-m64"
+          , "-o"
+          , binaryName
+          , assemblyName
+          ]
