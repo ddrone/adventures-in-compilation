@@ -27,8 +27,8 @@ instructionWritesTo = \case
   Subq l1 l2 -> Set.singleton l2
   Movq src dest -> Set.singleton dest
   Negq l1 -> Set.singleton l1
-  Pushq l1 -> Set.empty -- TODO: should it say that it writes to %rsp?
-  Popq l1 -> Set.singleton l1 -- TODO: ditto
+  Pushq l1 -> Set.singleton (Reg Rsp)
+  Popq l1 -> Set.fromList [l1, Reg Rsp]
   Callq _ arity -> Set.fromList (map Reg callerSaved)
   Retq -> Set.empty
   Jump _ -> Set.empty
