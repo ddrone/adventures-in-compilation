@@ -6,6 +6,7 @@ import System.Environment (getArgs)
 import Data.Foldable (forM_)
 import Text.Megaparsec (runParser)
 import LVar.Compiler (compileAll)
+import LVar.X86 (printProgram)
 
 main = do
   files <- getArgs
@@ -15,4 +16,5 @@ main = do
       Left err -> print err
       Right p -> do
         let instrs = compileAll p
-        mapM_ print instrs
+        let code = printProgram instrs
+        TextIO.putStrLn code
