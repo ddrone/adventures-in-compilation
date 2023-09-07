@@ -14,9 +14,7 @@ main = do
   files <- getArgs
   forM_ files $ \file -> do
     let assemblyName = replaceExtensions file "s"
-    let binaryName = case stripExtension "py" file of
-          Nothing -> error "File name should end with .py!"
-          Just name -> name
+    let binaryName = replaceExtensions file "exe"
     contents <- TextIO.readFile file
     case runParser program file contents of
       Left err -> print err
@@ -29,4 +27,5 @@ main = do
           , "-o"
           , binaryName
           , assemblyName
+          , "tests/runtime.o"
           ]
