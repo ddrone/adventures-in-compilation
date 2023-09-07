@@ -8,8 +8,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Write a simple parser
 - [x] Implement the compiler, following the implementation plan from the book
 - [x] Write down the dumping of X86 instructions to textual assembly syntax to be able to compile and run programs
-- [ ] Test on some examples
-- [ ] Finish the challenge: implement partial evaluator for the language
+- [x] Test on some examples
+- [x] Finish the challenge: implement partial evaluator for the language
 
 ## Adventure 1: simple SSA construction
 

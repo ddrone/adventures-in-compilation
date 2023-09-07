@@ -8,6 +8,11 @@ data Binop
   | Sub
   deriving (Show)
 
+evalBinop :: Binop -> Int64 -> Int64 -> Int64
+evalBinop = \case
+  Add -> (+)
+  Sub -> (-)
+
 binopRepr :: Binop -> Text
 binopRepr = \case
   Add -> "+"
@@ -20,6 +25,10 @@ data Unop
 unopRepr :: Unop -> Text
 unopRepr = \case
   Neg -> "-"
+
+evalUnop :: Unop -> Int64 -> Int64
+evalUnop = \case
+  Neg -> (0 -)
 
 data Expr
   = Const Int64

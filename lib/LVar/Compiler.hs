@@ -61,6 +61,9 @@ rcoModule (AST.Module stmts) = flip evalState 0 $ do
   newStmts <- concat <$> mapM rcoStmt stmts
   pure (AST.Module newStmts)
 
+peModule :: ASTMon.Module -> ASTMon.Module
+peModule (AST.Module stmts) = AST.Module (ASTMon.partialEval stmts)
+
 type Instr = X86.GenInstr ASTMon.Name
 
 type Arg = X86.Arg ASTMon.Name
@@ -206,7 +209,7 @@ generateWrapper localsCount =
 
 compileAll :: AST.Module -> [X86.GenInstr Void]
 compileAll mod =
-  let rco = rcoModule mod
+  let rco = peModule (rcoModule mod)
       selected = selectInstructions rco
       (count, assigned) = assignHomesAndCountVars selected
       patched = patchInstructions assigned
