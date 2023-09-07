@@ -23,7 +23,7 @@ data Reg
   | R13
   | R14
   | R15
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 printRegister :: Reg -> Text
 printRegister r = Text.pack ('%' : map toLower (show r))
@@ -33,7 +33,7 @@ data Arg n
   | Reg Reg
   | Deref Reg Int64
   | Name n
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 printArg :: (n -> Text) -> Arg n -> Text
 printArg pn = \case

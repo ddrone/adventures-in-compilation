@@ -36,6 +36,7 @@ library
         , LVar.AST
         , LVar.ASTMon
         , LVar.Compiler
+        , LVar.Liveness
         , LVar.Parser
         , LVar.X86
         , Graph.Defs
