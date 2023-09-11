@@ -19,3 +19,11 @@ multimapFromList = foldr (uncurry multimapInsert) IntMap.empty
 
 regularMultimapInsert :: Ord k => k -> a -> Map k [a] -> Map k [a]
 regularMultimapInsert key value = Map.insertWith (++) key [value]
+
+untilEqual :: Eq a => (a -> a) -> a -> a
+untilEqual iter start = go start (iter start)
+  where
+    go curr next =
+      if curr == next
+        then curr
+        else go next (iter next)

@@ -5,6 +5,7 @@ import Data.Text (Text)
 import qualified Data.Set as Set
 
 import qualified Grammar.Pregrammar as Pregrammar
+import Utils (untilEqual)
 
 data ItemType
   = NT -- non-terminal
@@ -39,3 +40,19 @@ fromPregrammar :: Pregrammar.Grammar -> Grammar
 fromPregrammar pg =
   let nts = Set.fromList (map Pregrammar.ruleStart pg) in
   map (fromPregrammarRule nts) pg
+
+isItemNullable :: Set Text -> Item -> Bool
+isItemNullable nulls (Item t n) =
+  case t of
+    T -> False
+    NT -> Set.member n nulls
+
+isRuleNullable :: Set Text -> Rule -> Bool
+isRuleNullable nulls (Rule _ items) = all (isItemNullable nulls) items
+
+nullable :: Grammar -> Set Text
+nullable rules = untilEqual iter Set.empty
+  where
+    iter nulls =
+      let nullRules = filter (isRuleNullable nulls) rules in
+      nulls `Set.union` (Set.fromList (map ruleStart nullRules))

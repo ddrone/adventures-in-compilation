@@ -6,7 +6,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - LL(1)
   - [x] Write down datatypes for context-free grammar
-  - [ ] Compute nullability information
+  - [x] Compute nullability information
   - [ ] Compute first sets
   - [ ] Compute follow sets
   - [ ] Generate LL(1) parse table as an output
