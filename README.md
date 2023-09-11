@@ -2,6 +2,21 @@
 
 Instead of trying to "implement a cool programming language", a project that I have started maybe a dozen times and never got far with, the idea here is to play with different algorithms of compilation on extremely simplistic languages.
 
+## Adventure 4: dreaded syntactic analysis
+
+- LL(1)
+  - [ ] Write down datatypes for context-free grammar
+  - [ ] Compute nullability information
+  - [ ] Compute first sets
+  - [ ] Compute follow sets
+  - [ ] Generate LL(1) parse table as an output
+- Regular expressions
+  - [ ] Write down datatypes for regular expressions (WITHOUT RANGES)
+  - [ ] Implement NFA conversion
+  - [ ] Implement NFA-to-DFA conversion
+  - [ ] Implement automata minimization
+  - [ ] Implement "range" as a primitive for regular language
+
 ## Adventure 3: implement LVar from "Essentials of Compilation"
 
 - [x] Add a new executable and package in the code
