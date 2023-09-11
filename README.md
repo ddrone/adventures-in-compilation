@@ -5,7 +5,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 ## Adventure 4: dreaded syntactic analysis
 
 - LL(1)
-  - [ ] Write down datatypes for context-free grammar
+  - [x] Write down datatypes for context-free grammar
   - [ ] Compute nullability information
   - [ ] Compute first sets
   - [ ] Compute follow sets

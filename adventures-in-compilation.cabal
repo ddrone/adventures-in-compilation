@@ -33,6 +33,8 @@ library
         , CFG.Instr
         , CFG.PhiPlacement
         , CFG.Printer
+        , Grammar.Grammar
+        , Grammar.Pregrammar
         , LVar.AST
         , LVar.ASTMon
         , LVar.Compiler
