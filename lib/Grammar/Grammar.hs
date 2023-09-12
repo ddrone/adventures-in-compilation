@@ -1,6 +1,6 @@
 module Grammar.Grammar where
 
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, catMaybes)
 import Data.Map (Map)
 import Data.Set (Set)
 import Data.Text (Text)
@@ -153,3 +153,34 @@ buildPreTable grammar start =
               else Map.empty
       in Map.singleton from (PreTableRow (rmfirsts <> reof))
   in mconcat (map handleRule grammar)
+
+preTableRowToRow :: PreTableRow -> Maybe LLTableRow
+preTableRowToRow (PreTableRow m) =
+  let items = Map.toList m
+      eofItem = Map.lookup EOF m
+      getNtItem (item, v) = case item of
+        N n -> Just (n, v)
+        _ -> Nothing
+      ntItems = catMaybes (map getNtItem items)
+      pickOne ls = case ls of
+        [] -> Just Nothing
+        [x] -> Just (Just x)
+        _ -> Nothing
+      pickNts nts =
+        case nts of
+          [] -> Just []
+          (n, ls) : rest -> do
+            one <- pickOne ls
+            rests <- pickNts rest
+            case one of
+              Nothing -> pure rests
+              Just r -> pure ((n, r) : rests)
+
+      actualEof = case eofItem of
+        Nothing -> Just Nothing
+        Just ls -> pickOne ls
+      actualNtItems = Map.fromList <$> pickNts ntItems
+  in LLTableRow <$> actualNtItems <*> actualEof
+
+preTableToTable :: PreTable -> Maybe LLTable
+preTableToTable = traverse preTableRowToRow
