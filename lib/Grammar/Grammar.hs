@@ -112,3 +112,11 @@ follow rules start nulls firsts = untilEqual iter (Map.singleton start (Set.sing
         [] -> map
         Rule start items : rest -> followRules rest (followRule map start items)
     iter = followRules rules
+
+data LLTableRow = LLTableRow
+  { llNext :: Map Text [Item] -- mapping from lookahead terminal to next rule
+  , llEofNext :: Maybe [Item] -- expansion if end-of-input encountered
+  }
+  deriving (Show)
+
+type LLTable = Map Text LLTableRow -- mapping from non-terminal to table row
