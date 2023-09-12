@@ -66,3 +66,7 @@ executable compiler
 executable lvar
     import:           binary
     main-is:          app/LVar.hs
+
+executable ll1
+    import:           binary
+    main-is:          app/LL1.hs
