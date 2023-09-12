@@ -184,3 +184,6 @@ preTableRowToRow (PreTableRow m) =
 
 preTableToTable :: PreTable -> Maybe LLTable
 preTableToTable = traverse preTableRowToRow
+
+ll1Table :: Grammar -> Text -> Maybe LLTable
+ll1Table grammar start = preTableToTable (buildPreTable grammar start)

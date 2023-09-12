@@ -10,6 +10,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Compute first sets
   - [x] Compute follow sets
   - [x] Generate LL(1) parse table as an output
+  - [ ] Print LL(1) parse table in a better way
   - [ ] Actually test it on a couple of examples
 - Regular expressions
   - [ ] Write down datatypes for regular expressions (WITHOUT RANGES)

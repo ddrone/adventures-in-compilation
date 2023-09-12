@@ -70,3 +70,4 @@ executable lvar
 executable ll1
     import:           binary
     main-is:          app/LL1.hs
+    extensions:       OverloadedStrings
