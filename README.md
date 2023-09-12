@@ -8,7 +8,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Write down datatypes for context-free grammar
   - [x] Compute nullability information
   - [x] Compute first sets
-  - [ ] Compute follow sets
+  - [x] Compute follow sets
   - [ ] Generate LL(1) parse table as an output
   - [ ] Actually test it on a couple of examples
 - Regular expressions

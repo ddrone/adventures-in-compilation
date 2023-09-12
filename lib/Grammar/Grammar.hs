@@ -50,14 +50,14 @@ isItemNullable nulls (Item t n) =
     T -> False
     NT -> Set.member n nulls
 
-isRuleNullable :: Set Text -> Rule -> Bool
-isRuleNullable nulls (Rule _ items) = all (isItemNullable nulls) items
+isRuleNullable :: Set Text -> [Item] -> Bool
+isRuleNullable nulls items = all (isItemNullable nulls) items
 
 nullable :: Grammar -> Set Text
 nullable rules = untilEqual iter Set.empty
   where
     iter nulls =
-      let nullRules = filter (isRuleNullable nulls) rules in
+      let nullRules = filter (isRuleNullable nulls . ruleItems) rules in
       nulls `Set.union` (Set.fromList (map ruleStart nullRules))
 
 type FirstMap = Map Text (Set Text)
@@ -84,3 +84,31 @@ first :: Grammar -> Set Text -> FirstMap
 first rules nulls = untilEqual iter Map.empty
   where
     iter map = rulesFirst nulls map rules
+
+data FollowItem
+  = EOF
+  | N Text -- NT is taken
+  deriving (Eq, Show, Ord)
+
+type FollowMap = Map Text (Set FollowItem)
+
+follow :: Grammar -> Text -> Set Text -> FirstMap -> FollowMap
+follow rules start nulls firsts = untilEqual iter (Map.singleton start (Set.singleton EOF))
+  where
+    followRule :: FollowMap -> Text -> [Item] -> FollowMap
+    followRule map start rule =
+      case rule of
+        [] -> map
+        Item NT n : rest ->
+          let add1 = Set.map N (ruleFirst nulls firsts rest)
+              add2 =
+                if isRuleNullable nulls rest
+                  then fromMaybe Set.empty (Map.lookup start map)
+                  else Set.empty
+          in followRule (Map.insertWith Set.union n (add1 <> add2) map) start rest
+        _ : rest -> followRule map start rest
+    followRules grammar map =
+      case grammar of
+        [] -> map
+        Rule start items : rest -> followRules rest (followRule map start items)
+    iter = followRules rules
