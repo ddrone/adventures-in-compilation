@@ -120,3 +120,36 @@ data LLTableRow = LLTableRow
   deriving (Show)
 
 type LLTable = Map Text LLTableRow -- mapping from non-terminal to table row
+
+data PreTableRow = PreTableRow
+  { ptNext :: Map FollowItem [[Item]]
+  }
+  deriving (Show)
+
+instance Semigroup PreTableRow where
+  PreTableRow n1 <> PreTableRow n2 = PreTableRow (n1 <> n2)
+
+instance Monoid PreTableRow where
+  mempty = PreTableRow Map.empty
+
+type PreTable = Map Text PreTableRow
+
+buildPreTable :: Grammar -> Text -> PreTable
+buildPreTable grammar start =
+  let
+    nulls = nullable grammar
+    firsts = first grammar nulls
+    follows = follow grammar start nulls firsts
+
+    handleRule (Rule from items) =
+      let rfirsts = Set.toList (ruleFirst nulls firsts items)
+          rmfirsts =
+            Map.fromList (flip map rfirsts (\x -> (N x, [items])))
+          rfollows = maybe [] Set.toList (Map.lookup from follows)
+          rnull = isRuleNullable nulls items
+          reof =
+            if rnull
+              then Map.fromList (flip map rfollows (\x -> (x, [items])))
+              else Map.empty
+      in Map.singleton from (PreTableRow (rmfirsts <> reof))
+  in mconcat (map handleRule grammar)
