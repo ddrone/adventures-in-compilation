@@ -1,11 +1,14 @@
 module Grammar.Grammar where
 
+import Data.Maybe (fromMaybe)
+import Data.Map (Map)
 import Data.Set (Set)
 import Data.Text (Text)
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 
-import qualified Grammar.Pregrammar as Pregrammar
 import Utils (untilEqual)
+import qualified Grammar.Pregrammar as Pregrammar
 
 data ItemType
   = NT -- non-terminal
@@ -56,3 +59,28 @@ nullable rules = untilEqual iter Set.empty
     iter nulls =
       let nullRules = filter (isRuleNullable nulls) rules in
       nulls `Set.union` (Set.fromList (map ruleStart nullRules))
+
+type FirstMap = Map Text (Set Text)
+
+ruleFirst :: Set Text -> FirstMap -> [Item] -> Set Text
+ruleFirst nulls firsts items = case items of
+  [] -> Set.empty
+  Item T name : rest -> Set.singleton name
+  Item NT name : rest ->
+    let hd = fromMaybe Set.empty (Map.lookup name firsts) in
+    if Set.member name nulls
+      then hd <> ruleFirst nulls firsts rest
+      else hd
+
+rulesFirst :: Set Text -> FirstMap -> [Rule] -> FirstMap
+rulesFirst nulls firsts rules = case rules of
+  [] -> firsts
+  Rule st items : rest ->
+    let itemsFirsts = ruleFirst nulls firsts items
+        nextMap = Map.insertWith Set.union st itemsFirsts firsts
+    in rulesFirst nulls nextMap rest
+
+first :: Grammar -> Set Text -> FirstMap
+first rules nulls = untilEqual iter Map.empty
+  where
+    iter map = rulesFirst nulls map rules
