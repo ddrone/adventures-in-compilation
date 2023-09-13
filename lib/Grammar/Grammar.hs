@@ -9,6 +9,7 @@ import qualified Data.Map as Map
 
 import Utils (untilEqual)
 import qualified Grammar.Pregrammar as Pregrammar
+import qualified Data.Text as Text
 
 data ItemType
   = NT -- non-terminal
@@ -198,3 +199,21 @@ preTableToTable = traverse preTableRowToRow
 
 ll1Table :: Grammar -> Text -> Maybe LLTable
 ll1Table grammar start = preTableToTable (buildPreTable grammar start)
+
+printRule :: [Item] -> Text
+printRule = Text.unwords . map itemName
+
+printTableRow :: [Text] -> Text -> LLTableRow -> [Text]
+printTableRow terminals start row =
+  start : map forTerminal terminals ++ [renderLookup (llEofNext row)]
+  where
+    renderLookup = maybe "" printRule
+    forTerminal t = renderLookup (Map.lookup t (llNext row))
+
+printLL1Table :: Grammar -> Text -> Maybe [[Text]]
+printLL1Table grammar start =
+  let terminals = Set.toList (grammarTerminals grammar)
+      header = "Symbol" : terminals ++ ["EOF"]
+      table = ll1Table grammar start
+  in
+    (map (uncurry (printTableRow terminals)) . Map.toList) <$> table
