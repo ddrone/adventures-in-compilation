@@ -7,7 +7,7 @@ import Data.Text (Text)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 
-import Utils (untilEqual)
+import Utils (untilEqual, printTable)
 import qualified Grammar.Pregrammar as Pregrammar
 import qualified Data.Text as Text
 
@@ -201,7 +201,9 @@ ll1Table :: Grammar -> Text -> Maybe LLTable
 ll1Table grammar start = preTableToTable (buildPreTable grammar start)
 
 printRule :: [Item] -> Text
-printRule = Text.unwords . map itemName
+printRule items = case items of
+  [] -> "ε"
+  ls -> Text.unwords (map itemName ls)
 
 printTableRow :: [Text] -> Text -> LLTableRow -> [Text]
 printTableRow terminals start row =
@@ -210,10 +212,12 @@ printTableRow terminals start row =
     renderLookup = maybe "" printRule
     forTerminal t = renderLookup (Map.lookup t (llNext row))
 
-printLL1Table :: Grammar -> Text -> Maybe [[Text]]
+printLL1Table :: Grammar -> Text -> Maybe Text
 printLL1Table grammar start =
   let terminals = Set.toList (grammarTerminals grammar)
       header = "Symbol" : terminals ++ ["EOF"]
       table = ll1Table grammar start
   in
-    (map (uncurry (printTableRow terminals)) . Map.toList) <$> table
+    case table of
+      Nothing -> Nothing
+      Just t -> Just (printTable header (map (uncurry (printTableRow terminals)) (Map.toList t)))

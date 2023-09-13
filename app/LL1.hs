@@ -3,6 +3,7 @@ module Main where
 import Prelude hiding (words)
 import Data.Text (Text, words)
 import qualified Grammar.Pregrammar as Pregrammar
+import qualified Data.Text.IO as TextIO
 import Grammar.Grammar
 
 (&>) = Pregrammar.Rule
@@ -19,4 +20,6 @@ pg =
 
 grammar = fromPregrammar pg
 
-main = print (ll1Table grammar "E")
+main = case printLL1Table grammar "E" of
+  Nothing -> putStrLn "error!"
+  Just t -> TextIO.putStr t
