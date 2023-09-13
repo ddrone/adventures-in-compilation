@@ -30,11 +30,13 @@ untilEqual iter start = go start (iter start)
         then curr
         else go next (iter next)
 
+textRepeat :: Char -> Int -> Text
+textRepeat c n = Text.pack (take n (repeat c))
+
 rightPad :: Text -> Int -> Text
 rightPad t len =
   let pad = max 0 (len - Text.length t)
-      padString = take pad (repeat ' ')
-  in t <> Text.pack padString
+  in t <> textRepeat ' ' pad
 
 printTable :: [Text] -> [[Text]] -> Text
 printTable headers rows =
@@ -46,4 +48,5 @@ printTable headers rows =
       addRow row lengths = combineLengths (map Text.length row) lengths
       maxLengths = foldr addRow headerLengths rows
       printRow row = Text.intercalate " | " (zipWith rightPad row maxLengths)
-  in Text.unlines (printRow headers : map printRow rows)
+      afterHeader = Text.intercalate "-+-" (map (textRepeat '-') maxLengths)
+  in Text.unlines (printRow headers : afterHeader : map printRow rows)
