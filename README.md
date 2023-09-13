@@ -13,6 +13,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Extract set of all terminals from the grammar
   - [x] Write a generic function for printing a table
   - [x] Print LL(1) parse table in a better way
+  - [ ] Print first and follow sets in a table as well to aid debugging
   - [ ] Actually test it on a couple of examples
 - Regular expressions
   - [ ] Write down datatypes for regular expressions (WITHOUT RANGES)
