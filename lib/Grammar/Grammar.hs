@@ -29,6 +29,17 @@ data Rule = Rule
 
 type Grammar = [Rule]
 
+addTerminal :: Item -> Set Text -> Set Text
+addTerminal item ts = case item of
+  Item T n -> Set.insert n ts
+  _ -> ts
+
+addRuleTerminals :: Rule -> Set Text -> Set Text
+addRuleTerminals (Rule _ items) ts = foldr addTerminal ts items
+
+grammarTerminals :: Grammar -> Set Text
+grammarTerminals rules = foldr addRuleTerminals Set.empty rules
+
 fromPregrammarItem :: Set Text -> Text -> Item
 fromPregrammarItem nts item =
   if Set.member item nts
