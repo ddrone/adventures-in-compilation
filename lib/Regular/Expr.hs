@@ -38,7 +38,9 @@ data EdgeLabel
   deriving (Show, Eq, Ord)
 
 data NFA = NFA
-  { nfaCount :: Int
+  { nfaStart :: Int
+  , nfaEnd :: Int
+  , nfaCount :: Int
   , nfaEdges :: IntMap (Map EdgeLabel Int)
   }
   deriving (Show)
@@ -84,5 +86,6 @@ buildNFA re = runST $ do
             addEps e end
             addEps start end
         pure (start, end)
-  _ <- go re
-  NFA <$> readSTRef next <*> readSTRef edges
+  (start, end) <- go re
+  NFA start end <$> readSTRef next <*> readSTRef edges
+
