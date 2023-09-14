@@ -2,10 +2,12 @@ module Regular.Expr where
 
 import Control.Monad.ST
 import Data.STRef
+import Data.Set (Set)
 import Data.Map (Map)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, catMaybes)
 import Data.IntMap (IntMap)
 import Data.IntSet (IntSet)
+import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
@@ -113,9 +115,41 @@ buildDFA nfa = runST $ do
             pure next
   let edgesFrom from = fromMaybe Map.empty (IntMap.lookup from (nfaEdges nfa))
   let epsEdges node = fromMaybe [] (Map.lookup EpsLabel (edgesFrom node))
+  let charEdgesFrom c node = fromMaybe [] (Map.lookup (CharLabel c) (edgesFrom node))
   let addEpsClosure node set =
         if IntSet.member node set
           then set
           else foldr addEpsClosure (IntSet.insert node set) (epsEdges node)
   let epsClosure node = addEpsClosure node IntSet.empty
+
+  let charEdges from =
+        let allEdges = Map.keys (fromMaybe Map.empty (IntMap.lookup from (nfaEdges nfa)))
+            fromLabel l = case l of
+              CharLabel c -> Just c
+              EpsLabel -> Nothing
+        in Set.fromList (catMaybes (map fromLabel allEdges))
+  let allChars set = Set.toList (mconcat (fmap charEdges set))
+  let setEdge set c = mconcat (fmap (IntSet.fromList . charEdgesFrom c) set)
+
+  dfaEdges <- newSTRef (IntMap.empty :: IntMap (Map Char Int))
+  let go visited id set = do
+        if IntSet.member id visited
+          then pure ()
+          else do
+            let chars = allChars set
+            let handleChar c = do
+                  let next = setEdge set c
+                  (,) c <$> nodeId next
+            edges <- Map.fromList <$> mapM handleChar chars
+            modifySTRef dfaEdges (IntMap.insert id edges)
+
+            let nextSets = map (setEdge set) chars
+            loop visited nextSets
+      loop visited nexts =
+        case nexts of
+          [] -> pure ()
+          first : rest -> do
+            id <- nodeId first
+            go visited id (IntSet.toList first)
+            loop (IntSet.insert id visited) rest
   undefined -- TODO: continue here
