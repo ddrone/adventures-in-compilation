@@ -43,7 +43,7 @@ data NFA = NFA
   { nfaStart :: Int
   , nfaEnd :: Int
   , nfaCount :: Int
-  , nfaEdges :: IntMap (Map EdgeLabel Int)
+  , nfaEdges :: IntMap (Map EdgeLabel [Int])
   }
   deriving (Show)
 
@@ -54,10 +54,10 @@ buildNFA re = runST $ do
         result <- readSTRef next
         writeSTRef next (result + 1)
         pure result
-  edges <- newSTRef (IntMap.empty :: IntMap (Map EdgeLabel Int))
+  edges <- newSTRef (IntMap.empty :: IntMap (Map EdgeLabel [Int]))
   let addEdge from label to = do
         let add = Map.singleton label to
-        modifySTRef edges (IntMap.insertWith Map.union from (Map.singleton label to))
+        modifySTRef edges (IntMap.insertWith Map.union from (Map.singleton label [to]))
   let addEps from to = addEdge from EpsLabel to
   let go expr = do
         start <- fresh
