@@ -264,3 +264,13 @@ printPreTable grammar =
       header = "Symbol" : terminals ++ ["EOF"]
       table = buildPreTable grammar
   in printTable header (map (uncurry (printPreTableRow grammar terminals)) (Map.toList table))
+
+printGrammarRule :: AnalyzedGrammar -> Rule -> Text
+printGrammarRule ag (Rule start items) =
+  let firsts = Set.toList (ruleFirst (agNullable ag) (agFirst ag) items)
+      printedFirsts = Text.concat ["[", Text.intercalate ", " firsts, "]"]
+  in
+    Text.unwords [start, "::=", printRule items, printedFirsts]
+
+printGrammar :: AnalyzedGrammar -> Text
+printGrammar ag = Text.unlines (map (printGrammarRule ag) (agRules ag))

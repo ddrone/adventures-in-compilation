@@ -21,6 +21,8 @@ pg =
 grammar = analyzeGrammar (fromPregrammar pg) "E"
 
 main = do
+  putStrLn "\n   Grammar\n"
+  TextIO.putStr (printGrammar grammar)
   putStrLn "\n   Pretable\n"
   TextIO.putStr (printPreTable grammar)
   putStrLn "\n   Table\n"
