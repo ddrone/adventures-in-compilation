@@ -99,7 +99,7 @@ first rules nulls = untilEqual iter Map.empty
 
 data FollowItem
   = EOF
-  | N Text -- NT is taken
+  | Tm Text -- T is taken
   deriving (Eq, Show, Ord)
 
 type FollowMap = Map Text (Set FollowItem)
@@ -112,7 +112,7 @@ follow rules start nulls firsts = untilEqual iter (Map.singleton start (Set.sing
       case rule of
         [] -> map
         Item NT n : rest ->
-          let add1 = Set.map N (ruleFirst nulls firsts rest)
+          let add1 = Set.map Tm (ruleFirst nulls firsts rest)
               add2 =
                 if isRuleNullable nulls rest
                   then fromMaybe Set.empty (Map.lookup start map)
@@ -173,7 +173,7 @@ buildPreTable grammar =
     handleRule (Rule from items) =
       let rfirsts = Set.toList (ruleFirst nulls firsts items)
           rmfirsts =
-            Map.fromList (flip map rfirsts (\x -> (N x, [items])))
+            Map.fromList (flip map rfirsts (\x -> (Tm x, [items])))
           rfollows = maybe [] Set.toList (Map.lookup from follows)
           rnull = isRuleNullable nulls items
           reof =
@@ -188,7 +188,7 @@ preTableRowToRow (PreTableRow m) =
   let items = Map.toList m
       eofItem = Map.lookup EOF m
       getNtItem (item, v) = case item of
-        N n -> Just (n, v)
+        Tm n -> Just (n, v)
         _ -> Nothing
       ntItems = catMaybes (map getNtItem items)
       pickOne ls = case ls of
@@ -230,7 +230,7 @@ printSet items = case items of
 printFollowItem :: FollowItem -> Text
 printFollowItem item = case item of
   EOF -> "EOF"
-  N n -> n
+  Tm n -> n
 
 printTableRow :: AnalyzedGrammar -> [Text] -> Text -> LLTableRow -> [Text]
 printTableRow grammar terminals start row =
@@ -261,7 +261,7 @@ printPreTableRow grammar terminals start row =
       let rules = fromMaybe [] (Map.lookup i (ptNext row))
       in Text.intercalate ", " (map printRule rules)
 
-    forTerminal t = forItem (N t)
+    forTerminal t = forItem (Tm t)
 
 printPreTable :: AnalyzedGrammar -> Text
 printPreTable grammar =
