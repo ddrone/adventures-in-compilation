@@ -22,7 +22,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Write down datatypes for regular expressions (WITHOUT RANGES)
   - [x] Write down datatypes for NFA
   - [x] Implement NFA conversion
-  - [ ] Write down datatypes for DFA
+  - [x] Write down datatypes for DFA
   - [ ] Implement NFA-to-DFA conversion
   - [ ] Implement automata minimization
   - [ ] Implement maximal munch interpretation

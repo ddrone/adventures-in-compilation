@@ -4,8 +4,10 @@ import Control.Monad.ST
 import Data.STRef
 import Data.Map (Map)
 import Data.IntMap (IntMap)
+import Data.IntSet (IntSet)
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
+import qualified Data.IntSet as IntSet
 
 data Re
   = Char Char
@@ -89,3 +91,23 @@ buildNFA re = runST $ do
   (start, end) <- go re
   NFA start end <$> readSTRef next <*> readSTRef edges
 
+data DFA = DFA
+  { dfaStart :: Int
+  , dfaEnd :: Int
+  , dfaCount :: Int
+  , dfaEdges :: IntMap (Map Char Int)
+  }
+  deriving (Show)
+
+buildDFA :: NFA -> DFA
+buildDFA nfa = runST $ do
+  setMapping <- newSTRef (Map.empty :: Map IntSet Int)
+  let nodeId set = do
+        result <- Map.lookup set <$> readSTRef setMapping
+        case result of
+          Just v -> pure v
+          Nothing -> do
+            next <- Map.size <$> readSTRef setMapping
+            modifySTRef setMapping (Map.insert set next)
+            pure next
+  undefined -- TODO: continue here
