@@ -18,7 +18,20 @@ pg =
   , "E'" &>> "( E )"
   ]
 
-grammar = analyzeGrammar (fromPregrammar pg) "E"
+pg2 :: Pregrammar.Grammar
+pg2 =
+  [ "E" &>> "List"
+  , "E" &>> "Object"
+  , "E" &>> "int"
+  , "List" &>> "[ ListItems ]"
+  , "ListItems" &>> "E , ListItems"
+  , "ListItems" &>> ""
+  , "Object" &>> "{ ObjectPairs }"
+  , "ObjectPairs" &>> "int : E , ObjectPairs"
+  , "ObjectPairs" &>> ""
+  ]
+
+grammar = analyzeGrammar (fromPregrammar pg2) "E"
 
 main = do
   putStrLn "\n   Grammar\n"
