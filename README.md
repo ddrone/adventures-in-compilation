@@ -70,3 +70,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 ### Megaparsec expression parsing
 
 Ordering of the parsers in the table for operators matters: if at the same level of precedence I flip parser for `<=` and `<`, parsing of `<=` stops working. Presumably, because the tokens are overlapping. It does not look like there are any diagnostic information available to show me that I'm doing something potentially incorrect (and that's why I actually prefer proper parser generators that have more knowledge about the domain and are able to display those kinds of diagnostics by the way).
+
+## Links
+
+* LL(1) grammar visualizer: https://jsmachines.sourceforge.net/machines/ll1.html
