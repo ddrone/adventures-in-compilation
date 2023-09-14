@@ -15,6 +15,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Print LL(1) parse table in a better way
   - [x] Print first and follow sets in a table as well to aid debugging
   - [x] Print pretable as well
+  - [ ] Write a function to print all the rules of the grammar together with possible beginnings
   - [ ] Actually test it on a couple of examples
 - Regular expressions
   - [ ] Write down datatypes for regular expressions (WITHOUT RANGES)
