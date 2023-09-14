@@ -1,5 +1,10 @@
 module Regular.Expr where
 
+import Data.Map (Map)
+import Data.IntMap (IntMap)
+import qualified Data.Map as Map
+import qualified Data.IntMap as IntMap
+
 data Re
   = Char Char
   | Epsilon
@@ -25,3 +30,13 @@ range s = case s of
   [] -> Empty
   c : cs -> Union (Char c) (range cs)
 
+data EdgeLabel
+  = EpsLabel
+  | CharLabel Char
+  deriving (Show)
+
+data NFA = NFA
+  { nfaCount :: Int
+  , nfaEdges :: IntMap (Map EdgeLabel Int)
+  }
+  deriving (Show)

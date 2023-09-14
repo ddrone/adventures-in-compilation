@@ -20,7 +20,9 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Actually test it on a couple of examples
 - Regular expressions
   - [x] Write down datatypes for regular expressions (WITHOUT RANGES)
+  - [ ] Write down datatypes for NFA
   - [ ] Implement NFA conversion
+  - [ ] Write down datatypes for DFA
   - [ ] Implement NFA-to-DFA conversion
   - [ ] Implement automata minimization
   - [ ] Implement maximal munch interpretation
