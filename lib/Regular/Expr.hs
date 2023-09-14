@@ -3,6 +3,7 @@ module Regular.Expr where
 import Control.Monad.ST
 import Data.STRef
 import Data.Map (Map)
+import Data.Maybe (fromMaybe)
 import Data.IntMap (IntMap)
 import Data.IntSet (IntSet)
 import qualified Data.Map as Map
@@ -110,4 +111,11 @@ buildDFA nfa = runST $ do
             next <- Map.size <$> readSTRef setMapping
             modifySTRef setMapping (Map.insert set next)
             pure next
+  let edgesFrom from = fromMaybe Map.empty (IntMap.lookup from (nfaEdges nfa))
+  let epsEdges node = fromMaybe [] (Map.lookup EpsLabel (edgesFrom node))
+  let addEpsClosure node set =
+        if IntSet.member node set
+          then set
+          else foldr addEpsClosure (IntSet.insert node set) (epsEdges node)
+  let epsClosure node = addEpsClosure node IntSet.empty
   undefined -- TODO: continue here
