@@ -224,16 +224,17 @@ printRule items = case items of
 
 printTableRow :: AnalyzedGrammar -> [Text] -> Text -> LLTableRow -> [Text]
 printTableRow grammar terminals start row =
-  start : map forTerminal terminals ++ [renderLookup (llEofNext row), null]
+  start : map forTerminal terminals ++ [renderLookup (llEofNext row), null, firsts]
   where
     renderLookup = maybe "" printRule
     forTerminal t = renderLookup (Map.lookup t (llNext row))
     null = if Set.member start (agNullable grammar) then "x" else ""
+    firsts = Text.unwords (Set.toList (fromMaybe Set.empty (Map.lookup start (agFirst grammar))))
 
 printLL1Table :: AnalyzedGrammar -> Maybe Text
 printLL1Table grammar =
   let terminals = Set.toList (grammarTerminals (agRules grammar))
-      header = "Symbol" : terminals ++ ["EOF", "Nullable"]
+      header = "Symbol" : terminals ++ ["EOF", "Nullable", "First"]
       table = ll1Table grammar
   in
     case table of
