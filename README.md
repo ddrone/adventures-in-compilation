@@ -16,7 +16,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Print first and follow sets in a table as well to aid debugging
   - [x] Print pretable as well
   - [x] Write a function to print all the rules of the grammar together with possible beginnings
-  - [ ] Change printing of a grammar to use table as well
+  - [x] Change printing of a grammar to use table as well
   - [ ] Actually test it on a couple of examples
 - Regular expressions
   - [ ] Write down datatypes for regular expressions (WITHOUT RANGES)

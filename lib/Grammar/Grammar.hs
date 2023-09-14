@@ -222,6 +222,11 @@ printRule items = case items of
   [] -> "ε"
   ls -> Text.unwords (map itemName ls)
 
+printSet :: [Text] -> Text
+printSet items = case items of
+  [] -> "∅"
+  ls -> Text.intercalate ", " items
+
 printFollowItem :: FollowItem -> Text
 printFollowItem item = case item of
   EOF -> "EOF"
@@ -265,12 +270,12 @@ printPreTable grammar =
       table = buildPreTable grammar
   in printTable header (map (uncurry (printPreTableRow grammar terminals)) (Map.toList table))
 
-printGrammarRule :: AnalyzedGrammar -> Rule -> Text
+printGrammarRule :: AnalyzedGrammar -> Rule -> [Text]
 printGrammarRule ag (Rule start items) =
   let firsts = Set.toList (ruleFirst (agNullable ag) (agFirst ag) items)
-      printedFirsts = Text.concat ["[", Text.intercalate ", " firsts, "]"]
+      printedFirsts = printSet firsts
   in
-    Text.unwords [start, "::=", printRule items, printedFirsts]
+    [Text.unwords [start, "::=", printRule items], printedFirsts]
 
 printGrammar :: AnalyzedGrammar -> Text
-printGrammar ag = Text.unlines (map (printGrammarRule ag) (agRules ag))
+printGrammar ag = printTable ["Rule", "First"] (map (printGrammarRule ag) (agRules ag))
