@@ -18,8 +18,8 @@ pg =
   , "E'" &>> "( E )"
   ]
 
-grammar = fromPregrammar pg
+grammar = analyzeGrammar (fromPregrammar pg) "E"
 
-main = case printLL1Table grammar "E" of
+main = case printLL1Table grammar of
   Nothing -> putStrLn "error!"
   Just t -> TextIO.putStr t

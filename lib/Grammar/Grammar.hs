@@ -146,12 +146,29 @@ instance Monoid PreTableRow where
 
 type PreTable = Map Text PreTableRow
 
-buildPreTable :: Grammar -> Text -> PreTable
-buildPreTable grammar start =
+data AnalyzedGrammar = AnalyzedGrammar
+  { agRules :: Grammar
+  , agStart :: Text
+  , agNullable :: Set Text
+  , agFirst :: FirstMap
+  , agFollow :: FollowMap
+  }
+  deriving (Show)
+
+analyzeGrammar :: Grammar -> Text -> AnalyzedGrammar
+analyzeGrammar grammar start =
   let
     nulls = nullable grammar
     firsts = first grammar nulls
     follows = follow grammar start nulls firsts
+  in AnalyzedGrammar grammar start nulls firsts follows
+
+buildPreTable :: AnalyzedGrammar -> PreTable
+buildPreTable grammar =
+  let
+    nulls = agNullable grammar
+    firsts = agFirst grammar
+    follows = agFollow grammar
 
     handleRule (Rule from items) =
       let rfirsts = Set.toList (ruleFirst nulls firsts items)
@@ -164,7 +181,7 @@ buildPreTable grammar start =
               then Map.fromList (flip map rfollows (\x -> (x, [items])))
               else Map.empty
       in Map.singleton from (PreTableRow (rmfirsts <> reof))
-  in mconcat (map handleRule grammar)
+  in mconcat (map handleRule (agRules grammar))
 
 preTableRowToRow :: PreTableRow -> Maybe LLTableRow
 preTableRowToRow (PreTableRow m) =
@@ -197,8 +214,8 @@ preTableRowToRow (PreTableRow m) =
 preTableToTable :: PreTable -> Maybe LLTable
 preTableToTable = traverse preTableRowToRow
 
-ll1Table :: Grammar -> Text -> Maybe LLTable
-ll1Table grammar start = preTableToTable (buildPreTable grammar start)
+ll1Table :: AnalyzedGrammar -> Maybe LLTable
+ll1Table = preTableToTable . buildPreTable
 
 printRule :: [Item] -> Text
 printRule items = case items of
@@ -212,11 +229,11 @@ printTableRow terminals start row =
     renderLookup = maybe "" printRule
     forTerminal t = renderLookup (Map.lookup t (llNext row))
 
-printLL1Table :: Grammar -> Text -> Maybe Text
-printLL1Table grammar start =
-  let terminals = Set.toList (grammarTerminals grammar)
+printLL1Table :: AnalyzedGrammar -> Maybe Text
+printLL1Table grammar =
+  let terminals = Set.toList (grammarTerminals (agRules grammar))
       header = "Symbol" : terminals ++ ["EOF"]
-      table = ll1Table grammar start
+      table = ll1Table grammar
   in
     case table of
       Nothing -> Nothing
