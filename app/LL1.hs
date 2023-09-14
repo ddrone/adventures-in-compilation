@@ -20,6 +20,10 @@ pg =
 
 grammar = analyzeGrammar (fromPregrammar pg) "E"
 
-main = case printLL1Table grammar of
-  Nothing -> putStrLn "error!"
-  Just t -> TextIO.putStr t
+main = do
+  putStrLn "\n   Pretable\n"
+  TextIO.putStr (printPreTable grammar)
+  putStrLn "\n   Table\n"
+  case printLL1Table grammar of
+    Nothing -> putStrLn "error, must be multiple entries in pretable!"
+    Just t -> TextIO.putStr t

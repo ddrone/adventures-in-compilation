@@ -247,3 +247,20 @@ printLL1Table grammar =
     case table of
       Nothing -> Nothing
       Just t -> Just (printTable header (map (uncurry (printTableRow grammar terminals)) (Map.toList t)))
+
+printPreTableRow :: AnalyzedGrammar -> [Text] -> Text -> PreTableRow -> [Text]
+printPreTableRow grammar terminals start row =
+  start : map forTerminal terminals ++ [ forItem EOF ]
+  where
+    forItem i =
+      let rules = fromMaybe [] (Map.lookup i (ptNext row))
+      in Text.intercalate ", " (map printRule rules)
+
+    forTerminal t = forItem (N t)
+
+printPreTable :: AnalyzedGrammar -> Text
+printPreTable grammar =
+  let terminals = Set.toList (grammarTerminals (agRules grammar))
+      header = "Symbol" : terminals ++ ["EOF"]
+      table = buildPreTable grammar
+  in printTable header (map (uncurry (printPreTableRow grammar terminals)) (Map.toList table))
