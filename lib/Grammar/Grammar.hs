@@ -222,19 +222,20 @@ printRule items = case items of
   [] -> "ε"
   ls -> Text.unwords (map itemName ls)
 
-printTableRow :: [Text] -> Text -> LLTableRow -> [Text]
-printTableRow terminals start row =
-  start : map forTerminal terminals ++ [renderLookup (llEofNext row)]
+printTableRow :: AnalyzedGrammar -> [Text] -> Text -> LLTableRow -> [Text]
+printTableRow grammar terminals start row =
+  start : map forTerminal terminals ++ [renderLookup (llEofNext row), null]
   where
     renderLookup = maybe "" printRule
     forTerminal t = renderLookup (Map.lookup t (llNext row))
+    null = if Set.member start (agNullable grammar) then "x" else ""
 
 printLL1Table :: AnalyzedGrammar -> Maybe Text
 printLL1Table grammar =
   let terminals = Set.toList (grammarTerminals (agRules grammar))
-      header = "Symbol" : terminals ++ ["EOF"]
+      header = "Symbol" : terminals ++ ["EOF", "Nullable"]
       table = ll1Table grammar
   in
     case table of
       Nothing -> Nothing
-      Just t -> Just (printTable header (map (uncurry (printTableRow terminals)) (Map.toList t)))
+      Just t -> Just (printTable header (map (uncurry (printTableRow grammar terminals)) (Map.toList t)))
