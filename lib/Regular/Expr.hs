@@ -57,7 +57,7 @@ buildNFA re = runST $ do
   edges <- newSTRef (IntMap.empty :: IntMap (Map EdgeLabel [Int]))
   let addEdge from label to = do
         let add = Map.singleton label to
-        modifySTRef edges (IntMap.insertWith Map.union from (Map.singleton label [to]))
+        modifySTRef edges (IntMap.insertWith (Map.unionWith (++)) from (Map.singleton label [to]))
   let addEps from to = addEdge from EpsLabel to
   let go expr = do
         start <- fresh
