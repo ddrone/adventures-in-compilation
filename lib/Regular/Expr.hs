@@ -96,7 +96,7 @@ buildNFA re = runST $ do
 
 data DFA = DFA
   { dfaStart :: Int
-  , dfaEnd :: Int
+  , dfaFinal :: IntSet
   , dfaCount :: Int
   , dfaEdges :: IntMap (Map Char Int)
   }
@@ -105,6 +105,7 @@ data DFA = DFA
 buildDFA :: NFA -> DFA
 buildDFA nfa = runST $ do
   setMapping <- newSTRef (Map.empty :: Map IntSet Int)
+  finalSet <- newSTRef IntSet.empty
   let nodeId set = do
         result <- Map.lookup set <$> readSTRef setMapping
         case result of
@@ -112,6 +113,9 @@ buildDFA nfa = runST $ do
           Nothing -> do
             next <- Map.size <$> readSTRef setMapping
             modifySTRef setMapping (Map.insert set next)
+            if IntSet.member (nfaEnd nfa) set
+              then modifySTRef finalSet (IntSet.insert next)
+              else pure ()
             pure next
   let edgesFrom from = fromMaybe Map.empty (IntMap.lookup from (nfaEdges nfa))
   let epsEdges node = fromMaybe [] (Map.lookup EpsLabel (edgesFrom node))
@@ -155,4 +159,6 @@ buildDFA nfa = runST $ do
   let startSet = epsClosure (nfaStart nfa)
   startId <- nodeId startSet
   go IntSet.empty startId (IntSet.toList startSet)
-  undefined -- TODO: continue here
+
+  count <- Map.size <$> readSTRef setMapping
+  DFA startId <$> readSTRef finalSet <*> (Map.size <$> readSTRef setMapping) <*> readSTRef dfaEdges

@@ -24,7 +24,8 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Implement NFA conversion
   - [x] Write down datatypes for DFA
   - [x] Fix the bug in NFA construction: I actually use multiple edges with the same label
-  - [ ] Implement NFA-to-DFA conversion
+  - [x] Implement NFA-to-DFA conversion
+  - [ ] Implement printing DFA to Graphviz
   - [ ] Implement automata minimization
   - [ ] Implement maximal munch interpretation
   - [ ] Add token type labels to automata
