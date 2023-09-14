@@ -138,12 +138,6 @@ data PreTableRow = PreTableRow
   }
   deriving (Show)
 
-instance Semigroup PreTableRow where
-  PreTableRow n1 <> PreTableRow n2 = PreTableRow (n1 <> n2)
-
-instance Monoid PreTableRow where
-  mempty = PreTableRow Map.empty
-
 type PreTable = Map Text PreTableRow
 
 data AnalyzedGrammar = AnalyzedGrammar
@@ -163,6 +157,12 @@ analyzeGrammar grammar start =
     follows = follow grammar start nulls firsts
   in AnalyzedGrammar grammar start nulls firsts follows
 
+combineMaps :: Ord k => Map k [a] -> Map k [a] -> Map k [a]
+combineMaps = Map.unionWith (++)
+
+combineRows :: PreTableRow -> PreTableRow -> PreTableRow
+combineRows (PreTableRow r1) (PreTableRow r2) = PreTableRow (combineMaps r1 r2)
+
 buildPreTable :: AnalyzedGrammar -> PreTable
 buildPreTable grammar =
   let
@@ -180,8 +180,8 @@ buildPreTable grammar =
             if rnull
               then Map.fromList (flip map rfollows (\x -> (x, [items])))
               else Map.empty
-      in Map.singleton from (PreTableRow (rmfirsts <> reof))
-  in mconcat (map handleRule (agRules grammar))
+      in Map.singleton from (PreTableRow (combineMaps rmfirsts reof))
+  in foldr (Map.unionWith combineRows) Map.empty (map handleRule (agRules grammar))
 
 preTableRowToRow :: PreTableRow -> Maybe LLTableRow
 preTableRowToRow (PreTableRow m) =
