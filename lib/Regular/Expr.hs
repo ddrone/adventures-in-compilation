@@ -152,4 +152,7 @@ buildDFA nfa = runST $ do
             id <- nodeId first
             go visited id (IntSet.toList first)
             loop (IntSet.insert id visited) rest
+  let startSet = epsClosure (nfaStart nfa)
+  startId <- nodeId startSet
+  go IntSet.empty startId (IntSet.toList startSet)
   undefined -- TODO: continue here
