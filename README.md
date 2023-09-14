@@ -19,11 +19,12 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Change printing of a grammar to use table as well
   - [x] Actually test it on a couple of examples
 - Regular expressions
-  - [ ] Write down datatypes for regular expressions (WITHOUT RANGES)
+  - [x] Write down datatypes for regular expressions (WITHOUT RANGES)
   - [ ] Implement NFA conversion
   - [ ] Implement NFA-to-DFA conversion
   - [ ] Implement automata minimization
-  - [ ] Implement "range" as a primitive for regular language
+  - [ ] Implement maximal munch interpretation
+  - [ ] Add token type labels to automata
 
 ## Adventure 3: implement LVar from "Essentials of Compilation"
 

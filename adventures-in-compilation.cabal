@@ -46,6 +46,7 @@ library
         , Graph.Dominator
         , Graph.DominatorTree
         , Graph.Parser
+        , Regular.Expr
     extensions:       OverloadedStrings
         , LambdaCase
         , MultiWayIf
