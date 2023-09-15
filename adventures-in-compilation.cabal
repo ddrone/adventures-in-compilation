@@ -46,6 +46,7 @@ library
         , Graph.Dominator
         , Graph.DominatorTree
         , Graph.Parser
+        , Graphviz
         , Regular.Expr
     extensions:       OverloadedStrings
         , LambdaCase
