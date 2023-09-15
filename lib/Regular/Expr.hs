@@ -162,6 +162,7 @@ buildDFA nfa = runST $ do
           then set
           else foldr addEpsClosure (IntSet.insert node set) (epsEdges node)
   let epsClosure node = addEpsClosure node IntSet.empty
+  let epsClosureList nodes = foldr addEpsClosure IntSet.empty nodes
 
   let charEdges from =
         let allEdges = Map.keys (fromMaybe Map.empty (IntMap.lookup from (nfaEdges nfa)))
@@ -170,7 +171,8 @@ buildDFA nfa = runST $ do
               EpsLabel -> Nothing
         in Set.fromList (catMaybes (map fromLabel allEdges))
   let allChars set = Set.toList (mconcat (fmap charEdges set))
-  let setEdge set c = mconcat (fmap (IntSet.fromList . charEdgesFrom c) set)
+  let justSetEdge set c = mconcat (fmap (IntSet.fromList . charEdgesFrom c) set)
+  let setEdge set c = epsClosureList (IntSet.toList (justSetEdge set c))
 
   dfaEdges <- newSTRef (IntMap.empty :: IntMap (Map Char Int))
   let go visited id set = do

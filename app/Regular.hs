@@ -13,5 +13,4 @@ dfa = buildDFA nfa
 
 main = do
   TextIO.putStr (printNFA nfa)
-  -- print nfa
-  -- print dfa
+  print dfa
