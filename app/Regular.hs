@@ -7,7 +7,7 @@ number = plus digit
 numbers = star (number `cat` char ',') `cat` number
 list = char '[' `cat` numbers `cat` char ']'
 
-nfa = buildNFA list
+nfa = buildNFA (char 'o' `cat` char 'a')
 dfa = buildDFA nfa
 
 main = do

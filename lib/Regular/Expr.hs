@@ -95,7 +95,7 @@ buildNFA re = runST $ do
             (s2, e2) <- go r2
             addEps start s1
             addEps e1 s2
-            addEps s2 end
+            addEps e2 end
           Iterate r -> do
             (s, e) <- go r
             addEps start s
