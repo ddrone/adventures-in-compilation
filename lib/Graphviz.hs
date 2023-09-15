@@ -38,7 +38,7 @@ edgeA :: Text -> Text -> [Attr] -> Edge
 edgeA = Edge
 
 printAttr :: Attr -> Text
-printAttr (Attr name value) = Text.concat [name, "=", value]
+printAttr (Attr name value) = Text.concat [name, "=\"", value, "\""]
 
 printAttrs :: [Attr] -> Text
 printAttrs ls = case ls of
