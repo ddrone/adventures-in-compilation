@@ -198,7 +198,7 @@ buildDFA nfa = runST $ do
   dfaEdges <- newSTRef (IntMap.empty :: IntMap (Map Char Int))
   let go visited id set = do
         if IntSet.member id visited
-          then pure ()
+          then pure visited
           else do
             let chars = allChars set
             let handleChar c = do
@@ -208,14 +208,14 @@ buildDFA nfa = runST $ do
             modifySTRef dfaEdges (IntMap.insert id edges)
 
             let nextSets = map (setEdge set) chars
-            loop visited nextSets
+            loop (IntSet.insert id visited) nextSets
       loop visited nexts =
         case nexts of
-          [] -> pure ()
+          [] -> pure visited
           first : rest -> do
             id <- nodeId first
-            go visited id (IntSet.toList first)
-            loop (IntSet.insert id visited) rest
+            next <- go visited id (IntSet.toList first)
+            loop next rest
   let startSet = epsClosure (nfaStart nfa)
   startId <- nodeId startSet
   go IntSet.empty startId (IntSet.toList startSet)

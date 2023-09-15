@@ -11,4 +11,6 @@ list = char '[' `cat` numbers `cat` char ']'
 nfa = buildNFA (star digit)
 dfa = buildDFA nfa
 
-main = TextIO.putStr (printDFA dfa)
+main = do
+  -- TextIO.putStr (printNFA nfa)
+  TextIO.putStr (printDFA dfa)
