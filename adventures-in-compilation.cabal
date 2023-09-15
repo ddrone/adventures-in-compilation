@@ -22,6 +22,7 @@ common shared-properties
 common binary
     import: shared-properties
     build-depends: adventures-in-compilation
+    extensions: OverloadedStrings
 
 library
     import: shared-properties
@@ -72,7 +73,6 @@ executable lvar
 executable ll1
     import:           binary
     main-is:          app/LL1.hs
-    extensions:       OverloadedStrings
 
 executable regular
     import:           binary

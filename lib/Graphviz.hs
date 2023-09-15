@@ -43,13 +43,13 @@ printAttr (Attr name value) = Text.concat [name, "=", value]
 printAttrs :: [Attr] -> Text
 printAttrs ls = case ls of
   [] -> ""
-  _ -> Text.concat ["[", Text.intercalate "," (map printAttr ls), "]"]
+  _ -> Text.concat [" [", Text.intercalate "," (map printAttr ls), "]"]
 
 printNode :: Node -> Text
 printNode (Node name attrs) = Text.concat ["  ", name, printAttrs attrs, ";"]
 
 printEdge :: Edge -> Text
-printEdge (Edge from to attrs) = Text.concat ["  ", from, " -> ", to, printAttrs attrs, ";"]
+printEdge (Edge from to attrs) = Text.concat ["  ", from, " -> ", to, printAttrs attrs]
 
 printGraphN :: Text -> [Node] -> [Edge] -> Text
 printGraphN name nodes edges =

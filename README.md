@@ -25,7 +25,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Write down datatypes for DFA
   - [x] Fix the bug in NFA construction: I actually use multiple edges with the same label
   - [x] Implement NFA-to-DFA conversion
-  - [ ] Write a "library" to print Graphviz graphs to avoid concatenating strings
+  - [x] Write a "library" to print Graphviz graphs to avoid concatenating strings
   - [ ] Implement printing DFA to Graphviz
   - [ ] Implement automata minimization
   - [ ] Implement maximal munch interpretation
