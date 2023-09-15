@@ -29,13 +29,25 @@ string s = case s of
 plus :: Re -> Re
 plus r = Concat r (Iterate r)
 
+star :: Re -> Re
+star = Iterate
+
+cat :: Re -> Re -> Re
+cat = Concat
+
+char :: Char -> Re
+char = Char
+
 optional :: Re -> Re
 optional r = Union r Epsilon
 
-range :: String -> Re
-range s = case s of
+oneOf :: String -> Re
+oneOf s = case s of
   [] -> Empty
-  c : cs -> Union (Char c) (range cs)
+  c : cs -> Union (Char c) (oneOf cs)
+
+range :: Char -> Char -> Re
+range from to = oneOf [from..to]
 
 data EdgeLabel
   = EpsLabel
