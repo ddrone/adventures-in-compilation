@@ -7,10 +7,15 @@ import Data.Map (Map)
 import Data.Maybe (fromMaybe, catMaybes)
 import Data.IntMap (IntMap)
 import Data.IntSet (IntSet)
+import Data.Text (Text)
+import Data.List (delete)
+import qualified Data.Text as Text
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
+
+import Graphviz (attr, nodeA, edgeA, edge, printGraph)
 
 data Re
   = Char Char
@@ -61,6 +66,26 @@ data NFA = NFA
   , nfaEdges :: IntMap (Map EdgeLabel [Int])
   }
   deriving (Show)
+
+printNFA :: NFA -> Text
+printNFA nfa =
+  let n :: Int -> Text
+      n = Text.pack . show
+      nodes =
+        nodeA "start" [attr "shape" "none"] :
+        nodeA (n (nfaEnd nfa)) [attr "shape" "doublecircle"] :
+        map (\x -> nodeA (n x) [attr "shape" "circle"]) (delete (nfaEnd nfa) [0..(nfaCount nfa) - 1])
+
+      label l = case l of
+        EpsLabel -> "ε"
+        CharLabel c -> Text.pack [c]
+
+      edges = do
+        (from, fromEdges) <- IntMap.toList (nfaEdges nfa)
+        (l, tos) <- Map.toList fromEdges
+        to <- tos
+        pure (edgeA (n from) (n to) [attr "label" (label l)])
+  in printGraph nodes (edge "start" (n (nfaStart nfa)) : edges)
 
 buildNFA :: Re -> NFA
 buildNFA re = runST $ do

@@ -1,6 +1,7 @@
 module Main where
 
 import Regular.Expr
+import qualified Data.Text.IO as TextIO
 
 digit = range '0' '9'
 number = plus digit
@@ -11,5 +12,6 @@ nfa = buildNFA (char 'o' `cat` char 'a')
 dfa = buildDFA nfa
 
 main = do
-  print nfa
-  print dfa
+  TextIO.putStr (printNFA nfa)
+  -- print nfa
+  -- print dfa
