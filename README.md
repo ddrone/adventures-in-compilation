@@ -27,7 +27,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Implement NFA-to-DFA conversion
   - [x] Write a "library" to print Graphviz graphs to avoid concatenating strings
   - [ ] Debug the DFA construction - figure out why it turns to be empty
-  - [ ] Implement printing DFA to Graphviz
+  - [x] Implement printing DFA to Graphviz
   - [ ] Implement automata minimization
   - [ ] Implement maximal munch interpretation
   - [ ] Add token type labels to automata

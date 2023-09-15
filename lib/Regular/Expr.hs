@@ -139,6 +139,27 @@ data DFA = DFA
   }
   deriving (Show)
 
+printDFA :: DFA -> Text
+printDFA dfa =
+  let n :: Int -> Text
+      n = Text.pack . show
+
+      allNodes = IntSet.fromList [0..(dfaCount dfa) - 1]
+      nonFinalNodes = IntSet.difference allNodes (dfaFinal dfa)
+
+      nodes =
+        nodeA "start" [attr "shape" "none"] :
+        map (\x -> nodeA (n x) [attr "shape" "circle"]) (IntSet.toList nonFinalNodes) ++
+        map (\x -> nodeA (n x) [attr "shape" "doublecircle"]) (IntSet.toList (dfaFinal dfa))
+
+      label c = Text.pack [c]
+
+      edges = do
+        (from, fromEdges) <- IntMap.toList (dfaEdges dfa)
+        (l, to) <- Map.toList fromEdges
+        pure (edgeA (n from) (n to) [attr "label" (label l)])
+  in printGraph nodes (edge "start" (n (dfaStart dfa)) : edges)
+
 buildDFA :: NFA -> DFA
 buildDFA nfa = runST $ do
   setMapping <- newSTRef (Map.empty :: Map IntSet Int)
