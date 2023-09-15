@@ -33,14 +33,14 @@ library
         , CFG.Instr
         , CFG.PhiPlacement
         , CFG.Printer
-        , Grammar.Grammar
-        , Grammar.Pregrammar
         , LVar.AST
         , LVar.ASTMon
         , LVar.Compiler
         , LVar.Liveness
         , LVar.Parser
         , LVar.X86
+        , Grammar.Grammar
+        , Grammar.Pregrammar
         , Graph.Defs
         , Graph.DominationFrontier
         , Graph.Dominator
@@ -72,3 +72,7 @@ executable ll1
     import:           binary
     main-is:          app/LL1.hs
     extensions:       OverloadedStrings
+
+executable regular
+    import:           binary
+    main-is:          app/Regular.hs
