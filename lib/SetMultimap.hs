@@ -9,6 +9,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 newtype SetMultimap k v = SetMultimap { getMap :: Map k (Set v) }
+  deriving (Show, Eq, Ord)
 
 empty :: SetMultimap k v
 empty = SetMultimap Map.empty

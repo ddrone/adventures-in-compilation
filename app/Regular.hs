@@ -9,8 +9,9 @@ numbers = star (number `cat` char ',') `cat` number
 list = char '[' `cat` numbers `cat` char ']'
 
 nfa = buildNFA number
-dfa = buildDFA nfa
+dfa1 = buildDFA nfa
+dfa2 = minimizeDFA dfa1
 
 main = do
   -- TextIO.putStr (printNFA nfa)
-  TextIO.putStr (printDFA dfa)
+  TextIO.putStr (printDFA dfa2)

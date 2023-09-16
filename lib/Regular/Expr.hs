@@ -18,6 +18,9 @@ import qualified Data.IntSet as IntSet
 import SetMultimap (SetMultimap)
 import qualified SetMultimap
 import Graphviz (attr, nodeA, edgeA, edge, printGraph)
+import Control.Monad.Identity (Identity(runIdentity))
+import Debug.Trace (traceShowM)
+import Control.Monad (guard)
 
 data Re
   = Char Char
@@ -231,10 +234,12 @@ buildDFA nfa = runST $ do
 --
 -- Building the edges of the graph should not be affected though.
 minimizeDFA :: DFA -> DFA
-minimizeDFA dfa = do
+minimizeDFA dfa = runST $ do
+  let verts = [0..(dfaCount dfa) - 1]
   let pairs = do
-        e1 <- [1..(dfaCount dfa) - 1]
-        e2 <- [0..e1 - 1]
+        e1 <- verts
+        e2 <- verts
+        guard (e1 /= e2)
         pure (e1, e2)
   let edgesTo u v = do
         let vEdges = fromMaybe Map.empty (IntMap.lookup v (dfaEdges dfa))
@@ -291,4 +296,4 @@ minimizeDFA dfa = do
         (classId, Map.map getClass origEdges)
   let newEdges = IntMap.fromList (map edgesFrom allClassReps)
   let newCount = length allClasses
-  DFA newStart newFinals newCount newEdges
+  pure (DFA newStart newFinals newCount newEdges)
