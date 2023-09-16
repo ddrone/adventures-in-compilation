@@ -4,7 +4,7 @@ import Control.Monad.ST
 import Data.STRef
 import Data.Set (Set)
 import Data.Map (Map)
-import Data.Maybe (fromMaybe, catMaybes)
+import Data.Maybe (fromMaybe, catMaybes, fromJust)
 import Data.IntMap (IntMap)
 import Data.IntSet (IntSet)
 import Data.Text (Text)
@@ -15,6 +15,8 @@ import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
+import SetMultimap (SetMultimap)
+import qualified SetMultimap
 import Graphviz (attr, nodeA, edgeA, edge, printGraph)
 
 data Re
@@ -222,3 +224,60 @@ buildDFA nfa = runST $ do
 
   count <- Map.size <$> readSTRef setMapping
   DFA startId <$> readSTRef finalSet <*> (Map.size <$> readSTRef setMapping) <*> readSTRef dfaEdges
+
+-- In this formulation of DFA (where not all edges are stored, two vertices can be distinguished
+-- initially not only if one of them is accepting and the other is not, but if one of them has an
+-- edge the other does not (therefore terminating the scanning process)
+--
+-- Building the edges of the graph should not be affected though.
+minimizeDFA :: DFA -> DFA
+minimizeDFA dfa = do
+  let pairs = do
+        e1 <- [1..(dfaCount dfa) - 1]
+        e2 <- [0..e1 - 1]
+        pure (e1, e2)
+  let edgesTo u v = do
+        let vEdges = fromMaybe Map.empty (IntMap.lookup v (dfaEdges dfa))
+        (c, dest) <- Map.toList (fromMaybe Map.empty (IntMap.lookup u (dfaEdges dfa)))
+        case Map.lookup c vEdges of
+          Nothing -> []
+          Just dest2 ->
+            if dest == dest2
+              then []
+              else [(dest, dest2)]
+  let allEdges = SetMultimap.fromList $ do
+        p1@(u, v) <- pairs
+        p2 <- edgesTo u v
+        pure (p2, p1)
+
+  let isBaseDistinguishable u v =
+        let byFinal = IntSet.member u (dfaFinal dfa) /= IntSet.member v (dfaFinal dfa)
+            outCharsU = fromMaybe Set.empty (Map.keysSet <$> IntMap.lookup u (dfaEdges dfa))
+            outCharsV = fromMaybe Set.empty (Map.keysSet <$> IntMap.lookup v (dfaEdges dfa))
+            uHasExtra = not (Set.null (Set.difference outCharsU outCharsV))
+            vHasExtra = not (Set.null (Set.difference outCharsV outCharsU))
+        in byFinal || uHasExtra || vHasExtra
+  let initialQueue = filter (uncurry isBaseDistinguishable) pairs
+
+  let go visited queue = case queue of
+        [] -> visited
+        first : rest ->
+          if Set.member first visited
+            then go visited rest
+            else go (Set.insert first visited) (SetMultimap.lookupList first allEdges ++ rest)
+  let equivalentPairs = Set.difference (Set.fromList pairs) (go Set.empty initialQueue)
+  let equivalentMap = SetMultimap.fromSet equivalentPairs
+  let enumerateClasses visited from
+        | from >= dfaCount dfa = []
+        | Set.member from visited = enumerateClasses visited (from + 1)
+        | otherwise =
+            let curr = Set.insert from (SetMultimap.lookup from equivalentMap) in
+            curr : enumerateClasses (Set.union visited curr) (from + 1)
+  let allClasses = zip [0..] (enumerateClasses Set.empty 0)
+  let classMapping = IntMap.fromList $ do
+        (classId, elems) <- allClasses
+        elem <- Set.toList elems
+        pure (elem, classId)
+
+  let getClass elem = fromJust (IntMap.lookup elem classMapping)
+  undefined -- TODO: continue here
