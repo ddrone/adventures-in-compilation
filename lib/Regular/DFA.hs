@@ -28,6 +28,11 @@ data DFA = DFA
   }
   deriving (Show)
 
+next :: DFA -> Int -> Char -> Maybe Int
+next dfa state c =
+  let edges = fromMaybe Map.empty (IntMap.lookup state (dfaEdges dfa)) in
+  Map.lookup c edges
+
 printDFA :: DFA -> Text
 printDFA dfa =
   let n :: Int -> Text

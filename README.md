@@ -30,7 +30,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Implement printing DFA to Graphviz
   - [x] Implement automata minimization
   - [x] Refactor stuff in Regular.Expr to several modules
-  - [ ] Implement maximal munch interpretation
+  - [x] Implement maximal munch interpretation
   - [ ] Add token type labels to automata
 
 ## Adventure 3: implement LVar from "Essentials of Compilation"
