@@ -49,6 +49,7 @@ library
         , Graph.Parser
         , Graphviz
         , Regular.Expr
+        , SetMultimap
     extensions:       OverloadedStrings
         , LambdaCase
         , MultiWayIf
