@@ -49,6 +49,8 @@ library
         , Graph.Parser
         , Graphviz
         , Regular.Expr
+        , Regular.NFA
+        , Regular.DFA
         , SetMultimap
     extensions:       OverloadedStrings
         , LambdaCase

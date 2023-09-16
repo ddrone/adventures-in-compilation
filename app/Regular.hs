@@ -1,6 +1,8 @@
 module Main where
 
 import Regular.Expr
+import Regular.NFA
+import Regular.DFA
 import qualified Data.Text.IO as TextIO
 
 digit = range '0' '9'

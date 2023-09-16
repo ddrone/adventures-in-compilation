@@ -29,6 +29,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Debug the DFA construction - figure out why it turns to be empty
   - [x] Implement printing DFA to Graphviz
   - [x] Implement automata minimization
+  - [x] Refactor stuff in Regular.Expr to several modules
   - [ ] Implement maximal munch interpretation
   - [ ] Add token type labels to automata
 
