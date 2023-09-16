@@ -280,4 +280,15 @@ minimizeDFA dfa = do
         pure (elem, classId)
 
   let getClass elem = fromJust (IntMap.lookup elem classMapping)
-  undefined -- TODO: continue here
+  let newStart = getClass (dfaStart dfa)
+  let classRep (classId, elems) = (classId, fromJust (Set.lookupMin elems))
+  let allClassReps = map classRep allClasses
+
+  let newFinals = IntSet.fromList (map fst (filter (flip IntSet.member (dfaFinal dfa) . snd) allClassReps))
+
+  let edgesFrom (classId, rep) =
+        let origEdges = fromMaybe Map.empty (IntMap.lookup rep (dfaEdges dfa)) in
+        (classId, Map.map getClass origEdges)
+  let newEdges = IntMap.fromList (map edgesFrom allClassReps)
+  let newCount = length allClasses
+  DFA newStart newFinals newCount newEdges
