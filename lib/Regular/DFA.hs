@@ -70,7 +70,7 @@ buildLDFA nfa = runST $ do
         let classes = catMaybes [ IntMap.lookup elem (lnfaEnd nfa) | elem <- IntSet.toList set ] in
         case classes of
           [] -> Nothing
-          _ -> Just (maximum classes)
+          _ -> Just (minimum classes)
   let nodeId set = do
         result <- Map.lookup set <$> readSTRef setMapping
         case result of
@@ -262,3 +262,77 @@ minimizeDFA dfa = do
   let newEdges = IntMap.fromList (map edgesFrom allClassReps)
   let newCount = length allClasses
   DFA newStart newFinals newCount newEdges
+
+minimizeLabelledDFA :: Ord l => LabeledDFA l -> LabeledDFA l
+minimizeLabelledDFA dfa = do
+  let verts = [0..(ldfaCount dfa) - 1]
+  let pairs = do
+        e1 <- verts
+        e2 <- verts
+        guard (e1 /= e2)
+        pure (e1, e2)
+  let edgesTo u v = do
+        let vEdges = fromMaybe Map.empty (IntMap.lookup v (ldfaEdges dfa))
+        (c, dest) <- Map.toList (fromMaybe Map.empty (IntMap.lookup u (ldfaEdges dfa)))
+        case Map.lookup c vEdges of
+          Nothing -> []
+          Just dest2 ->
+            if dest == dest2
+              then []
+              else [(dest, dest2)]
+  let allEdges = SetMultimap.fromList $ do
+        p1@(u, v) <- pairs
+        p2 <- edgesTo u v
+        pure (p2, p1)
+
+  let isBaseDistinguishable u v =
+        let byFinal = IntMap.lookup u (ldfaFinal dfa) /= IntMap.lookup v (ldfaFinal dfa)
+            outCharsU = fromMaybe Set.empty (Map.keysSet <$> IntMap.lookup u (ldfaEdges dfa))
+            outCharsV = fromMaybe Set.empty (Map.keysSet <$> IntMap.lookup v (ldfaEdges dfa))
+            uHasExtra = not (Set.null (Set.difference outCharsU outCharsV))
+            vHasExtra = not (Set.null (Set.difference outCharsV outCharsU))
+        in byFinal || uHasExtra || vHasExtra
+  let initialQueue = filter (uncurry isBaseDistinguishable) pairs
+
+  let go visited queue = case queue of
+        [] -> visited
+        first : rest ->
+          if Set.member first visited
+            then go visited rest
+            else go (Set.insert first visited) (SetMultimap.lookupList first allEdges ++ rest)
+  let equivalentPairs = Set.difference (Set.fromList pairs) (go Set.empty initialQueue)
+  let equivalentMap = SetMultimap.fromSet equivalentPairs
+  let enumerateClasses visited from
+        | from >= ldfaCount dfa = []
+        | Set.member from visited = enumerateClasses visited (from + 1)
+        | otherwise =
+            let curr = Set.insert from (SetMultimap.lookup from equivalentMap) in
+            curr : enumerateClasses (Set.union visited curr) (from + 1)
+  let allClasses = zip [0..] (enumerateClasses Set.empty 0)
+  let classMapping = IntMap.fromList $ do
+        (classId, elems) <- allClasses
+        elem <- Set.toList elems
+        pure (elem, classId)
+
+  let getClass elem = fromJust (IntMap.lookup elem classMapping)
+  let newStart = getClass (ldfaStart dfa)
+  let classRep (classId, elems) = (classId, fromJust (Set.lookupMin elems))
+  let allClassReps = map classRep allClasses
+
+  let finalClass set =
+        let classes = catMaybes [ IntMap.lookup elem (ldfaFinal dfa) | elem <- Set.toList set ] in
+        case classes of
+          [] -> Nothing
+          _ -> Just (minimum classes)
+  let newFinals = IntMap.fromList $ do
+        (classId, elems) <- allClasses
+        case finalClass elems of
+          Nothing -> []
+          Just label -> pure (classId, label)
+
+  let edgesFrom (classId, rep) =
+        let origEdges = fromMaybe Map.empty (IntMap.lookup rep (ldfaEdges dfa)) in
+        (classId, Map.map getClass origEdges)
+  let newEdges = IntMap.fromList (map edgesFrom allClassReps)
+  let newCount = length allClasses
+  LDFA newStart newFinals newCount newEdges
