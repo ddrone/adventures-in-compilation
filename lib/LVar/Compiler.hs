@@ -195,7 +195,11 @@ assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
 assignHomesAndCountVars instrs = do
   let ig = interferenceGraph instrs
   let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) initialColors ig
-  let stackLocs = 0 `max` (maximum (Map.elems colors) - length raRegisters)
+  let maxColor = maximum (Map.elems colors)
+  let stackLocs =
+        if maxColor < length raRegisters
+          then 0
+          else (maxColor - length raRegisters) + 1
   let result = runReader (mapM ahInstr instrs) colors
   (stackLocs, result)
 
