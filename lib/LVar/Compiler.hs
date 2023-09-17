@@ -10,6 +10,10 @@ import LVar.X86 (GenInstr(..), Reg(..))
 import qualified LVar.AST as AST
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
+import LVar.Liveness
+import qualified UndirectedGraph
+import Control.Monad.Reader
+import Data.Maybe (fromJust)
 
 type RCO a = State Int a
 
@@ -127,23 +131,57 @@ selectStmt = \case
 selectInstructions :: ASTMon.Module -> [Instr]
 selectInstructions (AST.Module stmts) = concatMap selectStmt stmts
 
-type AH a = State (Map ASTMon.Name Int) a
+raRegisters :: [X86.Reg]
+raRegisters =
+  [ X86.Rcx
+  , X86.Rdx
+  , X86.Rsi
+  , X86.Rdi
+  , X86.R8
+  , X86.R9
+  , X86.R10
+  , X86.R11
+  , X86.R12
+  , X86.R13
+  , X86.R14
+  ]
 
-getIndex :: ASTMon.Name -> AH Int
-getIndex name = do
-  map <- get
-  case Map.lookup name map of
-    Nothing -> do
-      let result = Map.size map
-      modify (Map.insert name result)
-      pure result
-    Just v -> pure v
+data Location
+  = LocReg Reg
+  | LocStack Int
+  deriving (Show)
+
+-- Really slow, but writing faster function would be either tedious or require
+-- Template Haskell, I'll probably go with the second option if I'd want to
+-- speed this one up.
+colorToLocation :: Int -> Location
+colorToLocation = go raRegisters
+  where
+    go regs n = case regs of
+      [] -> LocStack n
+      hd : tl ->
+        if n == 0
+          then LocReg hd
+          else go tl (n - 1)
+
+locationToX86 :: Location -> X86.Arg Void
+locationToX86 = \case
+  LocReg r -> X86.Reg r
+  LocStack i -> X86.Deref Rbp (-8 * (fromIntegral i + 1))
+
+-- AH stands for "assign homes" monad
+type AH a = Reader (Map ASTMon.Name Int) a
+
+getColor :: ASTMon.Name -> AH Int
+getColor name = do
+  result <- asks (Map.lookup name)
+  pure (fromJust result)
 
 ahArg :: Arg -> AH (X86.Arg Void)
 ahArg = \case
   X86.Name n -> do
-    i <- getIndex n
-    pure (X86.Deref Rbp (-8 * (fromIntegral i + 1)))
+    i <- getColor n
+    pure (locationToX86 (colorToLocation i))
   X86.Immediate i -> pure (X86.Immediate i)
   X86.Reg r -> pure (X86.Reg r)
   X86.Deref r o -> pure (X86.Deref r o)
@@ -152,9 +190,12 @@ ahInstr :: Instr -> AH (X86.GenInstr Void)
 ahInstr = X86.traverseInstr ahArg
 
 assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
-assignHomesAndCountVars instrs =
-  let (result, map) = runState (mapM ahInstr instrs) Map.empty in
-  (Map.size map, result)
+assignHomesAndCountVars instrs = do
+  let ig = interferenceGraph instrs
+  let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) ig
+  let stackLocs = 0 `max` (maximum (Map.elems colors) - length raRegisters)
+  let result = runReader (mapM ahInstr instrs) colors
+  (stackLocs, result)
 
 immediateLimit :: Int64
 immediateLimit = 2 ^ 16
