@@ -261,17 +261,23 @@ patchInstruction = \case
 patchInstructions :: [X86.GenInstr Void] -> [X86.GenInstr Void]
 patchInstructions = concatMap patchInstruction
 
-generateWrapper :: Int -> ([X86.GenInstr Void], [X86.GenInstr Void])
-generateWrapper localsCount =
-  let stackIncrease = fromIntegral (8 * (localsCount + (localsCount `mod` 2)))
+roundUpEven x = x + x `mod` 2
+
+generateWrapper :: Set Reg -> Int -> ([X86.GenInstr Void], [X86.GenInstr Void])
+generateWrapper savedRegisters localsCount =
+  let wordsSaved = roundUpEven (localsCount + Set.size savedRegisters)
+      stackIncrease = fromIntegral (8 * (wordsSaved - Set.size savedRegisters))
+      registerList = Set.toList savedRegisters
       prefix =
-        [ Pushq (X86.Reg Rbp)
-        , Movq (X86.Reg Rsp) (X86.Reg Rbp)
+        [ Pushq (X86.Reg Rbp) ] ++
+        map (Pushq . X86.Reg) registerList ++
+        [ Movq (X86.Reg Rsp) (X86.Reg Rbp)
         , Subq (X86.Immediate stackIncrease) (X86.Reg Rsp)
         ]
       suffix =
-        [ Addq (X86.Immediate stackIncrease) (X86.Reg Rsp)
-        , Popq (X86.Reg Rbp)
+        [ Addq (X86.Immediate stackIncrease) (X86.Reg Rsp) ] ++
+        map (Popq . X86.Reg) (reverse registerList) ++
+        [ Popq (X86.Reg Rbp)
         , Retq
         ]
   in (prefix, suffix)
@@ -282,5 +288,5 @@ compileAll mod =
       selected = selectInstructions rco
       AssignHomesResult count csr assigned = assignHomesAndCountVars selected
       patched = patchInstructions assigned
-      (prefix, suffix) = generateWrapper count
+      (prefix, suffix) = generateWrapper csr count
   in prefix ++ patched ++ suffix
