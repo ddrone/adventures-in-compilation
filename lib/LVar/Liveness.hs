@@ -1,5 +1,5 @@
 module LVar.Liveness where
-import LVar.X86 (GenInstr (..), Arg (Reg, Name), Reg (..))
+import LVar.X86 (GenInstr (..), Arg (..), Reg (..))
 import Data.Set (Set)
 import qualified Data.Set as Set
 import UndirectedGraph (Graph)
@@ -50,11 +50,17 @@ computeLiveSets instrs =
         (instr : rest) -> curr : go (beforeInstr instr curr) rest
   in reverse (go Set.empty revInstrs)
 
-interferenceGraph :: Ord n => [GenInstr n] -> Graph n
+interferenceGraph :: Ord n => [GenInstr n] -> Graph (Arg n)
 interferenceGraph instrs =
-  let fromPair u v = case (u, v) of
-        (Name u1, Name v1) -> pure (u1, v1)
-        _ -> []
+  let fromLoc u = case u of
+        Name _ -> [u]
+        Reg _ -> [u]
+        Deref _ _ -> error "should not be here during register allocation"
+        Immediate _ -> []
+      fromPair u v = do
+        u1 <- fromLoc u
+        v1 <- fromLoc v
+        pure (u1, v1)
       addEdges instr liveAfter =
         case instr of
           Movq src dest -> do

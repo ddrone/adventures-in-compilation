@@ -77,17 +77,21 @@ minimumExcludant set = go 0 (Set.toAscList set)
       hd : tl | hd == candidate -> go (candidate + 1) tl
       _ -> candidate
 
-saturationColoring :: Ord v => Set v -> Graph v -> Map v Int
-saturationColoring nodes g =
+saturationColoring :: Ord v => Set v -> Map v Int -> Graph v -> Map v Int
+saturationColoring nodes initial g =
   let iter remaining colors = do
         let excluded v = catMaybesSet (map (flip Map.lookup colors) (edgesList v g))
         let options = map (id &&& excluded) (Set.toList remaining)
         case maximumBy (Set.size . snd) options of
           Nothing -> colors
           Just (v, ex) ->
-            let newColor = minimumExcludant ex in
-            iter (Set.delete v remaining) (Map.insert v newColor colors)
-  in iter nodes Map.empty
+            let newColor = minimumExcludant ex
+                newMap =
+                  if Map.member v colors
+                    then colors
+                    else Map.insert v newColor colors
+            in iter (Set.delete v remaining) newMap
+  in iter nodes initial
 
 data Check
   = OK

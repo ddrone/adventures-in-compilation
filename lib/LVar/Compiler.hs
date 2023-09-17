@@ -146,6 +146,8 @@ raRegisters =
   , X86.R14
   ]
 
+initialColors = Map.fromList (zip (map X86.Reg raRegisters) [0..])
+
 data Location
   = LocReg Reg
   | LocStack Int
@@ -170,11 +172,11 @@ locationToX86 = \case
   LocStack i -> X86.Deref Rbp (-8 * (fromIntegral i + 1))
 
 -- AH stands for "assign homes" monad
-type AH a = Reader (Map ASTMon.Name Int) a
+type AH a = Reader (Map (X86.Arg ASTMon.Name) Int) a
 
 getColor :: ASTMon.Name -> AH Int
 getColor name = do
-  result <- asks (Map.lookup name)
+  result <- asks (Map.lookup (X86.Name name))
   pure (fromJust result)
 
 ahArg :: Arg -> AH (X86.Arg Void)
@@ -192,7 +194,7 @@ ahInstr = X86.traverseInstr ahArg
 assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
 assignHomesAndCountVars instrs = do
   let ig = interferenceGraph instrs
-  let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) ig
+  let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) initialColors ig
   let stackLocs = 0 `max` (maximum (Map.elems colors) - length raRegisters)
   let result = runReader (mapM ahInstr instrs) colors
   (stackLocs, result)

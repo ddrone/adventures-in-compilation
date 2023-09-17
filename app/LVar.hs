@@ -47,9 +47,9 @@ nodeName arg = "\"" <> printArg id arg <> "\""
 
 main = do
   let ig = interferenceGraph testProgram
-  let coloring = saturationColoring (UndirectedGraph.allNodes ig) ig
+  let coloring = saturationColoring (UndirectedGraph.allNodes ig) Map.empty ig
   mapM_ print (Map.toList coloring)
-  print (isColoringValid id coloring ig)
+  print (isColoringValid (printArg id) coloring ig)
 
   files <- getArgs
   forM_ files $ \file -> do
