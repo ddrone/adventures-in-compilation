@@ -14,6 +14,8 @@ import LVar.Liveness
 import qualified UndirectedGraph
 import Control.Monad.Reader
 import Data.Maybe (fromJust)
+import Data.Set (Set)
+import qualified Data.Set as Set
 
 type RCO a = State Int a
 
@@ -197,7 +199,13 @@ colorsToLocMapping colors =
           _ -> map
   in foldr (uncurry addLoc) Map.empty (Map.toList colors)
 
-assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
+data AssignHomesResult = AssignHomesResult
+  { ahStackLocations :: Int
+  , ahUsedCalleeSavedRegisters :: Set X86.Reg
+  , ahInstructions :: [X86.GenInstr Void]
+  }
+
+assignHomesAndCountVars :: [Instr] -> AssignHomesResult
 assignHomesAndCountVars instrs = do
   let ig = interferenceGraph instrs
   let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) initialColors ig
@@ -208,7 +216,13 @@ assignHomesAndCountVars instrs = do
           then 0
           else (maxColor - length raRegisters) + 1
   let result = runReader (mapM ahInstr instrs) locations
-  (stackLocs, result)
+  let addReg loc set =
+        case loc of
+          LocReg r | Set.member r calleeSaved -> Set.insert r set
+          _ -> set
+  -- Callee-saved registers
+  let csr = foldr addReg Set.empty (Map.elems locations)
+  AssignHomesResult stackLocs csr result
 
 immediateLimit :: Int64
 immediateLimit = 2 ^ 16
@@ -266,7 +280,7 @@ compileAll :: AST.Module -> [X86.GenInstr Void]
 compileAll mod =
   let rco = peModule (rcoModule mod)
       selected = selectInstructions rco
-      (count, assigned) = assignHomesAndCountVars selected
+      AssignHomesResult count csr assigned = assignHomesAndCountVars selected
       patched = patchInstructions assigned
       (prefix, suffix) = generateWrapper count
   in prefix ++ patched ++ suffix

@@ -12,6 +12,9 @@ argumentRegisters = [Rdi, Rsi, Rdx, Rcx, R8, R9]
 callerSaved :: [Reg]
 callerSaved = [Rax, Rcx, Rdx, Rsi, Rdi, R8, R9, R10, R11]
 
+calleeSaved :: Set Reg
+calleeSaved = Set.fromList [Rsp, Rbp, Rbx, R12, R13, R14, R15]
+
 instructionReads :: Ord n => GenInstr n -> Set (Arg n)
 instructionReads = \case
   Addq l1 l2 -> Set.fromList [l1, l2]
