@@ -53,6 +53,7 @@ library
         , Regular.Lexer
         , Regular.NFA
         , SetMultimap
+        , UndirectedGraph
     extensions:       OverloadedStrings
         , LambdaCase
         , MultiWayIf
