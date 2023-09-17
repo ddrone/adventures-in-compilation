@@ -172,18 +172,17 @@ locationToX86 = \case
   LocStack i -> X86.Deref Rbp (-8 * (fromIntegral i + 1))
 
 -- AH stands for "assign homes" monad
-type AH a = Reader (Map (X86.Arg ASTMon.Name) Int) a
+type AH a = Reader (Map ASTMon.Name Location) a
 
-getColor :: ASTMon.Name -> AH Int
-getColor name = do
-  result <- asks (Map.lookup (X86.Name name))
+getLocation :: ASTMon.Name -> AH Location
+getLocation name = do
+  result <- asks (Map.lookup name)
   pure (fromJust result)
 
 ahArg :: Arg -> AH (X86.Arg Void)
 ahArg = \case
   X86.Name n -> do
-    i <- getColor n
-    pure (locationToX86 (colorToLocation i))
+    locationToX86 <$> getLocation n
   X86.Immediate i -> pure (X86.Immediate i)
   X86.Reg r -> pure (X86.Reg r)
   X86.Deref r o -> pure (X86.Deref r o)
@@ -191,16 +190,24 @@ ahArg = \case
 ahInstr :: Instr -> AH (X86.GenInstr Void)
 ahInstr = X86.traverseInstr ahArg
 
+colorsToLocMapping colors =
+  let addLoc arg color map =
+        case arg of
+          X86.Name n -> Map.insert n (colorToLocation color) map
+          _ -> map
+  in foldr (uncurry addLoc) Map.empty (Map.toList colors)
+
 assignHomesAndCountVars :: [Instr] -> (Int, [X86.GenInstr Void])
 assignHomesAndCountVars instrs = do
   let ig = interferenceGraph instrs
   let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) initialColors ig
+  let locations = colorsToLocMapping colors
   let maxColor = maximum (Map.elems colors)
   let stackLocs =
         if maxColor < length raRegisters
           then 0
           else (maxColor - length raRegisters) + 1
-  let result = runReader (mapM ahInstr instrs) colors
+  let result = runReader (mapM ahInstr instrs) locations
   (stackLocs, result)
 
 immediateLimit :: Int64
