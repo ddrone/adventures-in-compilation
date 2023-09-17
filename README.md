@@ -15,7 +15,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Write a function that checks that the coloring of nodes is valid
 - [x] Add registers back to the interference graph
 - [x] Assign the register indices to nodes corresponding to the registers in the initial coloring
-- [ ] Preserve callee-saved registers on the stack
+- [x] Preserve callee-saved registers on the stack
 - [ ] Read about move biasing challenge and do it
 
 ## Adventure 4: dreaded syntactic analysis
