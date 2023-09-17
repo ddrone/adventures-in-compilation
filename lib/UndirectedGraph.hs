@@ -17,6 +17,9 @@ newtype Graph v = Graph
   }
   deriving (Show)
 
+allNodes :: Ord v => Graph v -> Set v
+allNodes (Graph g) = Map.keysSet (SetMultimap.getMap g)
+
 addEdge :: Ord v => v -> v -> Graph v -> Graph v
 addEdge from to (Graph g) =
   Graph (SetMultimap.insert from to (SetMultimap.insert to from g))

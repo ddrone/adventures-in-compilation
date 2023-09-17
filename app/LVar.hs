@@ -13,6 +13,8 @@ import Data.Text (Text)
 import LVar.X86 (Reg(..), printArg)
 import LVar.Liveness (interferenceGraph)
 import qualified UndirectedGraph
+import UndirectedGraph (saturationColoring)
+import qualified Data.Map as Map
 
 type Instr = GenInstr Text
 
@@ -46,7 +48,9 @@ nodeName arg = "\"" <> printArg id arg <> "\""
 
 main = do
   let ig = interferenceGraph testProgram
-  TextIO.putStrLn (UndirectedGraph.printGraphSimple id ig)
+  let coloring = saturationColoring (UndirectedGraph.allNodes ig) ig
+  mapM_ print (Map.toList coloring)
+
   files <- getArgs
   forM_ files $ \file -> do
     let assemblyName = replaceExtensions file "s"
