@@ -2,6 +2,10 @@
 
 Instead of trying to "implement a cool programming language", a project that I have started maybe a dozen times and never got far with, the idea here is to play with different algorithms of compilation on extremely simplistic languages.
 
+## Adventure 5: back to actual compilation; implement register allocation for LVar
+
+- [ ] Open the book, find the place where I've stopped and write down the actual task list
+
 ## Adventure 4: dreaded syntactic analysis
 
 - LL(1)
@@ -75,6 +79,10 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Debug the dominator tree algorithm
 - [x] Computing domination frontier
 - [x] Write a CLI to print out domination frontier for a graph
+
+## Bucket list
+
+- Refactor regular expression compilation code: especially subset construction and DFA minimization are quite messy
 
 ## Things I've learned while working on this
 
