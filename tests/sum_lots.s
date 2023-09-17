@@ -2,7 +2,7 @@
 main:
     pushq %rbp
     movq %rsp, %rbp
-    subq $80, %rsp
+    subq $96, %rsp
     callq read_int
     movq %rax, %r13
     callq read_int
@@ -47,6 +47,6 @@ main:
     addq %rcx, %rdx
     movq %rdx, %rdi
     callq print_int
-    addq $80, %rsp
+    addq $96, %rsp
     popq %rbp
     retq
