@@ -15,3 +15,6 @@ addEdge from to (Graph g) =
 
 edgesFrom :: Ord v => v -> Graph v -> Set v
 edgesFrom v (Graph g) = SetMultimap.lookup v g
+
+empty :: Graph v
+empty = Graph SetMultimap.empty

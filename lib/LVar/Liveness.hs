@@ -2,6 +2,9 @@ module LVar.Liveness where
 import LVar.X86 (GenInstr (..), Arg (Reg), Reg (..))
 import Data.Set (Set)
 import qualified Data.Set as Set
+import UndirectedGraph (Graph)
+import qualified UndirectedGraph
+import Control.Monad (guard)
 
 argumentRegisters :: [Reg]
 argumentRegisters = [Rdi, Rsi, Rdx, Rcx, R8, R9]
@@ -46,3 +49,21 @@ computeLiveSets instrs =
         [] -> []
         (instr : rest) -> curr : go (beforeInstr instr curr) rest
   in reverse (go Set.empty revInstrs)
+
+interferenceGraph :: Ord n => [GenInstr n] -> Graph (Arg n)
+interferenceGraph instrs =
+  let addEdges instr liveAfter =
+        case instr of
+          Movq src dest -> do
+            v <- Set.toList liveAfter
+            guard (v /= src)
+            guard (v /= dest)
+            pure (dest, v)
+          _ -> do
+            d <- Set.toList (instructionWritesTo instr)
+            v <- Set.toList liveAfter
+            guard (v /= d)
+            pure (d, v)
+      addToGraph instr liveAfter g =
+        foldr (uncurry UndirectedGraph.addEdge) g (addEdges instr liveAfter)
+  in foldr (uncurry addToGraph) UndirectedGraph.empty (zip instrs (computeLiveSets instrs))
