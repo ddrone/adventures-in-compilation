@@ -46,7 +46,7 @@ nodeName arg = "\"" <> printArg id arg <> "\""
 
 main = do
   let ig = interferenceGraph testProgram
-  TextIO.putStrLn (UndirectedGraph.printGraphSimple nodeName ig)
+  TextIO.putStrLn (UndirectedGraph.printGraphSimple id ig)
   files <- getArgs
   forM_ files $ \file -> do
     let assemblyName = replaceExtensions file "s"

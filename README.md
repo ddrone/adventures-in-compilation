@@ -9,7 +9,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement building an interference graph
 - [x] Convert interference graph into Graphviz format
 - [x] Test building an interference graph: compute it for the sequence of instructions given in the book
-- [ ] Change the interference graph building such that only variables are considered
+- [x] Change the interference graph building such that only variables are considered
 - [ ] Read section 4.4 and implement graph coloring
 
 ## Adventure 4: dreaded syntactic analysis
