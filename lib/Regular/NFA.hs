@@ -3,15 +3,19 @@ module Regular.NFA where
 import Control.Monad.ST
 import Data.STRef
 import Data.List (delete)
+import Data.IntSet (IntSet)
 import Data.IntMap (IntMap)
 import Data.Text (Text)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified Data.IntMap as IntMap
+import qualified Data.IntSet as IntSet
 
 import Graphviz (attr, nodeA, edgeA, edge, printGraph)
 import Regular.Expr
+import Control.Monad (forM)
+import Control.Arrow ((***), (&&&))
 
 data EdgeLabel
   = EpsLabel
@@ -25,6 +29,13 @@ data NFA = NFA
   , nfaEdges :: IntMap (Map EdgeLabel [Int])
   }
   deriving (Show)
+
+data LabeledNFA l = LNFA
+  { lnfaStart :: IntSet
+  , lnfaEnd :: IntMap l
+  , lnfaCount :: Int
+  , lnfaEdges :: IntMap (Map EdgeLabel [Int])
+  }
 
 printNFA :: NFA -> Text
 printNFA nfa =
@@ -46,14 +57,11 @@ printNFA nfa =
         pure (edgeA (n from) (n to) [attr "label" (label l)])
   in printGraph nodes (edge "start" (n (nfaStart nfa)) : edges)
 
-buildNFA :: Re -> NFA
-buildNFA re = runST $ do
-  next <- newSTRef 0
+nfaBuildHelper edges next re = do
   let fresh = do
         result <- readSTRef next
         writeSTRef next (result + 1)
         pure result
-  edges <- newSTRef (IntMap.empty :: IntMap (Map EdgeLabel [Int]))
   let addEdge from label to = do
         let add = Map.singleton label to
         modifySTRef edges (IntMap.insertWith (Map.unionWith (++)) from (Map.singleton label [to]))
@@ -87,6 +95,28 @@ buildNFA re = runST $ do
             addEps e end
             addEps start end
         pure (start, end)
-  (start, end) <- go re
+  go re
+
+buildNFA :: Re -> NFA
+buildNFA re = runST $ do
+  next <- newSTRef 0
+  edges <- newSTRef (IntMap.empty :: IntMap (Map EdgeLabel [Int]))
+  (start, end) <- nfaBuildHelper edges next re
   NFA start end <$> readSTRef next <*> readSTRef edges
 
+data LexicalSpecPart l = LexicalSpecPart
+  { lspStart :: Int
+  , lspEnd :: Int
+  , lspLabel :: l
+  }
+
+buildLabeledNFA :: LexicalSpec l -> LabeledNFA l
+buildLabeledNFA spec = runST $ do
+  next <- newSTRef 0
+  edges <- newSTRef (IntMap.empty :: IntMap (Map EdgeLabel [Int]))
+  parts <- forM (Map.toList spec) $ \(label, re) -> do
+    (start, end) <- nfaBuildHelper edges next re
+    pure (LexicalSpecPart start end label)
+  let start = IntSet.fromList (map lspStart parts)
+  let end = IntMap.fromList (map (lspEnd &&& lspLabel) parts)
+  LNFA start end <$> readSTRef next <*> readSTRef edges

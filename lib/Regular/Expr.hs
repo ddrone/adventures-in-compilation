@@ -1,5 +1,7 @@
 module Regular.Expr where
 
+import Data.Map (Map)
+
 data Re
   = Char Char
   | Epsilon
@@ -36,3 +38,5 @@ oneOf s = case s of
 
 range :: Char -> Char -> Re
 range from to = oneOf [from..to]
+
+type LexicalSpec t = Map t Re
