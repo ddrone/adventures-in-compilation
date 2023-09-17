@@ -13,8 +13,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Read section 4.4 and implement graph coloring
 - [x] Test saturation coloring on the example from the book
 - [x] Write a function that checks that the coloring of nodes is valid
-- [ ] Add registers back to the interference graph
-- [ ] Assign the register indices to nodes corresponding to the registers in the initial coloring
+- [x] Add registers back to the interference graph
+- [x] Assign the register indices to nodes corresponding to the registers in the initial coloring
+- [ ] Preserve callee-saved registers on the stack
 
 ## Adventure 4: dreaded syntactic analysis
 
