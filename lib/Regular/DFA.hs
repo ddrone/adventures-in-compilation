@@ -41,6 +41,11 @@ next dfa state c =
   let edges = fromMaybe Map.empty (IntMap.lookup state (dfaEdges dfa)) in
   Map.lookup c edges
 
+nextL :: LabeledDFA l -> Int -> Char -> Maybe Int
+nextL dfa state c =
+  let edges = fromMaybe Map.empty (IntMap.lookup state (ldfaEdges dfa)) in
+  Map.lookup c edges
+
 printDFA :: DFA -> Text
 printDFA dfa =
   let n :: Int -> Text
