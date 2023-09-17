@@ -11,7 +11,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Test building an interference graph: compute it for the sequence of instructions given in the book
 - [x] Change the interference graph building such that only variables are considered
 - [x] Read section 4.4 and implement graph coloring
-- [ ] Test saturation coloring on the example from the book
+- [x] Test saturation coloring on the example from the book
+- [ ] Write a function that checks that the coloring of nodes is valid
 
 ## Adventure 4: dreaded syntactic analysis
 
