@@ -204,6 +204,7 @@ rax = X86.Reg Rax
 
 patchInstruction :: X86.GenInstr Void -> [X86.GenInstr Void]
 patchInstruction = \case
+  Movq src dest | src == dest -> []
   Movq src@X86.Deref{} dest@X86.Deref{} ->
     [ Movq src rax
     , Movq rax dest
