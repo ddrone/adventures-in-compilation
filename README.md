@@ -4,7 +4,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
-- [ ] Open the book, find the place where I've stopped and write down the actual task list
+- [x] Open the book, find the place where I've stopped and write down the actual task list
+- [ ] Restart reading text from chapter 4 and find the code that I've already implemented for it
 
 ## Adventure 4: dreaded syntactic analysis
 
