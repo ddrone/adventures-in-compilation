@@ -22,6 +22,18 @@ data Edge = Edge
   }
   deriving (Show)
 
+data GraphType
+  = DigraphT
+  | GraphT
+  deriving (Show)
+
+data Graph = Graph
+  { graphType :: GraphType
+  , graphName :: Text
+  , graphNodes :: [Node]
+  , graphEdges :: [Edge]
+  }
+
 attr :: Text -> Text -> Attr
 attr = Attr
 
@@ -48,15 +60,27 @@ printAttrs ls = case ls of
 printNode :: Node -> Text
 printNode (Node name attrs) = Text.concat ["  ", name, printAttrs attrs, ";"]
 
-printEdge :: Edge -> Text
-printEdge (Edge from to attrs) = Text.concat ["  ", from, " -> ", to, printAttrs attrs]
+printEdge :: GraphType -> Edge -> Text
+printEdge ty (Edge from to attrs) =
+  let edge = case ty of
+        DigraphT -> " -> "
+        GraphT -> " -- "
+  in Text.concat ["  ", from, edge, to, printAttrs attrs]
 
-printGraphN :: Text -> [Node] -> [Edge] -> Text
-printGraphN name nodes edges =
-  let prefix = Text.concat ["digraph ", name, " {"]
+printGraphType :: GraphType -> Text
+printGraphType ty = case ty of
+  DigraphT -> "digraph "
+  GraphT -> "graph "
+
+printGraph :: Graph -> Text
+printGraph (Graph ty name nodes edges) =
+  let prefix = Text.concat [printGraphType ty, name, " {"]
       suffix = "}"
-      lines = prefix : map printNode nodes ++ map printEdge edges ++ [suffix]
+      lines = prefix : map printNode nodes ++ map (printEdge ty) edges ++ [suffix]
   in Text.unlines lines
 
-printGraph :: [Node] -> [Edge] -> Text
-printGraph = printGraphN "G"
+printDigraph :: [Node] -> [Edge] -> Text
+printDigraph nodes edges = printGraph (Graph DigraphT "G" nodes edges)
+
+printUndirectedGraph :: [Node] -> [Edge] -> Text
+printUndirectedGraph nodes edges = printGraph (Graph GraphT "G" nodes edges)

@@ -15,7 +15,7 @@ import qualified Data.Text as Text
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
-import Graphviz (attr, nodeA, edgeA, edge, printGraph)
+import Graphviz (attr, nodeA, edgeA, edge, printDigraph)
 import Regular.NFA (NFA(..), EdgeLabel(..), LabeledNFA(..))
 import SetMultimap (SetMultimap)
 import qualified SetMultimap
@@ -65,7 +65,7 @@ printDFA dfa =
         (from, fromEdges) <- IntMap.toList (dfaEdges dfa)
         (l, to) <- Map.toList fromEdges
         pure (edgeA (n from) (n to) [attr "label" (label l)])
-  in printGraph nodes (edge "start" (n (dfaStart dfa)) : edges)
+  in printDigraph nodes (edge "start" (n (dfaStart dfa)) : edges)
 
 buildLDFA :: Ord l => LabeledNFA l -> LabeledDFA l
 buildLDFA nfa = runST $ do

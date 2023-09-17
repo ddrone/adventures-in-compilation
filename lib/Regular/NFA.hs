@@ -12,7 +12,7 @@ import qualified Data.Text as Text
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
-import Graphviz (attr, nodeA, edgeA, edge, printGraph)
+import Graphviz (attr, nodeA, edgeA, edge, printDigraph)
 import Regular.Expr
 import Control.Monad (forM)
 import Control.Arrow ((***), (&&&))
@@ -55,7 +55,7 @@ printNFA nfa =
         (l, tos) <- Map.toList fromEdges
         to <- tos
         pure (edgeA (n from) (n to) [attr "label" (label l)])
-  in printGraph nodes (edge "start" (n (nfaStart nfa)) : edges)
+  in printDigraph nodes (edge "start" (n (nfaStart nfa)) : edges)
 
 nfaBuildHelper edges next re = do
   let fresh = do

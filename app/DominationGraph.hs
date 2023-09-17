@@ -35,7 +35,7 @@ printGraphWithDominatorTree pg = do
       (from, tos) <- IntMap.toList df
       to <- IntSet.toList tos
       pure (edgeDomFront (from, to))
-  TextIO.putStrLn (Graphviz.printGraph [] (edges ++ idomEdges ++ domFrontEdges))
+  TextIO.putStrLn (Graphviz.printDigraph [] (edges ++ idomEdges ++ domFrontEdges))
 
 main :: IO ()
 main = do
