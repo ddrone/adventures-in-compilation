@@ -7,7 +7,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Open the book, find the place where I've stopped and write down the actual task list
 - [x] Restart reading text from chapter 4 and find the code that I've already implemented for it
 - [x] Implement building an interference graph
-- [ ] Test building an interference graph
+- [ ] Convert interference graph into Graphviz format
+- [ ] Test building an interference graph: compute it for the sequence of instructions given in the book
 - [ ] Read section 4 and implement graph coloring
 
 ## Adventure 4: dreaded syntactic analysis
