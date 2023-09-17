@@ -12,7 +12,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Change the interference graph building such that only variables are considered
 - [x] Read section 4.4 and implement graph coloring
 - [x] Test saturation coloring on the example from the book
-- [ ] Write a function that checks that the coloring of nodes is valid
+- [x] Write a function that checks that the coloring of nodes is valid
 
 ## Adventure 4: dreaded syntactic analysis
 

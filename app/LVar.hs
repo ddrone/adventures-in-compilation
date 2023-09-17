@@ -12,8 +12,7 @@ import System.Process
 import Data.Text (Text)
 import LVar.X86 (Reg(..), printArg)
 import LVar.Liveness (interferenceGraph)
-import qualified UndirectedGraph
-import UndirectedGraph (saturationColoring)
+import UndirectedGraph
 import qualified Data.Map as Map
 
 type Instr = GenInstr Text
@@ -50,6 +49,7 @@ main = do
   let ig = interferenceGraph testProgram
   let coloring = saturationColoring (UndirectedGraph.allNodes ig) ig
   mapM_ print (Map.toList coloring)
+  print (isColoringValid id coloring ig)
 
   files <- getArgs
   forM_ files $ \file -> do

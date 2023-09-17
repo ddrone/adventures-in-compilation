@@ -11,6 +11,7 @@ import Control.Monad (guard)
 import qualified Graphviz
 import Data.Maybe (catMaybes)
 import Control.Arrow ((&&&))
+import qualified Data.Text as Text
 
 newtype Graph v = Graph
   { graphEdges :: SetMultimap v v
@@ -87,3 +88,30 @@ saturationColoring nodes g =
             let newColor = minimumExcludant ex in
             iter (Set.delete v remaining) (Map.insert v newColor colors)
   in iter nodes Map.empty
+
+data Check
+  = OK
+  | Fail Text
+  deriving (Show)
+
+instance Semigroup Check where
+  OK <> y = y
+  err@(Fail _) <> _ = err
+
+instance Monoid Check where
+  mempty = OK
+
+checkAll :: (a -> Check) -> [a] -> Check
+checkAll c ls = mconcat (map c ls)
+
+isColoringValid :: Ord v => (v -> Text) -> Map v Int -> Graph v -> Check
+isColoringValid p colors graph =
+  let checkEdge u v =
+        case (Map.lookup u colors, Map.lookup v colors) of
+          (Just c1, Just c2) ->
+            if c1 == c2
+              then Fail (Text.concat ["nodes ", p v, " and ", p u, " have the same color"])
+              else OK
+          (Nothing, _) -> Fail (Text.concat ["node ", p u, " does not have color"])
+          (_, Nothing) -> Fail (Text.concat ["node ", p v, " does not have color"])
+  in checkAll (uncurry checkEdge) (allEdges graph)
