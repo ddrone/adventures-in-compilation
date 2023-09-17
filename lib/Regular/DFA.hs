@@ -16,7 +16,7 @@ import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
 import Graphviz (attr, nodeA, edgeA, edge, printGraph)
-import Regular.NFA (NFA(..), EdgeLabel(..))
+import Regular.NFA (NFA(..), EdgeLabel(..), LabeledNFA(..))
 import SetMultimap (SetMultimap)
 import qualified SetMultimap
 
@@ -25,6 +25,14 @@ data DFA = DFA
   , dfaFinal :: IntSet
   , dfaCount :: Int
   , dfaEdges :: IntMap (Map Char Int)
+  }
+  deriving (Show)
+
+data LabeledDFA l = LDFA
+  { ldfaStart :: Int
+  , ldfaFinal :: IntMap l
+  , ldfaCount :: Int
+  , ldfaEdges :: IntMap (Map Char Int)
   }
   deriving (Show)
 
@@ -53,6 +61,74 @@ printDFA dfa =
         (l, to) <- Map.toList fromEdges
         pure (edgeA (n from) (n to) [attr "label" (label l)])
   in printGraph nodes (edge "start" (n (dfaStart dfa)) : edges)
+
+buildLDFA :: Ord l => LabeledNFA l -> LabeledDFA l
+buildLDFA nfa = runST $ do
+  setMapping <- newSTRef (Map.empty :: Map IntSet Int)
+  finalMap <- newSTRef IntMap.empty
+  let finalClass set =
+        let classes = catMaybes [ IntMap.lookup elem (lnfaEnd nfa) | elem <- IntSet.toList set ] in
+        case classes of
+          [] -> Nothing
+          _ -> Just (maximum classes)
+  let nodeId set = do
+        result <- Map.lookup set <$> readSTRef setMapping
+        case result of
+          Just v -> pure v
+          Nothing -> do
+            next <- Map.size <$> readSTRef setMapping
+            modifySTRef setMapping (Map.insert set next)
+            case finalClass set of
+              Nothing -> pure ()
+              Just c -> modifySTRef finalMap (IntMap.insert next c)
+            pure next
+  let edgesFrom from = fromMaybe Map.empty (IntMap.lookup from (lnfaEdges nfa))
+  let epsEdges node = fromMaybe [] (Map.lookup EpsLabel (edgesFrom node))
+  let charEdgesFrom c node = fromMaybe [] (Map.lookup (CharLabel c) (edgesFrom node))
+  let addEpsClosure node set =
+        if IntSet.member node set
+          then set
+          else foldr addEpsClosure (IntSet.insert node set) (epsEdges node)
+  let epsClosure node = addEpsClosure node IntSet.empty
+  let epsClosureList nodes = foldr addEpsClosure IntSet.empty nodes
+
+  let charEdges from =
+        let allEdges = Map.keys (fromMaybe Map.empty (IntMap.lookup from (lnfaEdges nfa)))
+            fromLabel l = case l of
+              CharLabel c -> Just c
+              EpsLabel -> Nothing
+        in Set.fromList (catMaybes (map fromLabel allEdges))
+  let allChars set = Set.toList (mconcat (fmap charEdges set))
+  let justSetEdge set c = mconcat (fmap (IntSet.fromList . charEdgesFrom c) set)
+  let setEdge set c = epsClosureList (IntSet.toList (justSetEdge set c))
+
+  dfaEdges <- newSTRef (IntMap.empty :: IntMap (Map Char Int))
+  let go visited id set = do
+        if IntSet.member id visited
+          then pure visited
+          else do
+            let chars = allChars set
+            let handleChar c = do
+                  let next = setEdge set c
+                  (,) c <$> nodeId next
+            edges <- Map.fromList <$> mapM handleChar chars
+            modifySTRef dfaEdges (IntMap.insert id edges)
+
+            let nextSets = map (setEdge set) chars
+            loop (IntSet.insert id visited) nextSets
+      loop visited nexts =
+        case nexts of
+          [] -> pure visited
+          first : rest -> do
+            id <- nodeId first
+            next <- go visited id (IntSet.toList first)
+            loop next rest
+  let startSet = epsClosureList (IntSet.toList (lnfaStart nfa))
+  startId <- nodeId startSet
+  go IntSet.empty startId (IntSet.toList startSet)
+
+  count <- Map.size <$> readSTRef setMapping
+  LDFA startId <$> readSTRef finalMap <*> (Map.size <$> readSTRef setMapping) <*> readSTRef dfaEdges
 
 buildDFA :: NFA -> DFA
 buildDFA nfa = runST $ do
