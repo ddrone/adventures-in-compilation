@@ -44,5 +44,5 @@ computeLiveSets instrs =
   let revInstrs = reverse instrs
       go curr = \case
         [] -> []
-        (intsr : rest) -> curr : go (beforeInstr intsr curr) rest
+        (instr : rest) -> curr : go (beforeInstr instr curr) rest
   in reverse (go Set.empty revInstrs)
