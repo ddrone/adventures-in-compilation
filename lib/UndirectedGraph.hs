@@ -68,6 +68,14 @@ maximumBy key ls =
       [] -> Nothing
       (a : rest) -> go (key a) a rest
 
+allMaximumBy :: Ord k => (a -> k) -> [a] -> Maybe [a]
+allMaximumBy key ls =
+  case ls of
+    [] -> Nothing
+    _ ->
+      let maxValue = maximum (map key ls) in
+      Just (filter ((maxValue ==) . key) ls)
+
 -- minimumExcludant takes a set of natural numbers and returns the least natural number
 -- that is not in this list
 minimumExcludant :: Set Int -> Int
@@ -90,6 +98,36 @@ saturationColoring nodes initial g =
                   if Map.member v colors
                     then colors
                     else Map.insert v newColor colors
+            in iter (Set.delete v remaining) newMap
+  in iter nodes initial
+
+moveBiasedSaturationColoring :: Ord v => Set v -> Map v Int -> Graph v -> Graph v -> Map v Int
+moveBiasedSaturationColoring nodes initial moveRelated g =
+  let findMoveRelatedColor colorMap v excludedColors =
+        let neighborColors = catMaybesSet (map (flip Map.lookup colorMap) (edgesList v moveRelated))
+            goodColors = Set.difference neighborColors excludedColors
+        in Set.lookupMin goodColors
+      pickGoodOption colorMap vs = case vs of
+        [] -> Nothing
+        (v, excludedColors) : rest -> case findMoveRelatedColor colorMap v excludedColors of
+          Nothing -> pickGoodOption colorMap rest
+          Just c -> Just (v, c)
+      pickNext colorMap options = case allMaximumBy (Set.size . snd) options of
+        Nothing -> Nothing
+        Just [] -> error "should not happen: allMaximumBy returns non-empty list"
+        Just opts@((v, ex) : rest) -> case pickGoodOption colorMap opts of
+          Nothing -> Just (v, minimumExcludant ex)
+          Just p -> Just p
+      iter remaining colors = do
+        let excluded v = catMaybesSet (map (flip Map.lookup colors) (edgesList v g))
+        let options = map (id &&& excluded) (Set.toList remaining)
+        case pickNext colors options of
+          Nothing -> colors
+          Just (v, c) ->
+            let newMap =
+                  if Map.member v colors
+                    then colors
+                    else Map.insert v c colors
             in iter (Set.delete v remaining) newMap
   in iter nodes initial
 
