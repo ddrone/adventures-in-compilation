@@ -38,6 +38,7 @@ library
         , LVar.ASTMon
         , LVar.Compiler
         , LVar.Liveness
+        , LVar.MoveBiasing
         , LVar.Parser
         , LVar.X86
         , Grammar.Grammar

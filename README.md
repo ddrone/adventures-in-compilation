@@ -18,7 +18,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Preserve callee-saved registers on the stack
 - [x] Write a script to recompile all the test cases and commit changes to assembly code, to more easily see how the changes in the compiler affect the resulting code
 - [x] Clean up the debug output of LVar compiler
-- [ ] Compute graph of move-related locations
+- [x] Compute graph of move-related locations
 - [ ] Make the heuristic for choosing the next vertex to be colored a parameter of graph coloring algorithm
 - [ ] Implement the heuristic that uses the graph of move-related variables
 - [ ] See if it's actually going to change anything on the examples that I already have
