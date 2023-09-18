@@ -40,8 +40,8 @@ term :: Parser Expr
 term =
   (brackets expr) <|>
   (Const <$> number) <|>
-  (symbol "true" >> pure (Bool True)) <|>
-  (symbol "false" >> pure (Bool False)) <|>
+  (symbol "True" >> pure (Bool True)) <|>
+  (symbol "False" >> pure (Bool False)) <|>
   (symbol "input_int" >> symbol "(" >> symbol ")" >> pure InputInt) <|>
   (Name <$> ident)
 
