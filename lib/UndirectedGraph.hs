@@ -85,16 +85,28 @@ minimumExcludant set = go 0 (Set.toAscList set)
       hd : tl | hd == candidate -> go (candidate + 1) tl
       _ -> candidate
 
+-- Given:
+--   * A current coloring map
+--   * A list of not-yet-colored vertices with excluded colors
+-- Pick one of them with a new color
+type ColorPick v = Map v Int -> [(v, Set Int)] -> Maybe (v, Int)
+
 saturationColoring :: Ord v => Set v -> Map v Int -> Graph v -> Map v Int
-saturationColoring nodes initial g =
+saturationColoring = genericSaturationColoring simple
+  where
+    simple colorMap options = case maximumBy (Set.size . snd) options of
+      Nothing -> Nothing
+      Just (v, ex) -> Just (v, minimumExcludant ex)
+
+genericSaturationColoring :: Ord v => ColorPick v -> Set v -> Map v Int -> Graph v -> Map v Int
+genericSaturationColoring pickOption nodes initial g =
   let iter remaining colors = do
         let excluded v = catMaybesSet (map (flip Map.lookup colors) (edgesList v g))
         let options = map (id &&& excluded) (Set.toList remaining)
-        case maximumBy (Set.size . snd) options of
+        case pickOption colors options of
           Nothing -> colors
-          Just (v, ex) ->
-            let newColor = minimumExcludant ex
-                newMap =
+          Just (v, newColor) ->
+            let newMap =
                   if Map.member v colors
                     then colors
                     else Map.insert v newColor colors
@@ -118,18 +130,7 @@ moveBiasedSaturationColoring nodes initial moveRelated g =
         Just opts@((v, ex) : rest) -> case pickGoodOption colorMap opts of
           Nothing -> Just (v, minimumExcludant ex)
           Just p -> Just p
-      iter remaining colors = do
-        let excluded v = catMaybesSet (map (flip Map.lookup colors) (edgesList v g))
-        let options = map (id &&& excluded) (Set.toList remaining)
-        case pickNext colors options of
-          Nothing -> colors
-          Just (v, c) ->
-            let newMap =
-                  if Map.member v colors
-                    then colors
-                    else Map.insert v c colors
-            in iter (Set.delete v remaining) newMap
-  in iter nodes initial
+  in genericSaturationColoring pickNext nodes initial g
 
 data Check
   = OK
