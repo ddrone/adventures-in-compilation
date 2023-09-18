@@ -108,6 +108,14 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - Refactor regular expression compilation code: especially subset construction and DFA minimization are quite messy
 
+## Useful CLI incantations
+
+Using profiling from Cabal:
+
+```
+cabal run --enable-profiling lvar -- tests/cond.lvar +RTS -p
+```
+
 ## Things I've learned while working on this
 
 ### Megaparsec expression parsing
