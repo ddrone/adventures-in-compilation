@@ -5,7 +5,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 ## Adventure 6: convert LVar to LIf following chapter 5 of Essentials of Compilation
 
 - [x] Implement postfix conditional in the parser
-- [ ] Add new operators and fix up the partial evaluator
+- [x] Add new operators and fix up the partial evaluator
+- [ ] Figure out why partial evaluation seems to be getting stuck on new test
 - [ ] Add conditional statements to the AST and parse them
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar

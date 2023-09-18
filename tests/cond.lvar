@@ -1,0 +1,3 @@
+x = True
+y = False
+z = 45 + 10 if x else 20
