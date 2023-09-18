@@ -37,7 +37,7 @@ data Unop
 unopRepr :: Unop -> Text
 unopRepr = \case
   Neg -> "-"
-  Not -> "!"
+  Not -> "not"
 
 data Expr
   = Const Int64
