@@ -49,10 +49,13 @@ data Expr
   | InputInt
   deriving (Show)
 
+type Block = [Stmt]
+
 data Stmt
   = Print Expr
   | Calc Expr
   | Assign Text Expr
+  | IfS Expr Block Block
   deriving (Show)
 
 data GenModule s = Module

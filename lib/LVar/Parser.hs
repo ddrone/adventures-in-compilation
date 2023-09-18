@@ -59,9 +59,21 @@ expr = do
 
 preexpr = makeExprParser term table
 
+block :: Parser Block
+block = between (symbol "{") (symbol "}") (many stmt)
+
 stmt :: Parser Stmt
 stmt = choice
   [ Print <$> (symbol "print" *> brackets expr)
+  , do
+      symbol "if"
+      e <- expr
+      cons <- block
+      alt <- choice
+        [ symbol "else" >> block
+        , pure []
+        ]
+      pure (IfS e cons alt)
   , do
       var <- ident
       symbol "="
