@@ -21,7 +21,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Compute graph of move-related locations
 - [x] Make the heuristic for choosing the next vertex to be colored a parameter of graph coloring algorithm
 - [x] Implement the heuristic that uses the graph of move-related variables
-- [ ] See if it's actually going to change anything on the examples that I already have
+- [x] See if it's actually going to change anything on the examples that I already have
 
 ## Adventure 4: dreaded syntactic analysis
 

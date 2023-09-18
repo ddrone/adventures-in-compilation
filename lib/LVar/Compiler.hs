@@ -16,6 +16,7 @@ import Control.Monad.Reader
 import Data.Maybe (fromJust)
 import Data.Set (Set)
 import qualified Data.Set as Set
+import LVar.MoveBiasing (moveRelated)
 
 type RCO a = State Int a
 
@@ -208,7 +209,8 @@ data AssignHomesResult = AssignHomesResult
 assignHomesAndCountVars :: [Instr] -> AssignHomesResult
 assignHomesAndCountVars instrs = do
   let ig = interferenceGraph instrs
-  let colors = UndirectedGraph.saturationColoring (UndirectedGraph.allNodes ig) initialColors ig
+  let mr = moveRelated instrs
+  let colors = UndirectedGraph.moveBiasedSaturationColoring (UndirectedGraph.allNodes ig) initialColors mr ig
   let locations = colorsToLocMapping colors
   let maxColor = maximum (Map.elems colors)
   let stackLocs =
