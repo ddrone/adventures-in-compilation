@@ -6,7 +6,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - [x] Implement postfix conditional in the parser
 - [x] Add new operators and fix up the partial evaluator
-- [ ] Figure out why partial evaluation seems to be getting stuck on new test
+- [x] Figure out why partial evaluation seems to be getting stuck on new test (turned out to be RCO pass, which gets in an infinite loop due to wrong assumptions)
 - [ ] Add conditional statements to the AST and parse them
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
