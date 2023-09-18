@@ -40,10 +40,24 @@ term :: Parser Expr
 term =
   (brackets expr) <|>
   (Const <$> number) <|>
+  (symbol "true" >> pure (Bool True)) <|>
+  (symbol "false" >> pure (Bool False)) <|>
   (symbol "input_int" >> symbol "(" >> symbol ")" >> pure InputInt) <|>
   (Name <$> ident)
 
-expr = makeExprParser term table
+expr :: Parser Expr
+expr = do
+  pe <- preexpr
+  choice
+    [ do try (symbol "if")
+         cond <- preexpr
+         symbol "else"
+         alt <- preexpr
+         pure (If cond pe alt)
+    , pure pe
+    ]
+
+preexpr = makeExprParser term table
 
 stmt :: Parser Stmt
 stmt = choice
@@ -57,8 +71,12 @@ stmt = choice
   ]
 
 table =
-  [ map unary [ Neg ]
+  [ map unary [ Neg, Not ]
   , map binary [ Add, Sub ]
+  , map binary [ Le, Lt, Ge, Gt ]
+  , map binary [ Eq, Ne ]
+  , [ binary And ]
+  , [ binary Or ]
   ]
 
 binary op = InfixL (Bin op <$ symbol (binopRepr op))

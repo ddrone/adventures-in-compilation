@@ -2,6 +2,11 @@
 
 Instead of trying to "implement a cool programming language", a project that I have started maybe a dozen times and never got far with, the idea here is to play with different algorithms of compilation on extremely simplistic languages.
 
+## Adventure 6: convert LVar to LIf following chapter 5 of Essentials of Compilation
+
+- [x] Implement postfix conditional in the parser
+- [ ] Add new operators and fix up the partial evaluator
+
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
 - [x] Open the book, find the place where I've stopped and write down the actual task list
@@ -115,3 +120,4 @@ For example, `Monoid` instance for `Data.Map` seems to be just "take the first e
 
 * LL(1) grammar visualizer: https://jsmachines.sourceforge.net/machines/ll1.html
 * Online Graphviz environment: https://dreampuf.github.io/GraphvizOnline/
+* Haskell's parser-combinators documentation: https://hackage.haskell.org/package/parser-combinators

@@ -19,6 +19,7 @@ main = do
     case runParser program file contents of
       Left err -> print err
       Right p -> do
+        print p
         let instrs = compileAll p
         let code = printProgram instrs
         TextIO.writeFile assemblyName code

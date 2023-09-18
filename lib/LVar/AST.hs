@@ -6,6 +6,14 @@ import Data.Text (Text)
 data Binop
   = Add
   | Sub
+  | Le
+  | Lt
+  | Ge
+  | Gt
+  | Eq
+  | Ne
+  | And
+  | Or
   deriving (Show)
 
 evalBinop :: Binop -> Int64 -> Int64 -> Int64
@@ -17,14 +25,24 @@ binopRepr :: Binop -> Text
 binopRepr = \case
   Add -> "+"
   Sub -> "-"
+  Le -> "<="
+  Lt -> "<"
+  Ge -> ">="
+  Gt -> ">"
+  Eq -> "=="
+  Ne -> "!="
+  And -> "and"
+  Or -> "or"
 
 data Unop
   = Neg
+  | Not
   deriving (Show)
 
 unopRepr :: Unop -> Text
 unopRepr = \case
   Neg -> "-"
+  Not -> "!"
 
 evalUnop :: Unop -> Int64 -> Int64
 evalUnop = \case
@@ -32,8 +50,10 @@ evalUnop = \case
 
 data Expr
   = Const Int64
+  | Bool Bool
   | Name Text
   | Bin Binop Expr Expr
+  | If Expr Expr Expr
   | Unary Unop Expr
   | InputInt
   deriving (Show)
