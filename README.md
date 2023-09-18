@@ -6,6 +6,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - [x] Implement postfix conditional in the parser
 - [ ] Add new operators and fix up the partial evaluator
+- [ ] Add conditional statements to the AST and parse them
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
