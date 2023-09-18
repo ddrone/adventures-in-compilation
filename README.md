@@ -12,6 +12,10 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Fix the issue with parsing of conditional statements
 - [x] Write type checker for the source language
 - [x] Connect the type checker to the compiler
+- [ ] Implement shrinking pass that gets rid of `and` and `or` binary operators
+- [ ] Write AST definitions for new C-like intermediate language
+- [ ] Add new X86 constructs to its abstract syntax
+- [ ] Implement printing those new X86 constructs into concrete syntax used by GCC
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
