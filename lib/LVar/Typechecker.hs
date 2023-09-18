@@ -1,5 +1,5 @@
 module LVar.Typechecker where
-import LVar.AST (Expr (..), Binop (..), Unop (..))
+import LVar.AST (Expr (..), Binop (..), Unop (..), Stmt (..), Block)
 import Data.Text (Text)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -10,11 +10,11 @@ data Type
   | BoolT
   deriving (Show, Eq, Ord)
 
-data TypeError = TypeError
-  { teExpr :: Expr
+data TypeError a = TypeError
+  { teSource :: a
   , teReason :: Text
   }
-  deriving (Show)
+  deriving (Show, Functor)
 
 data BinopTy = BinopTy
   { btArg :: Type
@@ -52,7 +52,9 @@ unopTy = \case
     bool = BoolT
     to = UnopTy
 
-typecheckExpr :: Map Text Type -> Expr -> Either TypeError Type
+type TyEnv = Map Text Type
+
+typecheckExpr :: TyEnv -> Expr -> Either (TypeError Expr) Type
 typecheckExpr env expr = case expr of
   Const _ -> pure Int64T
   Bool _ -> pure BoolT
@@ -97,3 +99,53 @@ typecheckExpr env expr = case expr of
   where
     check = typecheckExpr env
     tyErr = Left . TypeError expr
+
+data Source
+  = Expr Expr
+  | Stmt Stmt
+  deriving (Show)
+
+type TC a = Either (TypeError Source) a
+
+mapLeft :: (a -> b) -> Either a c -> Either b c
+mapLeft f = \case
+  Left x -> Left (f x)
+  Right y -> Right y
+
+typecheckStmt :: TyEnv -> Stmt -> TC TyEnv
+typecheckStmt env stmt = case stmt of
+  Print e -> do
+    t <- check e
+    when (t /= Int64T) $
+      tyErr "only numeric values can be printed"
+    pure env
+  Calc e -> do
+    _ <- check e
+    pure env
+  Assign n e -> do
+    t <- check e
+    case Map.lookup n env of
+      Nothing -> pure (Map.insert n t env)
+      Just t2 -> do
+        when (t /= t2) $
+          tyErr "variable can not change its type!"
+        pure env
+  IfS cond cons alt -> do
+    t <- check cond
+    when (t /= BoolT) $
+      tyErr "condition expression must be boolean!"
+    envCons <- typecheckBlock env cons
+    envAlt <- typecheckBlock env alt
+    when (envCons /= envAlt) $
+      tyErr "both branches of conditional should define same set of variables!"
+    pure envCons
+  where
+    check = mapLeft (fmap Expr) . typecheckExpr env
+    tyErr = Left . TypeError (Stmt stmt)
+
+typecheckBlock :: TyEnv -> Block -> TC TyEnv
+typecheckBlock env ls = case ls of
+  [] -> pure env
+  hd : tl -> do
+    env1 <- typecheckStmt env hd
+    typecheckBlock env1 tl

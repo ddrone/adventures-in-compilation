@@ -60,6 +60,7 @@ library
     extensions:       OverloadedStrings
         , LambdaCase
         , MultiWayIf
+        , DeriveFunctor
     hs-source-dirs:   lib
 
 executable interpreter
