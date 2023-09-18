@@ -39,6 +39,7 @@ library
         , LVar.Compiler
         , LVar.Liveness
         , LVar.MoveBiasing
+        , LVar.PartialEval
         , LVar.Parser
         , LVar.X86
         , Grammar.Grammar
