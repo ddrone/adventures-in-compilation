@@ -4,7 +4,7 @@ import LVar.Parser (program)
 import qualified Data.Text.IO as TextIO
 import System.Environment (getArgs)
 import Data.Foldable (forM_)
-import Text.Megaparsec (runParser)
+import Text.Megaparsec (runParser, errorBundlePretty)
 import LVar.Compiler (compileAll)
 import LVar.X86 (printProgram)
 import System.FilePath
@@ -17,7 +17,7 @@ main = do
     let binaryName = replaceExtensions file "exe"
     contents <- TextIO.readFile file
     case runParser program file contents of
-      Left err -> print err
+      Left err -> putStrLn (errorBundlePretty err)
       Right p -> do
         print p
         let instrs = compileAll p

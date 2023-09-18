@@ -8,7 +8,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add new operators and fix up the partial evaluator
 - [x] Figure out why partial evaluation seems to be getting stuck on new test (turned out to be RCO pass, which gets in an infinite loop due to wrong assumptions)
 - [x] Add conditional statements to the AST and parse them
-- [ ] Improve printing of parse errors
+- [x] Improve printing of parse errors
 - [ ] Fix the issue with parsing of conditional statements
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
