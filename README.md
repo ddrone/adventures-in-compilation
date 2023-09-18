@@ -16,6 +16,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add registers back to the interference graph
 - [x] Assign the register indices to nodes corresponding to the registers in the initial coloring
 - [x] Preserve callee-saved registers on the stack
+- [ ] Write a script to recompile all the test cases and commit changes to assembly code, to more easily see how the changes in the compiler affect the resulting code
 - [ ] Read about move biasing challenge and do it
 
 ## Adventure 4: dreaded syntactic analysis
