@@ -11,7 +11,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Improve printing of parse errors
 - [x] Fix the issue with parsing of conditional statements
 - [x] Write type checker for the source language
-- [ ] Connect the type checker to the compiler
+- [x] Connect the type checker to the compiler
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 

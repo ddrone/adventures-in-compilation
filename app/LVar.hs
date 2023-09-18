@@ -9,6 +9,7 @@ import LVar.Compiler (compileAll)
 import LVar.X86 (printProgram)
 import System.FilePath
 import System.Process
+import LVar.Typechecker (typecheckModule)
 
 main = do
   files <- getArgs
@@ -20,13 +21,19 @@ main = do
       Left err -> putStrLn (errorBundlePretty err)
       Right p -> do
         print p
-        let instrs = compileAll p
-        let code = printProgram instrs
-        TextIO.writeFile assemblyName code
-        callProcess "cc"
-          [ "-m64"
-          , "-o"
-          , binaryName
-          , assemblyName
-          , "tests/runtime.o"
-          ]
+        case typecheckModule p of
+          Nothing -> do
+            putStrLn $ "Typecheck of " ++ file ++ " successful!"
+            let instrs = compileAll p
+            let code = printProgram instrs
+            TextIO.writeFile assemblyName code
+            callProcess "cc"
+              [ "-m64"
+              , "-o"
+              , binaryName
+              , assemblyName
+              , "tests/runtime.o"
+              ]
+          Just e -> do
+            putStrLn $ "Typecheck of " ++ file ++ " FAILED!"
+            print e

@@ -1,5 +1,5 @@
 module LVar.Typechecker where
-import LVar.AST (Expr (..), Binop (..), Unop (..), Stmt (..), Block)
+import LVar.AST (Expr (..), Binop (..), Unop (..), Stmt (..), Block, Module, GenModule (Module))
 import Data.Text (Text)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -149,3 +149,8 @@ typecheckBlock env ls = case ls of
   hd : tl -> do
     env1 <- typecheckStmt env hd
     typecheckBlock env1 tl
+
+typecheckModule :: Module -> Maybe (TypeError Source)
+typecheckModule (Module stmts) = case typecheckBlock Map.empty stmts of
+  Left err -> Just err
+  Right _ -> Nothing
