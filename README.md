@@ -10,7 +10,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add conditional statements to the AST and parse them
 - [x] Improve printing of parse errors
 - [x] Fix the issue with parsing of conditional statements
-- [ ] Write type checker for the source language
+- [x] Write type checker for the source language
+- [ ] Connect the type checker to the compiler
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
