@@ -28,8 +28,10 @@ data Cond
   | CmpC Binop Atom Atom
   deriving (Show)
 
+type Label = Int
+
 data Tail
   = Return Expr
-  | Goto Text
-  | CondJump Cond Text Text
+  | Goto Label
+  | CondJump Cond Label Label
   deriving (Show)
