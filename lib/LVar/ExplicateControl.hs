@@ -85,30 +85,20 @@ explicateAssign source target cont = case source of
     expr e = stmt (ASTC.Assign target e)
     stmt s = pure (consStmt s cont)
 
-explicatePred :: ASTMon.Expr -> Cont -> Cont -> EC Cont
+explicatePred :: ASTMon.Cmp -> Cont -> Cont -> EC Cont
 explicatePred expr consCont altCont = case expr of
-  ASTMon.Atom (ASTMon.Bool True) -> pure consCont
-  ASTMon.Atom (ASTMon.Bool False) -> pure altCont
-  ASTMon.Atom a -> do
+  ASTMon.CmpAtom a -> do
     lCons <- createBlock consCont
     lAlt <- createBlock altCont
     let cmp = ASTC.AtomC a
     pure (tail (ASTC.CondJump cmp lCons lAlt))
-  ASTMon.Bin op a1 a2 -> do
-    when (not (isComparisonOp op)) $ do
-      error $ "non-comparison operator " ++ show op ++ " used in conditional"
+  ASTMon.CmpLit True -> pure consCont
+  ASTMon.CmpLit False -> pure altCont
+  ASTMon.CmpOp op a1 a2 -> do
     lCons <- createBlock consCont
     lAlt <- createBlock altCont
     let cmp = ASTC.CmpC op a1 a2
     pure (tail (ASTC.CondJump cmp lCons lAlt))
-  ASTMon.Begin ss e ->
-    explicateBlock ss =<< explicatePred e consCont altCont
-  _ -> do
-    condName <- fresh
-    consLabel <- createBlock consCont
-    altLabel <- createBlock altCont
-    let condCont = tail (ASTC.CondJump (ASTC.AtomC (ASTMon.Name condName)) consLabel altLabel)
-    explicateAssign expr condName condCont
 
 explicateBlock :: ASTMon.Block -> Cont -> EC Cont
 explicateBlock stmts cont = case stmts of

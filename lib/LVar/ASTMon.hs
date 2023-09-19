@@ -37,6 +37,7 @@ printAtom = \case
 -- Not sure if I actually need this
 data Cmp
   = CmpAtom Atom
+  | CmpLit Bool
   | CmpOp Binop Atom Atom
   deriving (Show)
 
@@ -44,7 +45,7 @@ data Expr
   = Atom Atom
   | Bin Binop Atom Atom
   | Unary Unop Atom
-  | If Expr Expr Expr
+  | If Cmp Expr Expr
   | Begin Block Expr
   | InputInt
   deriving (Show)
@@ -59,7 +60,7 @@ type Block = [Stmt]
 data Stmt
   = Print Atom
   | Calc Expr
-  | IfS Expr Block Block
+  | IfS Cmp Block Block
   | Assign Name Expr
   deriving (Show)
 

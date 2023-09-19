@@ -42,6 +42,17 @@ rcoAtom e = case e of
     name <- fresh
     pure (ASTMon.Name name, ls ++ [ASTMon.Assign name le])
 
+rcoCond :: AST.Expr -> RCO (ASTMon.Cmp, [ASTMon.Stmt])
+rcoCond e = case e of
+  AST.Bin op l r | AST.isComparisonOp op -> do
+    (la, ls) <- rcoAtom l
+    (ra, rs) <- rcoAtom r
+    pure (ASTMon.CmpOp op la ra, ls ++ rs)
+  AST.Bool b -> pure (ASTMon.CmpLit b, [])
+  _ -> do
+    (ea, es) <- rcoAtom e
+    pure (ASTMon.CmpAtom ea, es)
+
 rcoExpr :: AST.Expr -> RCO (ASTMon.Expr, [ASTMon.Stmt])
 rcoExpr e = case e of
   AST.Bin op l r -> do
@@ -54,10 +65,10 @@ rcoExpr e = case e of
   AST.InputInt ->
     pure (ASTMon.InputInt, [])
   AST.If cond cons alt -> do
-    cond1 <- rcoBlock cond
+    (cond1, condSs) <- rcoCond cond
     cons1 <- rcoBlock cons
     alt1 <- rcoBlock alt
-    pure (ASTMon.If cond1 cons1 alt1, [])
+    pure (ASTMon.If cond1 cons1 alt1, condSs)
   _ -> do
     (ea, es) <- rcoAtom e
     pure (ASTMon.Atom ea, es)
@@ -70,7 +81,7 @@ rcoStmt = \case
   AST.Calc e -> wrap ASTMon.Calc e
   AST.Assign n e -> wrap (ASTMon.Assign (ASTMon.Source n)) e
   AST.IfS cond cons alt -> do
-    (ca, cs) <- rcoExpr cond
+    (ca, cs) <- rcoCond cond
     cons1 <- concat <$> mapM rcoStmt cons
     alt1 <- concat <$> mapM rcoStmt alt
     pure (cs ++ [ASTMon.IfS ca cons1 alt1])
