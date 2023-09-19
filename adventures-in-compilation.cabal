@@ -35,6 +35,7 @@ library
         , CFG.PhiPlacement
         , CFG.Printer
         , LVar.AST
+        , LVar.ASTC
         , LVar.ASTMon
         , LVar.Compiler
         , LVar.Liveness
