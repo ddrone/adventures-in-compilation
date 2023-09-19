@@ -1,0 +1,4 @@
+  y = 10
+  $0 = -y
+  print($0)
+  return 0

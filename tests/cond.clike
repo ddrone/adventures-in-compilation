@@ -1,0 +1,48 @@
+  x = True
+  y = False
+  if x
+    then jump block_8
+    else jump block_9
+
+block_0:
+  return 0
+
+block_1:
+  $0 = 25 + 40
+  print($0)
+  goto block_0
+
+block_2:
+  print(10)
+  goto block_0
+
+block_3:
+  if y
+    then jump block_1
+    else jump block_0
+
+block_4:
+  if $1
+    then jump block_2
+    else jump block_3
+
+block_5:
+  $1 = not y
+  goto block_4
+
+block_6:
+  $1 = False
+  goto block_4
+
+block_7:
+  if x
+    then jump block_5
+    else jump block_6
+
+block_8:
+  z = 45 + 10
+  goto block_7
+
+block_9:
+  z = 20
+  goto block_7

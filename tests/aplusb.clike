@@ -1,0 +1,5 @@
+  x = input_int()
+  y = input_int()
+  $0 = x + y
+  print($0)
+  return 0
