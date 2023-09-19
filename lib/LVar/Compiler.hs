@@ -292,7 +292,7 @@ generateWrapper savedRegisters localsCount =
 
 compileAll :: AST.Module -> [X86.GenInstr Void]
 compileAll mod =
-  let rco = peModule (rcoModule mod)
+  let rco = peModule (rcoModule (AST.mapModule shrinkExpr mod))
       selected = selectInstructions rco
       AssignHomesResult count csr assigned = assignHomesAndCountVars selected
       patched = patchInstructions assigned

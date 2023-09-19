@@ -73,9 +73,19 @@ data Stmt
   | IfS Expr Block Block
   deriving (Show)
 
+mapExpr :: (Expr -> Expr) -> Stmt -> Stmt
+mapExpr f = \case
+  Print e -> Print (f e)
+  Calc e -> Calc (f e)
+  Assign n e -> Assign n (f e)
+  IfS cond cons alt -> IfS (f cond) (map (mapExpr f) cons) (map (mapExpr f) alt)
+
 data GenModule s = Module
   { modStmts :: [s]
   }
   deriving (Show)
 
 type Module = GenModule Stmt
+
+mapModule :: (Expr -> Expr) -> Module -> Module
+mapModule f (Module stmts) = Module (map (mapExpr f) stmts)
