@@ -22,16 +22,32 @@ data Atom
   | Name Name
   deriving (Show)
 
+-- Not sure if I actually need this
+data Cmp
+  = CmpAtom Atom
+  | CmpOp Binop Atom Atom
+  deriving (Show)
+
 data Expr
   = Atom Atom
   | Bin Binop Atom Atom
   | Unary Unop Atom
+  | If Expr Expr Expr
+  | Begin Block Expr
   | InputInt
   deriving (Show)
+
+begin :: Expr -> Block -> Expr
+begin e block = case block of
+  [] -> e
+  _ -> Begin block e
+
+type Block = [Stmt]
 
 data Stmt
   = Print Atom
   | Calc Expr
+  | IfS Expr Block Block
   | Assign Name Expr
   deriving (Show)
 

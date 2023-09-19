@@ -35,6 +35,7 @@ fresh = do
 rcoAtom :: AST.Expr -> RCO (ASTMon.Atom, [ASTMon.Stmt])
 rcoAtom e = case e of
   AST.Const n -> pure (ASTMon.Const n, [])
+  AST.Bool b -> pure (ASTMon.Bool b, [])
   AST.Name v -> pure (ASTMon.Name (ASTMon.Source v), [])
   _ -> do
     (le, ls) <- rcoExpr e
@@ -52,15 +53,27 @@ rcoExpr e = case e of
     pure (ASTMon.Unary op ia, is)
   AST.InputInt ->
     pure (ASTMon.InputInt, [])
+  AST.If cond cons alt -> do
+    cond1 <- rcoBlock cond
+    cons1 <- rcoBlock cons
+    alt1 <- rcoBlock alt
+    pure (ASTMon.If cond1 cons1 alt1, [])
   _ -> do
     (ea, es) <- rcoAtom e
     pure (ASTMon.Atom ea, es)
+  where
+    rcoBlock e = uncurry ASTMon.begin <$> rcoExpr e
 
 rcoStmt :: AST.Stmt -> RCO [ASTMon.Stmt]
 rcoStmt = \case
   AST.Print e -> wrapAtom ASTMon.Print e
   AST.Calc e -> wrap ASTMon.Calc e
   AST.Assign n e -> wrap (ASTMon.Assign (ASTMon.Source n)) e
+  AST.IfS cond cons alt -> do
+    (ca, cs) <- rcoExpr cond
+    cons1 <- concat <$> mapM rcoStmt cons
+    alt1 <- concat <$> mapM rcoStmt alt
+    pure (cs ++ [ASTMon.IfS ca cons1 alt1])
   where
     wrapAtom f e = do
       (ea, es) <- rcoAtom e

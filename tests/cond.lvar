@@ -3,8 +3,7 @@ y = False
 z = 45 + 10 if x else 20
 
 if x and not y {
-  w = 10
-  print(w)
+  print(10)
 } else {
   if y {
     print(25 + 40)
