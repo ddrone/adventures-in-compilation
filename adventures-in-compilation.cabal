@@ -38,6 +38,7 @@ library
         , LVar.ASTC
         , LVar.ASTMon
         , LVar.Compiler
+        , LVar.ExplicateControl
         , LVar.Liveness
         , LVar.MoveBiasing
         , LVar.PartialEval

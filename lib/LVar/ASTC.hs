@@ -1,14 +1,9 @@
 module LVar.ASTC where
 import Data.Int (Int64)
-import LVar.ASTMon (Name)
+import LVar.ASTMon (Name, Atom)
 import LVar.AST (Binop, Unop)
 import Data.Text (Text)
-
-data Atom
-  = Const Int64
-  | Bool Bool
-  | Name Name
-  deriving (Show)
+import Data.IntMap (IntMap)
 
 data Expr
   = Atom Atom
@@ -34,4 +29,16 @@ data Tail
   = Return Expr
   | Goto Label
   | CondJump Cond Label Label
+  deriving (Show)
+
+data Block = Block
+  { blockStmts :: [Stmt]
+  , blockTail :: Tail
+  }
+  deriving (Show)
+
+data Module = Module
+  { moduleStart :: Block
+  , moduleBlocks :: IntMap Block
+  }
   deriving (Show)

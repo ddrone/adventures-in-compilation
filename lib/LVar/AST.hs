@@ -1,7 +1,9 @@
 module LVar.AST where
 
 import Data.Int (Int64)
+import Data.Set (Set)
 import Data.Text (Text)
+import qualified Data.Set as Set
 
 data Binop
   = Add
@@ -14,7 +16,13 @@ data Binop
   | Ne
   | And
   | Or
-  deriving (Show)
+  deriving (Show, Eq, Ord)
+
+comparisonOps :: Set Binop
+comparisonOps = Set.fromList [Le, Lt, Ge, Gt, Eq, Ne]
+
+isComparisonOp :: Binop -> Bool
+isComparisonOp = flip Set.member comparisonOps
 
 binopRepr :: Binop -> Text
 binopRepr = \case

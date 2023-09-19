@@ -15,7 +15,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement shrinking pass that gets rid of `and` and `or` binary operators
 - [x] Extend RCO pass to the new language features, adding necessary constructors to the IR
 - [x] Write AST definitions for new C-like intermediate language
-- [ ] Implement "explicate control" pass
+- [x] Implement "explicate control" pass
+- [ ] Implement human-readable printing of C-like IR
+- [ ] Check that explicate control works similarly to the book
 - [ ] Add new X86 constructs to its abstract syntax
 - [ ] Implement printing those new X86 constructs into concrete syntax used by GCC
 
