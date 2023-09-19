@@ -1,24 +1,30 @@
 module LVar.Compiler where
 
+import Control.Monad.Reader
 import Control.Monad.State
 import Data.Int (Int64)
 import Data.Map (Map)
 import Data.Void (Void)
+import Data.Maybe (fromJust)
+import Data.Set (Set)
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 import LVar.X86 (GenInstr(..), Reg(..))
+import LVar.Liveness
+import LVar.MoveBiasing (moveRelated)
+import qualified UndirectedGraph
 import qualified LVar.AST as AST
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
-import LVar.Liveness
-import qualified UndirectedGraph
-import Control.Monad.Reader
-import Data.Maybe (fromJust)
-import Data.Set (Set)
-import qualified Data.Set as Set
-import LVar.MoveBiasing (moveRelated)
 
 type RCO a = State Int a
+
+shrinkExpr :: AST.Expr -> AST.Expr
+shrinkExpr = AST.exprTopdown $ \case
+  AST.Bin AST.And e1 e2 -> AST.If e1 e2 (AST.Bool False)
+  AST.Bin AST.Or e1 e2 -> AST.If e1 (AST.Bool False) e2
+  e -> e
 
 fresh :: RCO ASTMon.Name
 fresh = do
