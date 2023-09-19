@@ -6,6 +6,7 @@ import Data.Text (Text)
 import Data.Map (Map)
 import Data.Maybe (catMaybes)
 import qualified Data.Map as Map
+import qualified Data.Text as Text
 
 import LVar.AST (Binop, Unop, GenModule)
 import LVar.PartialEval (evalBinop, evalUnop, Value)
@@ -16,11 +17,22 @@ data Name
   | Gen Int
   deriving (Eq, Show, Ord)
 
+printName :: Name -> Text
+printName = \case
+  Source t -> t
+  Gen n -> "$" <> Text.pack (show n)
+
 data Atom
   = Const Int64
   | Bool Bool
   | Name Name
   deriving (Show)
+
+printAtom :: Atom -> Text
+printAtom = \case
+  Const x -> Text.pack (show x)
+  Bool b -> Text.pack (show b)
+  Name n -> printName n
 
 -- Not sure if I actually need this
 data Cmp

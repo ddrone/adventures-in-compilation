@@ -42,6 +42,11 @@ data Unop
   | Not
   deriving (Show)
 
+prependUnop :: Text -> Unop -> Text
+prependUnop t = \case
+  Neg -> "-" <> t
+  Not -> "not " <> t
+
 unopRepr :: Unop -> Text
 unopRepr = \case
   Neg -> "-"

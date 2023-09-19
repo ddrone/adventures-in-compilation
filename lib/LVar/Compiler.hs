@@ -82,8 +82,8 @@ rcoStmt = \case
       (ea, es) <- rcoExpr e
       pure (es ++ [f ea])
 
-rcoModule :: AST.Module -> ASTMon.Module
-rcoModule (AST.Module stmts) = flip evalState 0 $ do
+rcoModule :: AST.Module -> (ASTMon.Module, Int)
+rcoModule (AST.Module stmts) = flip runState 0 $ do
   newStmts <- concat <$> mapM rcoStmt stmts
   pure (AST.Module newStmts)
 
@@ -305,8 +305,9 @@ generateWrapper savedRegisters localsCount =
 
 compileAll :: AST.Module -> [X86.GenInstr Void]
 compileAll mod =
-  let rco = peModule (rcoModule (AST.mapModule shrinkExpr mod))
-      selected = selectInstructions rco
+  let (rco, _) = rcoModule (AST.mapModule shrinkExpr mod)
+      pevaled = peModule rco
+      selected = selectInstructions pevaled
       AssignHomesResult count csr assigned = assignHomesAndCountVars selected
       patched = patchInstructions assigned
       (prefix, suffix) = generateWrapper csr count

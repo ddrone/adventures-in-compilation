@@ -128,8 +128,8 @@ explicateStatement stmt cont = case stmt of
     explicatePred cond consCont altCont
   ASTMon.Assign n e -> explicateAssign e n cont
 
-explicateControl :: Int -> ASTMon.Module -> ASTC.Module
-explicateControl startVar (AST.Module stmts) =
+explicateControl :: ASTMon.Module -> Int -> ASTC.Module
+explicateControl (AST.Module stmts) startVar =
   let initState = ECState 0 IntMap.empty startVar
       ret = ASTC.Return (ASTC.Atom (ASTMon.Const 0))
       (startBlock, endState) = runState (explicateBlock stmts (tail ret)) initState

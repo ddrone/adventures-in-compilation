@@ -1,15 +1,19 @@
 module Main where
 
-import LVar.Parser (program)
-import qualified Data.Text.IO as TextIO
-import System.Environment (getArgs)
 import Data.Foldable (forM_)
-import Text.Megaparsec (runParser, errorBundlePretty)
-import LVar.Compiler (compileAll)
-import LVar.X86 (printProgram)
 import System.FilePath
 import System.Process
+import System.Environment (getArgs)
+import Text.Megaparsec (runParser, errorBundlePretty)
+import qualified Data.Text.IO as TextIO
+
+import LVar.AST (mapModule)
+import LVar.ASTC (printModule)
+import LVar.Compiler (compileAll, rcoModule, shrinkExpr)
+import LVar.ExplicateControl (explicateControl)
+import LVar.Parser (program)
 import LVar.Typechecker (typecheckModule)
+import LVar.X86 (printProgram)
 
 main = do
   files <- getArgs
@@ -24,6 +28,8 @@ main = do
         case typecheckModule p of
           Nothing -> do
             putStrLn $ "Typecheck of " ++ file ++ " successful!"
+            let clike = uncurry explicateControl (rcoModule (mapModule shrinkExpr p))
+            TextIO.writeFile (replaceExtensions file "clike") (printModule clike)
             let instrs = compileAll p
             let code = printProgram instrs
             TextIO.writeFile assemblyName code

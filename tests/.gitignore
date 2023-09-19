@@ -1,3 +1,4 @@
 *.exe
 runtime.o
 cond.s
+*.clike
