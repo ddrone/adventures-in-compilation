@@ -8,8 +8,8 @@ block_0:
   return 0
 
 block_1:
-  $0 = 25 + 40
-  print($0)
+  $1 = 25 + 40
+  print($1)
   goto block_0
 
 block_2:
@@ -22,16 +22,16 @@ block_3:
     else jump block_0
 
 block_4:
-  if $1
+  if $0
     then jump block_2
     else jump block_3
 
 block_5:
-  $1 = not y
+  $0 = not y
   goto block_4
 
 block_6:
-  $1 = False
+  $0 = False
   goto block_4
 
 block_7:

@@ -8,9 +8,10 @@ import Data.Maybe (catMaybes)
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 
-import LVar.AST (Binop, Unop, GenModule)
+import LVar.AST (Binop, Unop, GenModule, binopRepr, prependUnop)
 import LVar.PartialEval (evalBinop, evalUnop, Value)
 import qualified LVar.PartialEval as PE
+import qualified LVar.AST as AST
 
 data Name
   = Source Text
@@ -41,6 +42,18 @@ data Cmp
   | CmpOp Binop Atom Atom
   deriving (Show)
 
+printBinary :: Binop -> Atom -> Atom -> Text
+printBinary op a1 a2 = Text.concat [printAtom a1, " ", binopRepr op, " ", printAtom a2]
+
+printUnary :: Unop -> Atom -> Text
+printUnary op a = prependUnop (printAtom a) op
+
+printCmp :: Cmp -> Text
+printCmp = \case
+  CmpAtom atom -> printAtom atom
+  CmpLit bool -> Text.pack (show bool)
+  CmpOp op a1 a2 -> printBinary op a1 a2
+
 data Expr
   = Atom Atom
   | Bin Binop Atom Atom
@@ -49,6 +62,56 @@ data Expr
   | Begin Block Expr
   | InputInt
   deriving (Show)
+
+bracket (t, flag) = case flag of
+  True -> "(" <> t <> ")"
+  False -> t
+
+printExpr :: Int -> Expr -> (Text, Bool)
+printExpr level expr =
+  let indent = Text.pack (take (2 * level) (repeat ' '))
+      content = case expr of
+        Atom a -> (printAtom a, False)
+        Bin op a1 a2 -> (printBinary op a1 a2, False)
+        Unary op a -> (printUnary op a, False)
+        If c e1 e2 ->
+          let result = Text.concat
+                [ "if "
+                , printCmp c
+                , " then "
+                , bracket (printExpr level e1)
+                , " else "
+                , bracket (printExpr level e2)
+                ]
+          in (result, True)
+        InputInt -> ("input_int()", False)
+        Begin ss e ->
+          let result = Text.intercalate "\n" $
+                "begin {" :
+                map (printStmt (level + 1)) ss ++
+                [indent <> "} in " <> bracket (printExpr level e)]
+          in (result, False)
+  in case content of
+       (t, flag) -> (indent <> t, flag)
+
+printBlock :: Int -> Block -> Text
+printBlock level ss = Text.intercalate "\n" (map (printStmt level) ss)
+
+printStmt :: Int -> Stmt -> Text
+printStmt level stmt =
+  let indent = Text.pack (take (2 * level) (repeat ' '))
+      content = case stmt of
+        Print a -> Text.concat ["print(", printAtom a, ")"]
+        Calc e -> fst (printExpr level e)
+        IfS cmp cons alt -> Text.intercalate "\n"
+          [ "if " <> printCmp cmp <> " {"
+          , printBlock (level + 1) cons
+          , indent <> "} else {"
+          , printBlock (level + 1) alt
+          , indent <> "}"
+          ]
+        Assign n e -> Text.concat [printName n, " = ", fst (printExpr level e)]
+  in indent <> content
 
 begin :: Expr -> Block -> Expr
 begin e block = case block of
@@ -65,6 +128,9 @@ data Stmt
   deriving (Show)
 
 type Module = GenModule Stmt
+
+printModule :: Module -> Text
+printModule (AST.Module ss) = printBlock 0 ss
 
 type PE a = State (Map Name Value) a
 

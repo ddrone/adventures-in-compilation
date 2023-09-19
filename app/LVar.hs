@@ -14,6 +14,7 @@ import LVar.ExplicateControl (explicateControl)
 import LVar.Parser (program)
 import LVar.Typechecker (typecheckModule)
 import LVar.X86 (printProgram)
+import qualified LVar.ASTMon as ASTMon
 
 main = do
   files <- getArgs
@@ -28,7 +29,9 @@ main = do
         case typecheckModule p of
           Nothing -> do
             putStrLn $ "Typecheck of " ++ file ++ " successful!"
-            let clike = uncurry explicateControl (rcoModule (mapModule shrinkExpr p))
+            let rco = rcoModule (mapModule shrinkExpr p)
+            TextIO.writeFile (replaceExtensions file "mon") (ASTMon.printModule (fst rco))
+            let clike = uncurry explicateControl rco
             TextIO.writeFile (replaceExtensions file "clike") (printModule clike)
             let instrs = compileAll p
             let code = printProgram instrs
