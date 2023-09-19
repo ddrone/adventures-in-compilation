@@ -69,30 +69,28 @@ bracket (t, flag) = case flag of
 
 printExpr :: Int -> Expr -> (Text, Bool)
 printExpr level expr =
-  let indent = Text.pack (take (2 * level) (repeat ' '))
-      content = case expr of
-        Atom a -> (printAtom a, False)
-        Bin op a1 a2 -> (printBinary op a1 a2, False)
-        Unary op a -> (printUnary op a, False)
-        If c e1 e2 ->
-          let result = Text.concat
-                [ "if "
-                , printCmp c
-                , " then "
-                , bracket (printExpr level e1)
-                , " else "
-                , bracket (printExpr level e2)
-                ]
-          in (result, True)
-        InputInt -> ("input_int()", False)
-        Begin ss e ->
-          let result = Text.intercalate "\n" $
-                "begin {" :
-                map (printStmt (level + 1)) ss ++
-                [indent <> "} in " <> bracket (printExpr level e)]
-          in (result, False)
-  in case content of
-       (t, flag) -> (indent <> t, flag)
+  let indent = Text.pack (take (2 * level) (repeat ' ')) in
+  case expr of
+    Atom a -> (printAtom a, False)
+    Bin op a1 a2 -> (printBinary op a1 a2, False)
+    Unary op a -> (printUnary op a, False)
+    If c e1 e2 ->
+      let result = Text.concat
+            [ "if "
+            , printCmp c
+            , " then "
+            , bracket (printExpr level e1)
+            , " else "
+            , bracket (printExpr level e2)
+            ]
+      in (result, True)
+    InputInt -> ("input_int()", False)
+    Begin ss e ->
+      let result = Text.intercalate "\n" $
+            "begin {" :
+            map (printStmt (level + 1)) ss ++
+            [indent <> "} in " <> bracket (printExpr level e)]
+      in (result, False)
 
 printBlock :: Int -> Block -> Text
 printBlock level ss = Text.intercalate "\n" (map (printStmt level) ss)

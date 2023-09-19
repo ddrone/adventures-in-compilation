@@ -6,7 +6,7 @@ if $0 {
   print(10)
 } else {
   if y {
-    $1 =     25 + 40
+    $1 = 25 + 40
     print($1)
   } else {
 
