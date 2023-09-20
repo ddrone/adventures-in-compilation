@@ -9,6 +9,7 @@ import qualified Data.Set as Set
 import Control.Monad.ST (runST)
 import Data.STRef (newSTRef, readSTRef, modifySTRef)
 import Control.Monad (when, unless)
+import Control.Arrow ((***))
 
 newtype Graph v = Graph
   { graphEdges :: SetMultimap v v
@@ -34,9 +35,15 @@ allEdges (Graph g) = do
   to <- Set.toList tos
   pure (from, to)
 
+fromList :: Ord v => [(v, v)] -> Graph v
+fromList = foldr (uncurry addEdge) empty
+
+map :: (Ord v, Ord u) => (v -> u) -> Graph v -> Graph u
+map f = fromList . Prelude.map (f *** f) . allEdges
+
 printGraph :: Ord v => (v -> v -> Graphviz.Edge) -> Graph v -> Text
 printGraph genEdge g =
-  let edges = map (uncurry genEdge) (allEdges g) in
+  let edges = Prelude.map (uncurry genEdge) (allEdges g) in
   Graphviz.printDigraph [] edges
 
 printGraphSimple :: Ord v => (v -> Text) -> Graph v -> Text
