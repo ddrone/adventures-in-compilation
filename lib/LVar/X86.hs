@@ -6,6 +6,29 @@ import Data.Text (Text)
 import Data.Void (Void, absurd)
 import qualified Data.Text as Text
 
+data ByteReg
+  = Ah
+  | Al
+  | Bh
+  | Bl
+  | Ch
+  | Cl
+  | Dh
+  | Dl
+  deriving (Eq, Ord, Show)
+
+data Cmp
+  = E -- Equal
+  | Ne -- Not equal
+  | L -- Less than
+  | Le -- Less than or equal
+  | G -- Greater than
+  | Ge -- Greater than or equal
+  deriving (Eq, Ord, Show)
+
+printCmp :: Cmp -> Text
+printCmp c = Text.pack (map toLower (show c))
+
 data Reg
   = Rsp
   | Rbp
@@ -25,12 +48,16 @@ data Reg
   | R15
   deriving (Eq, Ord, Show)
 
+printByteRegister :: ByteReg -> Text
+printByteRegister r = Text.pack ('%' : map toLower (show r))
+
 printRegister :: Reg -> Text
 printRegister r = Text.pack ('%' : map toLower (show r))
 
 data Arg n
   = Immediate Int64
   | Reg Reg
+  | ByteReg ByteReg
   | Deref Reg Int64
   | Name n
   deriving (Eq, Ord, Show)
@@ -39,6 +66,7 @@ printArg :: (n -> Text) -> Arg n -> Text
 printArg pn = \case
   Immediate c -> Text.pack ('$' : show c)
   Reg r -> printRegister r
+  ByteReg r -> printByteRegister r
   Deref r offset -> Text.concat
     [ Text.pack (show offset)
     , "("
@@ -57,6 +85,11 @@ data GenInstr n
   | Callq Text Int -- arity of the called function - needed to compute live registers
   | Retq
   | Jump Text
+  | Xorq (Arg n) (Arg n)
+  | Cmpq (Arg n) (Arg n)
+  | Set Cmp (Arg n)
+  | Movzbq (Arg n) (Arg n)
+  | JumpIf Cmp Text
   deriving (Show)
 
 printInstr :: (n -> Text) -> GenInstr n -> Text
@@ -79,6 +112,11 @@ printInstr pn =
     Addq a1 a2 -> binary "addq" a1 a2
     Subq a1 a2 -> binary "subq" a1 a2
     Movq a1 a2 -> binary "movq" a1 a2
+    Xorq a1 a2 -> binary "xorq" a1 a2
+    Cmpq a1 a2 -> binary "cmpq" a1 a2
+    Movzbq a1 a2 -> binary "movzbq" a1 a2
+    Set c a -> unary ("set" <> printCmp c) a
+    JumpIf c label -> Text.unwords ["j" <> printCmp c, label]
     Negq a -> unary "negq" a
     Pushq a -> unary "pushq" a
     Popq a -> unary "popq" a
@@ -104,6 +142,11 @@ traverseInstr f = \case
   Callq t c -> pure (Callq t c)
   Retq -> pure Retq
   Jump t -> pure (Jump t)
+  Xorq a1 a2 -> Xorq <$> f a1 <*> f a2
+  Cmpq a1 a2 -> Cmpq <$> f a1 <*> f a2
+  Movzbq a1 a2 -> Movzbq <$> f a1 <*> f a2
+  Set c a -> Set c <$> f a
+  JumpIf c label -> pure (JumpIf c label)
 
 data Program n = Program
   { progInstrs :: [GenInstr n]
