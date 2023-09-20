@@ -2,3 +2,5 @@
   $0 = 10 + x
   print($0)
   return 0
+
+topsort: [0]

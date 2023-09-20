@@ -25,3 +25,5 @@
   $11 = $10 + x13
   print($11)
   return 0
+
+topsort: [0]

@@ -9,6 +9,8 @@ import qualified Data.IntMap as IntMap
 
 import LVar.ASTMon (Name, Atom, printAtom, printName)
 import LVar.AST (Binop, Unop, prependUnop, binopRepr)
+import DirectedGraph (Graph)
+import qualified DirectedGraph as Graph
 
 data Expr
   = Atom Atom
@@ -83,7 +85,16 @@ printBlock :: Block -> [Text]
 printBlock (Block stmts tail) = map printStmt stmts ++ [printTail tail]
 
 printModule :: Module -> Text
-printModule (Module start blocks) =
+printModule mod@(Module start blocks) =
   let printLabeledBlock label block = (printLabel label <> ":") : printBlock block
       lines = concat (intersperse [Text.pack ""] (printBlock start : map (uncurry printLabeledBlock) (IntMap.toList blocks)))
-  in Text.unlines lines
+      topSortLine = Text.concat ["topsort: ", Text.pack (show (Graph.topologicalSort (toGraph mod) 0))]
+  in Text.unlines (lines ++ ["", topSortLine])
+
+toGraph :: Module -> Graph Int
+toGraph (Module start blocks) =
+  let blockEdge id block = case blockTail block of
+        Return _ -> []
+        Goto l -> [(id, l)]
+        CondJump _ l1 l2 -> [(id, l1), (id, l2)]
+  in foldr (uncurry Graph.addEdge) Graph.empty (concatMap (uncurry blockEdge) ((0, start) : IntMap.toList blocks))

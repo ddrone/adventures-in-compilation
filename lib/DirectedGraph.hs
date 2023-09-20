@@ -15,6 +15,9 @@ newtype Graph v = Graph
   }
   deriving (Show)
 
+empty :: Graph v
+empty = Graph SetMultimap.empty
+
 allNodes :: Ord v => Graph v -> Set v
 allNodes (Graph g) = Map.keysSet (SetMultimap.getMap g)
 
@@ -48,6 +51,7 @@ topologicalSort g start = runST $ do
   let go v = do
         isVisited <- Set.member v <$> readSTRef visited
         unless isVisited $ do
+          modifySTRef visited (Set.insert v)
           mapM_ go (edgesFrom v g)
           modifySTRef result (v :)
   go start

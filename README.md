@@ -22,9 +22,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add new X86 constructs to its abstract syntax
 - [x] Implement printing those new X86 constructs into concrete syntax used by GCC
 - [x] Create a module for directed graphs
-- [ ] Convert C-like IR module to a directed graph of jumps needed for liveness analysis
+- [x] Convert C-like IR module to a directed graph of jumps needed for liveness analysis
 - [x] Implement topological sorting for arbitrary graphs
-- [ ] Print the topological sorting of blocks in C-like IR
+- [x] Print the topological sorting of blocks in C-like IR
 - [ ] Implement liveness analysis for acyclic CFG
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar

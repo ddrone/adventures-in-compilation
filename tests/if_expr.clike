@@ -1,30 +1,32 @@
   x = input_int()
   y = input_int()
   if x < 1
-    then jump block_4
-    else jump block_5
+    then jump block_5
+    else jump block_6
 
-block_0:
+block_1:
   print($1)
   return 0
 
-block_1:
-  $1 = y + 2
-  goto block_0
-
 block_2:
-  $1 = y + 10
-  goto block_0
+  $1 = y + 2
+  goto block_1
 
 block_3:
-  if $0
-    then jump block_1
-    else jump block_2
+  $1 = y + 10
+  goto block_1
 
 block_4:
-  $0 = x == 0
-  goto block_3
+  if $0
+    then jump block_2
+    else jump block_3
 
 block_5:
+  $0 = x == 0
+  goto block_4
+
+block_6:
   $0 = x == 2
-  goto block_3
+  goto block_4
+
+topsort: [0,6,5,4,3,2,1]

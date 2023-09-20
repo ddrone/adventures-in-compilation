@@ -2,3 +2,5 @@
   b = a
   print(b)
   return 0
+
+topsort: [0]

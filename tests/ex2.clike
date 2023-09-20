@@ -2,3 +2,5 @@
   $0 = -y
   print($0)
   return 0
+
+topsort: [0]

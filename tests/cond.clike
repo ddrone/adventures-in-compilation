@@ -1,48 +1,50 @@
   x = True
   y = False
   if x
-    then jump block_8
-    else jump block_9
-
-block_0:
-  return 0
+    then jump block_9
+    else jump block_10
 
 block_1:
-  $1 = 25 + 40
-  print($1)
-  goto block_0
+  return 0
 
 block_2:
-  print(10)
-  goto block_0
+  $1 = 25 + 40
+  print($1)
+  goto block_1
 
 block_3:
-  if y
-    then jump block_1
-    else jump block_0
+  print(10)
+  goto block_1
 
 block_4:
-  if $0
+  if y
     then jump block_2
-    else jump block_3
+    else jump block_1
 
 block_5:
-  $0 = not y
-  goto block_4
+  if $0
+    then jump block_3
+    else jump block_4
 
 block_6:
-  $0 = False
-  goto block_4
+  $0 = not y
+  goto block_5
 
 block_7:
-  if x
-    then jump block_5
-    else jump block_6
+  $0 = False
+  goto block_5
 
 block_8:
-  z = 45 + 10
-  goto block_7
+  if x
+    then jump block_6
+    else jump block_7
 
 block_9:
+  z = 45 + 10
+  goto block_8
+
+block_10:
   z = 20
-  goto block_7
+  goto block_8
+
+topsort: [0,10,9,8,7,6,5,4,2,3,1]
