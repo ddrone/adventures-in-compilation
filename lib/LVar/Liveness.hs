@@ -19,6 +19,11 @@ instructionReads :: Ord n => GenInstr n -> Set (Arg n)
 instructionReads = \case
   Addq l1 l2 -> Set.fromList [l1, l2]
   Subq l1 l2 -> Set.fromList [l1, l2]
+  Xorq l1 l2 -> Set.fromList [l1, l2]
+  Cmpq l1 l2 -> Set.fromList [l1, l2]
+  Set _ _ -> Set.empty
+  Movzbq l1 _ -> Set.singleton l1
+  JumpIf _ _ -> Set.empty -- technically, EFLAGS, but we don't modify it directly anyway
   Movq src _ -> Set.singleton src
   Negq l1 -> Set.singleton l1
   Pushq l1 -> Set.singleton l1
@@ -31,6 +36,11 @@ instructionWritesTo :: Ord n => GenInstr n -> Set (Arg n)
 instructionWritesTo = \case
   Addq l1 l2 -> Set.singleton l2
   Subq l1 l2 -> Set.singleton l2
+  Xorq l1 l2 -> Set.singleton l2
+  Cmpq l1 l2 -> Set.empty
+  Set _ l2 -> Set.singleton l2
+  Movzbq _ l2 -> Set.singleton l2
+  JumpIf _ _ -> Set.empty
   Movq src dest -> Set.singleton dest
   Negq l1 -> Set.singleton l1
   Pushq l1 -> Set.singleton (Reg Rsp)
@@ -58,6 +68,7 @@ interferenceGraph instrs =
   let fromLoc u = case u of
         Name _ -> [u]
         Reg _ -> [u]
+        ByteReg _ -> []
         Deref _ _ -> error "should not be here during register allocation"
         Immediate _ -> []
       fromPair u v = do
