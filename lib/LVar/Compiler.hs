@@ -241,6 +241,7 @@ ahArg = \case
     locationToX86 <$> getLocation n
   X86.Immediate i -> pure (X86.Immediate i)
   X86.Reg r -> pure (X86.Reg r)
+  X86.ByteReg r -> pure (X86.ByteReg r)
   X86.Deref r o -> pure (X86.Deref r o)
 
 ahInstr :: Instr -> AH (X86.GenInstr Void)
