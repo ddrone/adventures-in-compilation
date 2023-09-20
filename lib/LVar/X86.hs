@@ -5,6 +5,7 @@ import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Void (Void, absurd)
 import qualified Data.Text as Text
+import Data.Map (Map)
 
 data ByteReg
   = Ah
@@ -148,7 +149,10 @@ traverseInstr f = \case
   Set c a -> Set c <$> f a
   JumpIf c label -> pure (JumpIf c label)
 
+type Block n = [GenInstr n]
+
 data Program n = Program
-  { progInstrs :: [GenInstr n]
+  { progStartBlock :: Block n
+  , progBlocks :: Map Text (Block n)
   }
   deriving (Show)

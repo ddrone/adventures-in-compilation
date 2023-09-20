@@ -108,16 +108,32 @@ type Arg = X86.Arg ASTMon.Name
 atom :: ASTMon.Atom -> Arg
 atom = \case
   ASTMon.Const c -> X86.Immediate c
+  ASTMon.Bool True -> X86.Immediate 1
+  ASTMon.Bool False -> X86.Immediate 0
   ASTMon.Name n -> X86.Name n
 
-selectBinop :: AST.Binop -> Arg -> Arg -> Instr
-selectBinop = \case
-  AST.Add -> Addq
-  AST.Sub -> Subq
+comparisonBinops :: Map AST.Binop X86.Cmp
+comparisonBinops = Map.fromList
+  [ (AST.Le, X86.Le)
+  , (AST.Lt, X86.L)
+  , (AST.Ge, X86.Ge)
+  , (AST.Gt, X86.G)
+  , (AST.Eq, X86.E)
+  , (AST.Ne, X86.Ne)
+  ]
+
+selectBinop :: AST.Binop -> Either (Arg -> Arg -> Instr) X86.Cmp
+selectBinop op = case op of
+  AST.Add -> Left Addq
+  AST.Sub -> Left Subq
+  _ -> case Map.lookup op comparisonBinops of
+    Nothing -> error ("unexpected operator " ++ show op)
+    Just cmp -> Right cmp
 
 selectUnop :: AST.Unop -> Arg -> Instr
 selectUnop = \case
   AST.Neg -> Negq
+  AST.Not -> Xorq (X86.Immediate 1)
 
 selectExpr :: Arg -> ASTMon.Expr -> [Instr]
 selectExpr dest = \case
@@ -129,12 +145,19 @@ selectExpr dest = \case
   ASTMon.Bin op a1 a2 ->
     let src1 = atom a1
         src2 = atom a2 in
-    if
-      | src1 == dest -> [ selectBinop op src2 dest ]
-      | src2 == dest -> [ selectBinop op src1 dest ]
-      | otherwise ->
-        [ Movq src1 dest
-        , selectBinop op src2 dest
+    case selectBinop op of
+      Left instr ->
+        if
+        | src1 == dest -> [ instr src2 dest ]
+        | src2 == dest -> [ instr src1 dest ]
+        | otherwise ->
+          [ Movq src1 dest
+          , instr src2 dest
+          ]
+      Right cmp ->
+        [ Cmpq src1 src2
+        , Set cmp (X86.ByteReg X86.Al)
+        , Movzbq (X86.ByteReg X86.Al) dest
         ]
   ASTMon.Unary op a ->
     let src = atom a in
