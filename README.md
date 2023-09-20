@@ -21,7 +21,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Check that explicate control works similarly to the book (it's not, but it's close enough. Not sure how to make it match though)
 - [x] Add new X86 constructs to its abstract syntax
 - [x] Implement printing those new X86 constructs into concrete syntax used by GCC
-- [ ] Implement topological sorting
+- [ ] Create a module for directed graphs
+- [ ] Convert C-like IR module to a directed graph of jumps needed for liveness analysis
+- [ ] Implement topological sorting for arbitrary graphs
 - [ ] Implement liveness analysis for acyclic CFG
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
