@@ -50,3 +50,9 @@ printTable headers rows =
       printRow row = Text.intercalate " | " (zipWith rightPad row maxLengths)
       afterHeader = Text.intercalate "-+-" (map (textRepeat '-') maxLengths)
   in Text.unlines (printRow headers : afterHeader : map printRow rows)
+
+mapFst :: (a -> c) -> (a, b) -> (c, b)
+mapFst f (x, y) = (f x, y)
+
+mapSnd :: (b -> c) -> (a, b) -> (a, c)
+mapSnd f (x, y) = (x, f y)

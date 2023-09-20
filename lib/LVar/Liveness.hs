@@ -1,10 +1,13 @@
 module LVar.Liveness where
-import LVar.X86 (GenInstr (..), Arg (..), Reg (..))
+import LVar.X86 (GenInstr (..), Arg (..), Reg (..), Program (Program))
 import Data.Set (Set)
 import qualified Data.Set as Set
 import UndirectedGraph (Graph)
 import qualified UndirectedGraph
 import Control.Monad (guard)
+import Data.Map (Map)
+import Data.Text (Text)
+import Utils (mapFst)
 
 argumentRegisters :: [Reg]
 argumentRegisters = [Rdi, Rsi, Rdx, Rcx, R8, R9]
@@ -62,6 +65,20 @@ computeLiveSets instrs =
         [] -> []
         (instr : rest) -> curr : go (beforeInstr instr curr) rest
   in reverse (go Set.empty revInstrs)
+
+data LiveBlock n = LiveBlock
+  { lbStatements :: [(GenInstr n, Set (Arg n))]
+  , lbLiveBefore :: Set (Arg n)
+  }
+
+computeLiveBlock :: Ord n => Set (Arg n) -> [GenInstr n] -> LiveBlock n
+computeLiveBlock liveStart instrs =
+  let revInstrs = reverse instrs
+      go curr = \case
+        [] -> ([], curr)
+        (instr : rest) -> mapFst (curr :) (go (beforeInstr instr curr) rest)
+      (revLiveAfters, liveBefore) = go liveStart revInstrs
+  in LiveBlock (zip instrs (reverse revLiveAfters)) liveBefore
 
 interferenceGraph :: Ord n => [GenInstr n] -> Graph (Arg n)
 interferenceGraph instrs =

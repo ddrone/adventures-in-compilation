@@ -20,6 +20,7 @@ import qualified LVar.AST as AST
 import qualified LVar.ASTC as ASTC
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
+import DirectedGraph (topologicalSort)
 
 type RCO a = State Int a
 
@@ -371,6 +372,7 @@ compileAll mod =
   let (rco, ecStart) = rcoModule (AST.mapModule shrinkExpr mod)
       pevaled = peModule rco
       explicated = explicateControl pevaled ecStart
+      topSort = topologicalSort (ASTC.toGraph explicated) 0
       selected = selectInstructions explicated
       -- TODO: have to fix up the compilation here
       AssignHomesResult count csr assigned = assignHomesAndCountVars undefined
