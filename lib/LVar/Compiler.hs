@@ -9,12 +9,15 @@ import Data.Maybe (fromJust)
 import Data.Set (Set)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.IntMap as IntMap
 
 import LVar.X86 (GenInstr(..), Reg(..))
 import LVar.Liveness
+import LVar.ExplicateControl (explicateControl)
 import LVar.MoveBiasing (moveRelated)
 import qualified UndirectedGraph
 import qualified LVar.AST as AST
+import qualified LVar.ASTC as ASTC
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
 
@@ -135,14 +138,14 @@ selectUnop = \case
   AST.Neg -> Negq
   AST.Not -> Xorq (X86.Immediate 1)
 
-selectExpr :: Arg -> ASTMon.Expr -> [Instr]
+selectExpr :: Arg -> ASTC.Expr -> [Instr]
 selectExpr dest = \case
-  ASTMon.Atom a ->
+  ASTC.Atom a ->
     let src = atom a in
     if dest == src
       then []
       else [Movq src dest]
-  ASTMon.Bin op a1 a2 ->
+  ASTC.Bin op a1 a2 ->
     let src1 = atom a1
         src2 = atom a2 in
     case selectBinop op of
@@ -159,7 +162,7 @@ selectExpr dest = \case
         , Set cmp (X86.ByteReg X86.Al)
         , Movzbq (X86.ByteReg X86.Al) dest
         ]
-  ASTMon.Unary op a ->
+  ASTC.Unary op a ->
     let src = atom a in
     if dest == src
       then [ selectUnop op dest ]
@@ -167,7 +170,7 @@ selectExpr dest = \case
         [ Movq src dest
         , selectUnop op dest
         ]
-  ASTMon.InputInt ->
+  ASTC.InputInt ->
     case dest of
       X86.Reg Rax -> [ Callq "read_int" 0 ]
       _ ->
@@ -175,17 +178,42 @@ selectExpr dest = \case
         , Movq (X86.Reg Rax) dest
         ]
 
-selectStmt :: ASTMon.Stmt -> [Instr]
+selectCmp :: ASTC.Cond -> (Instr, X86.Cmp)
+selectCmp = \case
+  ASTC.AtomC a -> (Cmpq (X86.Immediate 1) (atom a), X86.E)
+  ASTC.CmpC op a1 a2 ->
+    case Map.lookup op comparisonBinops of
+      Nothing -> error $ "should not have used " ++ show op ++ " in comparison"
+      Just c -> (Cmpq (atom a2) (atom a1), c)
+
+selectStmt :: ASTC.Stmt -> [Instr]
 selectStmt = \case
-  ASTMon.Print n ->
+  ASTC.Print n ->
     [ Movq (atom n) (X86.Reg Rdi)
     , Callq "print_int" 1
     ]
-  ASTMon.Calc e -> selectExpr (X86.Reg Rax) e
-  ASTMon.Assign n e -> selectExpr (X86.Name n) e
+  ASTC.Calc e -> selectExpr (X86.Reg Rax) e
+  ASTC.Assign n e -> selectExpr (X86.Name n) e
 
-selectInstructions :: ASTMon.Module -> [Instr]
-selectInstructions (AST.Module stmts) = concatMap selectStmt stmts
+selectTail :: ASTC.Tail -> [Instr]
+selectTail = \case
+  ASTC.Return e -> selectExpr (X86.Reg Rax) e ++ [Retq]
+  ASTC.Goto l -> [Jump (ASTC.printLabel l)]
+  ASTC.CondJump cmp l1 l2 ->
+    let (first, c) = selectCmp cmp in
+    [ first
+    , JumpIf c (ASTC.printLabel l1)
+    , Jump (ASTC.printLabel l2)
+    ]
+
+selectBlock :: ASTC.Block -> [Instr]
+selectBlock (ASTC.Block ss tail) = concatMap selectStmt ss ++ selectTail tail
+
+selectInstructions :: ASTC.Module -> X86.Program ASTMon.Name
+selectInstructions (ASTC.Module start blocks) =
+  let select (blockId, block) = (ASTC.printLabel blockId, selectBlock block)
+      selected = Map.fromList (map select (IntMap.toList blocks)) in
+  X86.Program (selectBlock start) selected
 
 raRegisters :: [X86.Reg]
 raRegisters =
@@ -340,10 +368,12 @@ generateWrapper savedRegisters localsCount =
 
 compileAll :: AST.Module -> [X86.GenInstr Void]
 compileAll mod =
-  let (rco, _) = rcoModule (AST.mapModule shrinkExpr mod)
+  let (rco, ecStart) = rcoModule (AST.mapModule shrinkExpr mod)
       pevaled = peModule rco
-      selected = selectInstructions pevaled
-      AssignHomesResult count csr assigned = assignHomesAndCountVars selected
+      explicated = explicateControl pevaled ecStart
+      selected = selectInstructions explicated
+      -- TODO: have to fix up the compilation here
+      AssignHomesResult count csr assigned = assignHomesAndCountVars undefined
       patched = patchInstructions assigned
       (prefix, suffix) = generateWrapper csr count
   in prefix ++ patched ++ suffix
