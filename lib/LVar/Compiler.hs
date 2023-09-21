@@ -200,7 +200,7 @@ selectStmt = \case
 
 selectTail :: ASTC.Tail -> [Instr]
 selectTail = \case
-  ASTC.Return e -> selectExpr (X86.Reg Rax) e ++ [Retq]
+  ASTC.Return e -> selectExpr (X86.Reg Rax) e ++ [Jump "conclusion"]
   ASTC.Goto l -> [Jump (ASTC.printLabel l)]
   ASTC.CondJump cmp l1 l2 ->
     let (first, c) = selectCmp cmp in

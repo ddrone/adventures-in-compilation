@@ -125,7 +125,7 @@ rawPrintInstr pn =
     Popq a -> unary "popq" a
     Callq label _ -> Text.unwords ["callq", label]
     Retq -> "retq"
-    Jump label -> Text.unwords ["jump", label]
+    Jump label -> Text.unwords ["jmp", label]
 
 printInstr :: GenInstr Void -> Text
 printInstr instr = "    " <> rawPrintInstr absurd instr
@@ -138,7 +138,7 @@ printProgram prefix suffix program =
   let startBlock = fromJust (Map.lookup (progStartBlock program) (progBlocks program))
       otherBlocks = Map.toList (Map.delete (progStartBlock program) (progBlocks program))
       body = map printInstr startBlock ++ concatMap (uncurry printBlock) otherBlocks
-      wholeBody = map printInstr prefix ++ body ++ map printInstr suffix
+      wholeBody = map printInstr prefix ++ body ++ ("conclusion:" : map printInstr suffix)
   in Text.unlines
     ( "    .globl main"
     : "main:"

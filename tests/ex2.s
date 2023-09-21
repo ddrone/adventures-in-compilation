@@ -5,6 +5,9 @@ main:
     subq $0, %rsp
     movq $-10, %rdi
     callq print_int
+    movq $0, %rax
+    jmp conclusion
+conclusion:
     addq $0, %rsp
     popq %rbp
     retq
