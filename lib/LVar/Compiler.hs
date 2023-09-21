@@ -54,7 +54,6 @@ rcoCond e = case e of
     (la, ls) <- rcoAtom l
     (ra, rs) <- rcoAtom r
     pure (ASTMon.CmpOp op la ra, ls ++ rs)
-  AST.Bool b -> pure (ASTMon.CmpLit b, [])
   _ -> do
     (ea, es) <- rcoAtom e
     pure (ASTMon.CmpAtom ea, es)

@@ -40,7 +40,6 @@ printAtom = \case
 -- Not sure if I actually need this
 data Cmp
   = CmpAtom Atom
-  | CmpLit Bool
   | CmpOp Binop Atom Atom
   deriving (Show)
 
@@ -53,7 +52,6 @@ printUnary op a = prependUnop (printAtom a) op
 printCmp :: Cmp -> Text
 printCmp = \case
   CmpAtom atom -> printAtom atom
-  CmpLit bool -> Text.pack (show bool)
   CmpOp op a1 a2 -> printBinary op a1 a2
 
 data Expr
@@ -160,7 +158,6 @@ toCmp = either (CmpAtom . liftValue) id
 
 peCmp :: Cmp -> PE (Either Value Cmp)
 peCmp = \case
-  CmpLit x -> pure (Left (PE.Bool x))
   CmpAtom a -> do
     v <- peAtom a
     case v of

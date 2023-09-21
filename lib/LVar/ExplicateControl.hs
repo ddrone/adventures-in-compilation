@@ -87,13 +87,13 @@ explicateAssign source target cont = case source of
 
 explicatePred :: ASTMon.Cmp -> Cont -> Cont -> EC Cont
 explicatePred expr consCont altCont = case expr of
+  ASTMon.CmpAtom (ASTMon.Bool True) -> pure consCont
+  ASTMon.CmpAtom (ASTMon.Bool False) -> pure altCont
   ASTMon.CmpAtom a -> do
     lCons <- createBlock consCont
     lAlt <- createBlock altCont
     let cmp = ASTC.AtomC a
     pure (tail (ASTC.CondJump cmp lCons lAlt))
-  ASTMon.CmpLit True -> pure consCont
-  ASTMon.CmpLit False -> pure altCont
   ASTMon.CmpOp op a1 a2 -> do
     lCons <- createBlock consCont
     lAlt <- createBlock altCont
