@@ -208,7 +208,7 @@ peBlock ss = concat <$> mapM peStmt ss
 peStmt :: Stmt -> PE [Stmt]
 peStmt = \case
   Print a -> singleton . Print . toAtom <$> peAtom a
-  Calc e -> singleton . Calc . either (Atom . liftValue) id <$> peExpr e
+  Calc e -> singleton . Calc . toExpr <$> peExpr e
   Assign n e -> do
     p <- peExpr e
     case p of
