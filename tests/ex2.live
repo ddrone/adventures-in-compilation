@@ -2,11 +2,11 @@ block_0:
   {$0, $10}
     movq $10, y
   {$0, y}
-    movq y, $0
-  {$0, $0}
-    negq $0
-  {$0, $0}
-    movq $0, %rdi
+    movq y, @0
+  {$0, @0}
+    negq @0
+  {$0, @0}
+    movq @0, %rdi
   {$0, %rdi}
     callq print_int
   {$0}

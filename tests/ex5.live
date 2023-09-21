@@ -14,15 +14,15 @@ block_0:
   {$0, w, y, z}
     addq w, z
   {$0, y, z}
-    movq y, $0
-  {$0, z, $0}
-    negq $0
-  {$0, z, $0}
-    movq z, $1
-  {$0, $0, $1}
-    addq $0, $1
-  {$0, $1}
-    movq $1, %rdi
+    movq y, @0
+  {$0, z, @0}
+    negq @0
+  {$0, z, @0}
+    movq z, @1
+  {$0, @0, @1}
+    addq @0, @1
+  {$0, @1}
+    movq @1, %rdi
   {$0, %rdi}
     callq print_int
   {$0}

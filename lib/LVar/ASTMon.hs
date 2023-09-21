@@ -23,7 +23,7 @@ data Name
 printName :: Name -> Text
 printName = \case
   Source t -> t
-  Gen n -> "$" <> Text.pack (show n)
+  Gen n -> "@" <> Text.pack (show n)
 
 data Atom
   = Const Int64

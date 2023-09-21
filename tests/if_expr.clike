@@ -5,28 +5,28 @@
     else jump block_6
 
 block_1:
-  print($1)
+  print(@1)
   return 0
 
 block_2:
-  $1 = y + 2
+  @1 = y + 2
   goto block_1
 
 block_3:
-  $1 = y + 10
+  @1 = y + 10
   goto block_1
 
 block_4:
-  if $0
+  if @0
     then jump block_2
     else jump block_3
 
 block_5:
-  $0 = x == 0
+  @0 = x == 0
   goto block_4
 
 block_6:
-  $0 = x == 2
+  @0 = x == 2
   goto block_4
 
 topsort: [0,6,5,4,3,2,1]

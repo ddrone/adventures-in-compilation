@@ -1,5 +1,5 @@
 x = input_int()
 y = input_int()
-$0 = if x < 1 then x == 0 else x == 2
-$1 = if $0 then y + 2 else y + 10
-print($1)
+@0 = if x < 1 then x == 0 else x == 2
+@1 = if @0 then y + 2 else y + 10
+print(@1)
