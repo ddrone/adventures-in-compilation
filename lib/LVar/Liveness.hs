@@ -58,19 +58,16 @@ instructionWritesTo = \case
   Retq -> Set.empty
   Jump _ -> Set.empty
 
-beforeInstr :: Ord n => GenInstr n -> Set (Arg n) -> Set (Arg n)
-beforeInstr instr after =
+beforeInstr :: Ord n => Map Text (LiveBlock n) -> GenInstr n -> Set (Arg n) -> Set (Arg n)
+beforeInstr blockMap instr after =
   let w = instructionWritesTo instr
-      r = instructionReads instr in
-  Set.union (Set.difference after w) r
-
-computeLiveSets :: Ord n => [GenInstr n] -> [Set (Arg n)]
-computeLiveSets instrs =
-  let revInstrs = reverse instrs
-      go curr = \case
-        [] -> []
-        (instr : rest) -> curr : go (beforeInstr instr curr) rest
-  in reverse (go Set.empty revInstrs)
+      r = instructionReads instr
+      typical = Set.union (Set.difference after w) r
+  in
+    case instr of
+      Jump label -> lbLiveBefore (fromJust (Map.lookup label blockMap))
+      JumpIf _ label -> Set.union typical (lbLiveBefore (fromJust (Map.lookup label blockMap)))
+      _ -> typical
 
 data LiveBlock n = LiveBlock
   { lbStatements :: [(GenInstr n, Set (Arg n))]
@@ -87,16 +84,16 @@ printLiveBlockMap n map =
   let printBlock (name, block) = [name <> ":", printLiveBlock n block] in
   Text.unlines (concatMap printBlock (Map.toList map))
 
-computeLiveBlock :: Ord n => Set (Arg n) -> [GenInstr n] -> LiveBlock n
-computeLiveBlock liveStart instrs =
+computeLiveBlock :: Ord n => Map Text (LiveBlock n) -> Set (Arg n) -> [GenInstr n] -> LiveBlock n
+computeLiveBlock blockMap liveStart instrs =
   let revInstrs = reverse instrs
       go curr = \case
         [] -> ([], curr)
-        (instr : rest) -> mapFst ((instr, curr) :) (go (beforeInstr instr curr) rest)
+        (instr : rest) -> mapFst ((instr, curr) :) (go (beforeInstr blockMap instr curr) rest)
       (revLiveAfters, liveBefore) = go liveStart revInstrs
   in LiveBlock (reverse revLiveAfters) liveBefore
 
-computeLiveMap :: (Ord n, Ord k) => [k] -> DirectedGraph.Graph k -> Map k (Block n) -> Map k (LiveBlock n)
+computeLiveMap :: Ord n => [Text] -> DirectedGraph.Graph Text -> Map Text (Block n) -> Map Text (LiveBlock n)
 computeLiveMap queue g blockMap =
   let go map q = case q of
         [] -> map
@@ -106,9 +103,9 @@ computeLiveMap queue g blockMap =
               -- fromJust should not fail, because following blocks should have been computed before
               lookupLive = lbLiveBefore . fromJust . flip Map.lookup map
               liveStart = concatSetsMap lookupLive followingBlocks
-              liveBlock = computeLiveBlock liveStart block
+              liveBlock = computeLiveBlock map Set.empty block
           in go (Map.insert hd liveBlock map) tl
-  in go Map.empty queue
+  in go (Map.singleton "conclusion" (LiveBlock [] Set.empty)) queue
 
 interferenceGraph :: DirectedGraph.Graph Text -> [Text] -> X86.Program ASTMon.Name -> Graph (Arg ASTMon.Name)
 interferenceGraph g queue program =
@@ -133,6 +130,11 @@ addToInterferenceGraph instrs g =
       addEdges instr liveAfter =
         case instr of
           Movq src dest -> do
+            v <- Set.toList liveAfter
+            guard (v /= src)
+            guard (v /= dest)
+            fromPair dest v
+          Movzbq src dest -> do
             v <- Set.toList liveAfter
             guard (v /= src)
             guard (v /= dest)

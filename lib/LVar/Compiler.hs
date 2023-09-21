@@ -23,7 +23,8 @@ import qualified LVar.ASTC as ASTC
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
 import qualified DirectedGraph
-import Debug.Trace (traceShow)
+import Debug.Trace (traceShow, trace)
+import qualified Data.Text as Text
 
 type RCO a = State Int a
 
@@ -291,6 +292,8 @@ data AssignHomesResult = AssignHomesResult
   , ahInstructions :: X86.Program Void
   }
 
+printInterferenceGraph = UndirectedGraph.printGraphSimple (Text.pack . show . X86.printArg ASTMon.printName)
+
 assignHomesAndCountVars :: DirectedGraph.Graph Text -> [Text] -> X86.Program ASTMon.Name -> AssignHomesResult
 assignHomesAndCountVars graph blockOrder program = do
   let ig = interferenceGraph graph (reverse blockOrder) program
@@ -309,7 +312,7 @@ assignHomesAndCountVars graph blockOrder program = do
           _ -> set
   -- Callee-saved registers
   let csr = foldr addReg Set.empty (Map.elems locations)
-  ig `traceShow` AssignHomesResult stackLocs csr result
+  Text.unpack (printInterferenceGraph ig) `trace` AssignHomesResult stackLocs csr result
 
 immediateLimit :: Int64
 immediateLimit = 2 ^ 16
