@@ -36,7 +36,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Remove CmpLit constructor
 - [x] Figure out why one of the tests does not compile successfully (some locations do not show up in the interference graph)
 - [x] Write a function to print X86 code with names in them, together with liveness information.
-- [ ] There seems to be a mess in the X86-with-variables output that immediates are printed in the same way as variables. Fix it.
+- [x] There seems to be a mess in the X86-with-variables output that immediates are printed in the same way as variables. Fix it.
+- [ ] Collect all locations present in the program to compute the coloring instead of relying on those present in interference graph
 - [ ] Remove `traceShow` from Compiler.hs
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
