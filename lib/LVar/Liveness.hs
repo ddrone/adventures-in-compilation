@@ -8,11 +8,12 @@ import qualified DirectedGraph
 import Control.Monad (guard)
 import Data.Map (Map)
 import Data.Text (Text)
-import Utils (mapFst, concatSetsMap)
+import Utils (mapFst, concatSetsMap, printBracketedSet)
 import Data.Maybe (fromJust)
 import qualified Data.Map as Map
 import qualified LVar.X86 as X86
 import qualified LVar.ASTMon as ASTMon
+import qualified Data.Text as Text
 
 argumentRegisters :: [Reg]
 argumentRegisters = [Rdi, Rsi, Rdx, Rcx, R8, R9]
@@ -75,6 +76,11 @@ data LiveBlock n = LiveBlock
   { lbStatements :: [(GenInstr n, Set (Arg n))]
   , lbLiveBefore :: Set (Arg n)
   }
+
+printLiveBlock :: Ord n => (n -> Text) -> LiveBlock n -> Text
+printLiveBlock n (LiveBlock ss before) =
+  let printStmt (instr, liveAfter) = ["    " <> X86.rawPrintInstr n instr, "  " <> printBracketedSet (X86.printArg n) liveAfter] in
+  Text.unlines ("  " <> printBracketedSet (X86.printArg n) before : concatMap printStmt ss)
 
 computeLiveBlock :: Ord n => Set (Arg n) -> [GenInstr n] -> LiveBlock n
 computeLiveBlock liveStart instrs =

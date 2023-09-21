@@ -67,3 +67,8 @@ runLocal :: Monad m => StateT s m a -> StateT s m (a, s)
 runLocal comp = do
   curr <- get
   lift (runStateT comp curr)
+
+printBracketedSet :: Ord v => (v -> Text) -> Set v -> Text
+printBracketedSet f set = case Set.toList set of
+  [] -> "∅"
+  ls -> "{" <> Text.intercalate ", " (map f ls) <> "}"
