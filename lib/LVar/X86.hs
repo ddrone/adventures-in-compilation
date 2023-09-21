@@ -65,6 +65,11 @@ data Arg n
   | Name n
   deriving (Eq, Ord, Show)
 
+isImmediate :: Arg n -> Bool
+isImmediate = \case
+  Immediate _ -> True
+  _ -> False
+
 printArg :: (n -> Text) -> Arg n -> Text
 printArg pn = \case
   Immediate c -> Text.pack ('$' : show c)

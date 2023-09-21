@@ -1,77 +1,77 @@
 block_0:
-  {$0, $1, $2, $10}
+  ∅
     callq read_int
-  {$0, $1, $2, $10, %rax}
+  {%rax}
     movq %rax, x
-  {$0, $1, $2, $10, x}
+  {x}
     callq read_int
-  {$0, $1, $2, $10, %rax, x}
+  {%rax, x}
     movq %rax, y
-  {$0, $1, $2, $10, x, y}
+  {x, y}
     cmpq $1, x
-  {$0, $1, $2, $10, x, y}
+  {x, y}
     jl block_5
-  {$0, $1, $2, $10, x, y}
+  {x, y}
     jmp block_6
   ∅
 
 block_1:
-  {$0, @1}
+  {@1}
     movq @1, %rdi
-  {$0, %rdi}
+  {%rdi}
     callq print_int
-  {$0}
+  ∅
     movq $0, %rax
   ∅
     jmp conclusion
   ∅
 
 block_2:
-  {$0, $2, y}
+  {y}
     movq y, @1
-  {$0, $2, @1}
+  {@1}
     addq $2, @1
-  {$0, @1}
+  {@1}
     jmp block_1
   ∅
 
 block_3:
-  {$0, $10, y}
+  {y}
     movq y, @1
-  {$0, $10, @1}
+  {@1}
     addq $10, @1
-  {$0, @1}
+  {@1}
     jmp block_1
   ∅
 
 block_4:
-  {$0, $1, $2, $10, y, @0}
+  {y, @0}
     cmpq $1, @0
-  {$0, $2, $10, y}
+  {y}
     je block_2
-  {$0, $10, y}
+  {y}
     jmp block_3
   ∅
 
 block_5:
-  {$0, $1, $2, $10, x, y}
+  {x, y}
     cmpq x, $0
-  {$0, $1, $2, $10, y}
+  {y}
     sete %al
-  {$0, $1, $2, $10, %al, y}
+  {%al, y}
     movzbq %al, @0
-  {$0, $1, $2, $10, y, @0}
+  {y, @0}
     jmp block_4
   ∅
 
 block_6:
-  {$0, $1, $2, $10, x, y}
+  {x, y}
     cmpq x, $2
-  {$0, $1, $2, $10, y}
+  {y}
     sete %al
-  {$0, $1, $2, $10, %al, y}
+  {%al, y}
     movzbq %al, @0
-  {$0, $1, $2, $10, y, @0}
+  {y, @0}
     jmp block_4
   ∅
 

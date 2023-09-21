@@ -62,7 +62,7 @@ beforeInstr :: Ord n => Map Text (LiveBlock n) -> GenInstr n -> Set (Arg n) -> S
 beforeInstr blockMap instr after =
   let w = instructionWritesTo instr
       r = instructionReads instr
-      typical = Set.union (Set.difference after w) r
+      typical = Set.filter (not . X86.isImmediate) (Set.union (Set.difference after w) r)
   in
     case instr of
       Jump label -> lbLiveBefore (fromJust (Map.lookup label blockMap))

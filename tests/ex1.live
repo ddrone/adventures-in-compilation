@@ -1,17 +1,17 @@
 block_0:
-  {$0, $10, $12, $20}
+  ∅
     movq $12, x
-  {$0, $10, $20, x}
+  {x}
     addq $20, x
-  {$0, $10, x}
+  {x}
     movq $10, @0
-  {$0, x, @0}
+  {x, @0}
     addq x, @0
-  {$0, @0}
+  {@0}
     movq @0, %rdi
-  {$0, %rdi}
+  {%rdi}
     callq print_int
-  {$0}
+  ∅
     movq $0, %rax
   ∅
     jmp conclusion

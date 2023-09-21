@@ -1,109 +1,109 @@
 block_0:
-  {$0}
+  ∅
     callq read_int
-  {$0, %rax}
+  {%rax}
     movq %rax, x1
-  {$0, x1}
+  {x1}
     callq read_int
-  {$0, %rax, x1}
+  {%rax, x1}
     movq %rax, x2
-  {$0, x1, x2}
+  {x1, x2}
     callq read_int
-  {$0, %rax, x1, x2}
+  {%rax, x1, x2}
     movq %rax, x3
-  {$0, x1, x2, x3}
+  {x1, x2, x3}
     callq read_int
-  {$0, %rax, x1, x2, x3}
+  {%rax, x1, x2, x3}
     movq %rax, x4
-  {$0, x1, x2, x3, x4}
+  {x1, x2, x3, x4}
     callq read_int
-  {$0, %rax, x1, x2, x3, x4}
+  {%rax, x1, x2, x3, x4}
     movq %rax, x5
-  {$0, x1, x2, x3, x4, x5}
+  {x1, x2, x3, x4, x5}
     callq read_int
-  {$0, %rax, x1, x2, x3, x4, x5}
+  {%rax, x1, x2, x3, x4, x5}
     movq %rax, x6
-  {$0, x1, x2, x3, x4, x5, x6}
+  {x1, x2, x3, x4, x5, x6}
     callq read_int
-  {$0, %rax, x1, x2, x3, x4, x5, x6}
+  {%rax, x1, x2, x3, x4, x5, x6}
     movq %rax, x7
-  {$0, x1, x2, x3, x4, x5, x6, x7}
+  {x1, x2, x3, x4, x5, x6, x7}
     callq read_int
-  {$0, %rax, x1, x2, x3, x4, x5, x6, x7}
+  {%rax, x1, x2, x3, x4, x5, x6, x7}
     movq %rax, x8
-  {$0, x1, x2, x3, x4, x5, x6, x7, x8}
+  {x1, x2, x3, x4, x5, x6, x7, x8}
     callq read_int
-  {$0, %rax, x1, x2, x3, x4, x5, x6, x7, x8}
+  {%rax, x1, x2, x3, x4, x5, x6, x7, x8}
     movq %rax, x9
-  {$0, x1, x2, x3, x4, x5, x6, x7, x8, x9}
+  {x1, x2, x3, x4, x5, x6, x7, x8, x9}
     callq read_int
-  {$0, %rax, x1, x2, x3, x4, x5, x6, x7, x8, x9}
+  {%rax, x1, x2, x3, x4, x5, x6, x7, x8, x9}
     movq %rax, x10
-  {$0, x1, x10, x2, x3, x4, x5, x6, x7, x8, x9}
+  {x1, x10, x2, x3, x4, x5, x6, x7, x8, x9}
     callq read_int
-  {$0, %rax, x1, x10, x2, x3, x4, x5, x6, x7, x8, x9}
+  {%rax, x1, x10, x2, x3, x4, x5, x6, x7, x8, x9}
     movq %rax, x11
-  {$0, x1, x10, x11, x2, x3, x4, x5, x6, x7, x8, x9}
+  {x1, x10, x11, x2, x3, x4, x5, x6, x7, x8, x9}
     callq read_int
-  {$0, %rax, x1, x10, x11, x2, x3, x4, x5, x6, x7, x8, x9}
+  {%rax, x1, x10, x11, x2, x3, x4, x5, x6, x7, x8, x9}
     movq %rax, x12
-  {$0, x1, x10, x11, x12, x2, x3, x4, x5, x6, x7, x8, x9}
+  {x1, x10, x11, x12, x2, x3, x4, x5, x6, x7, x8, x9}
     callq read_int
-  {$0, %rax, x1, x10, x11, x12, x2, x3, x4, x5, x6, x7, x8, x9}
+  {%rax, x1, x10, x11, x12, x2, x3, x4, x5, x6, x7, x8, x9}
     movq %rax, x13
-  {$0, x1, x10, x11, x12, x13, x2, x3, x4, x5, x6, x7, x8, x9}
+  {x1, x10, x11, x12, x13, x2, x3, x4, x5, x6, x7, x8, x9}
     movq x1, @0
-  {$0, x10, x11, x12, x13, x2, x3, x4, x5, x6, x7, x8, x9, @0}
+  {x10, x11, x12, x13, x2, x3, x4, x5, x6, x7, x8, x9, @0}
     addq x2, @0
-  {$0, x10, x11, x12, x13, x3, x4, x5, x6, x7, x8, x9, @0}
+  {x10, x11, x12, x13, x3, x4, x5, x6, x7, x8, x9, @0}
     movq @0, @1
-  {$0, x10, x11, x12, x13, x3, x4, x5, x6, x7, x8, x9, @1}
+  {x10, x11, x12, x13, x3, x4, x5, x6, x7, x8, x9, @1}
     addq x3, @1
-  {$0, x10, x11, x12, x13, x4, x5, x6, x7, x8, x9, @1}
+  {x10, x11, x12, x13, x4, x5, x6, x7, x8, x9, @1}
     movq @1, @2
-  {$0, x10, x11, x12, x13, x4, x5, x6, x7, x8, x9, @2}
+  {x10, x11, x12, x13, x4, x5, x6, x7, x8, x9, @2}
     addq x4, @2
-  {$0, x10, x11, x12, x13, x5, x6, x7, x8, x9, @2}
+  {x10, x11, x12, x13, x5, x6, x7, x8, x9, @2}
     movq @2, @3
-  {$0, x10, x11, x12, x13, x5, x6, x7, x8, x9, @3}
+  {x10, x11, x12, x13, x5, x6, x7, x8, x9, @3}
     addq x5, @3
-  {$0, x10, x11, x12, x13, x6, x7, x8, x9, @3}
+  {x10, x11, x12, x13, x6, x7, x8, x9, @3}
     movq @3, @4
-  {$0, x10, x11, x12, x13, x6, x7, x8, x9, @4}
+  {x10, x11, x12, x13, x6, x7, x8, x9, @4}
     addq x6, @4
-  {$0, x10, x11, x12, x13, x7, x8, x9, @4}
+  {x10, x11, x12, x13, x7, x8, x9, @4}
     movq @4, @5
-  {$0, x10, x11, x12, x13, x7, x8, x9, @5}
+  {x10, x11, x12, x13, x7, x8, x9, @5}
     addq x7, @5
-  {$0, x10, x11, x12, x13, x8, x9, @5}
+  {x10, x11, x12, x13, x8, x9, @5}
     movq @5, @6
-  {$0, x10, x11, x12, x13, x8, x9, @6}
+  {x10, x11, x12, x13, x8, x9, @6}
     addq x8, @6
-  {$0, x10, x11, x12, x13, x9, @6}
+  {x10, x11, x12, x13, x9, @6}
     movq @6, @7
-  {$0, x10, x11, x12, x13, x9, @7}
+  {x10, x11, x12, x13, x9, @7}
     addq x9, @7
-  {$0, x10, x11, x12, x13, @7}
+  {x10, x11, x12, x13, @7}
     movq @7, @8
-  {$0, x10, x11, x12, x13, @8}
+  {x10, x11, x12, x13, @8}
     addq x10, @8
-  {$0, x11, x12, x13, @8}
+  {x11, x12, x13, @8}
     movq @8, @9
-  {$0, x11, x12, x13, @9}
+  {x11, x12, x13, @9}
     addq x11, @9
-  {$0, x12, x13, @9}
+  {x12, x13, @9}
     movq @9, @10
-  {$0, x12, x13, @10}
+  {x12, x13, @10}
     addq x12, @10
-  {$0, x13, @10}
+  {x13, @10}
     movq @10, @11
-  {$0, x13, @11}
+  {x13, @11}
     addq x13, @11
-  {$0, @11}
+  {@11}
     movq @11, %rdi
-  {$0, %rdi}
+  {%rdi}
     callq print_int
-  {$0}
+  ∅
     movq $0, %rax
   ∅
     jmp conclusion

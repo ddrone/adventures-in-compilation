@@ -1,15 +1,15 @@
 block_0:
-  {$0, $10}
+  ∅
     movq $10, y
-  {$0, y}
+  {y}
     movq y, @0
-  {$0, @0}
+  {@0}
     negq @0
-  {$0, @0}
+  {@0}
     movq @0, %rdi
-  {$0, %rdi}
+  {%rdi}
     callq print_int
-  {$0}
+  ∅
     movq $0, %rax
   ∅
     jmp conclusion
