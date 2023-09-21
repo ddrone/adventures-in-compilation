@@ -32,7 +32,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Test the changes to see if the compiled code actually works
 - [x] Change the code so that conclusion is generated with additional label
 - [x] Make the partial evaluation work for conditional expressions
-- [ ] Finish peCmp function
+- [x] Finish peCmp function
 - [ ] Remove CmpLit constructor
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
