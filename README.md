@@ -29,6 +29,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Change the computation of interference graph to use the full liveness information
 - [x] Write the code to perform location replacement on graph of blocks
 - [x] Change the output assembly generation to include labels as well
+- [ ] Test the changes to see if the compiled code actually works
+- [ ] Change the code so that conclusion is generated with additional label
 - [ ] Make the partial evaluation work for conditional expressions
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
