@@ -97,8 +97,11 @@ computeLiveMap queue g blockMap =
           in go (Map.insert hd liveBlock map) tl
   in go Map.empty queue
 
-interferenceGraph :: Ord n => [GenInstr n] -> Graph (Arg n)
-interferenceGraph instrs =
+interferenceGraph :: Ord n => [LiveBlock n] -> Graph (Arg n)
+interferenceGraph = foldr addToInterferenceGraph UndirectedGraph.empty
+
+addToInterferenceGraph :: Ord n => LiveBlock n -> Graph (Arg n) -> Graph (Arg n)
+addToInterferenceGraph instrs g =
   let fromLoc u = case u of
         Name _ -> [u]
         Reg _ -> [u]
@@ -123,4 +126,4 @@ interferenceGraph instrs =
             fromPair d v
       addToGraph instr liveAfter g =
         foldr (uncurry UndirectedGraph.addEdge) g (addEdges instr liveAfter)
-  in foldr (uncurry addToGraph) UndirectedGraph.empty (zip instrs (computeLiveSets instrs))
+  in foldr (uncurry addToGraph) g (lbStatements instrs)

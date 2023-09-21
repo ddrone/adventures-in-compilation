@@ -26,7 +26,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement topological sorting for arbitrary graphs
 - [x] Print the topological sorting of blocks in C-like IR
 - [x] Implement liveness analysis for acyclic CFG
-- [ ] Change the computation of interference graph to use the full liveness information
+- [x] Change the computation of interference graph to use the full liveness information
 - [ ] Write the code to perform location replacement on graph of blocks
 - [ ] Change the output assembly generation to include labels as well
 - [ ] Make the partial evaluation work for conditional expressions
