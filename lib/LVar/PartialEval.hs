@@ -5,7 +5,7 @@ import Data.Int (Int64)
 data Value
   = Int64 Int64
   | Bool Bool
-  deriving (Show)
+  deriving (Show, Eq)
 
 raiseInt64Binop :: (Int64 -> Int64 -> Int64) -> Value -> Value -> Maybe Value
 raiseInt64Binop b x y = case (x, y) of

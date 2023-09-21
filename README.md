@@ -31,7 +31,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Change the output assembly generation to include labels as well
 - [x] Test the changes to see if the compiled code actually works
 - [x] Change the code so that conclusion is generated with additional label
-- [ ] Make the partial evaluation work for conditional expressions
+- [x] Make the partial evaluation work for conditional expressions
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 

@@ -8,6 +8,7 @@ import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.Text as Text
+import Control.Monad.State
 
 exactZip :: [a] -> [b] -> Maybe [(a, b)]
 exactZip xs ys = case (xs, ys) of
@@ -61,3 +62,8 @@ mapSnd f (x, y) = (x, f y)
 
 concatSetsMap :: Ord b => (a -> Set b) -> [a] -> Set b
 concatSetsMap f = foldr (Set.union . f) Set.empty
+
+runLocal :: Monad m => StateT s m a -> StateT s m (a, s)
+runLocal comp = do
+  curr <- get
+  lift (runStateT comp curr)

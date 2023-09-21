@@ -2,6 +2,7 @@ module LVar.ASTMon where
 
 import Control.Monad.State
 import Data.Int (Int64)
+import Data.List (singleton)
 import Data.Text (Text)
 import Data.Map (Map)
 import Data.Maybe (catMaybes)
@@ -10,6 +11,7 @@ import qualified Data.Text as Text
 
 import LVar.AST (Binop, Unop, GenModule, binopRepr, prependUnop)
 import LVar.PartialEval (evalBinop, evalUnop, Value)
+import Utils (runLocal)
 import qualified LVar.PartialEval as PE
 import qualified LVar.AST as AST
 
@@ -147,8 +149,20 @@ liftValue = \case
   PE.Int64 x -> Const x
   PE.Bool x -> Bool x
 
-liftEitherValue :: Either Value Atom -> Atom
-liftEitherValue = either liftValue id
+toAtom :: Either Value Atom -> Atom
+toAtom = either liftValue id
+
+toExpr :: Either Value Expr -> Expr
+toExpr = either (Atom . liftValue) id
+
+toCmp :: Either Value Cmp -> Cmp
+toCmp = either (CmpAtom . liftValue) id
+
+peCmp :: Cmp -> PE (Either Value Cmp)
+peCmp = undefined
+
+mergeMaps :: (Ord k, Eq v) => Map k v -> Map k v -> Map k v
+mergeMaps m1 m2 = Map.filterWithKey (\k v -> Map.lookup k m2 == Just v) m1
 
 peExpr :: Expr -> PE (Either Value Expr)
 peExpr = \case
@@ -160,32 +174,60 @@ peExpr = \case
       (Left v1, Left v2) ->
         case evalBinop op v1 v2 of
           Just v -> Left v
-          Nothing -> Right (Bin op (liftEitherValue p1) (liftEitherValue p2))
-      _-> Right (Bin op (liftEitherValue p1) (liftEitherValue p2))
+          Nothing -> Right (Bin op (toAtom p1) (toAtom p2))
+      _-> Right (Bin op (toAtom p1) (toAtom p2))
   Unary op e -> do
     p <- peAtom e
     pure $ case p of
       Left v ->
         case evalUnop op v of
           Just c -> Left c
-          Nothing -> Right (Unary op (liftEitherValue p))
-      _ -> Right (Unary op (liftEitherValue p))
+          Nothing -> Right (Unary op (toAtom p))
+      _ -> Right (Unary op (toAtom p))
   InputInt -> pure (Right InputInt)
+  Begin ss e -> do
+    ss1 <- peBlock ss
+    v <- peExpr e
+    case ss1 of
+      [] -> pure v
+      _ -> pure (Right (Begin ss1 (toExpr v)))
+  If cond cons alt -> do
+    condV <- peCmp cond
+    case condV of
+      Left (PE.Bool True) -> peExpr cons
+      Left (PE.Bool False) -> peExpr alt
+      _ -> do
+        (consE, consM) <- runLocal (toExpr <$> peExpr cons)
+        (altE, altM) <- runLocal (toExpr <$> peExpr alt)
+        put (mergeMaps consM altM)
+        pure (Right (If (toCmp condV) consE altE))
 
-peStmt :: Stmt -> PE (Maybe Stmt)
+peBlock :: [Stmt] -> PE [Stmt]
+peBlock ss = concat <$> mapM peStmt ss
+
+peStmt :: Stmt -> PE [Stmt]
 peStmt = \case
-  Print a -> Just . Print . liftEitherValue <$> peAtom a
-  Calc e -> Just . Calc . either (Atom . liftValue) id <$> peExpr e
+  Print a -> singleton . Print . toAtom <$> peAtom a
+  Calc e -> singleton . Calc . either (Atom . liftValue) id <$> peExpr e
   Assign n e -> do
     p <- peExpr e
     case p of
       Left c -> do
         modify (Map.insert n c)
-        pure Nothing
+        pure []
       Right e -> do
         modify (Map.delete n)
-        pure (Just (Assign n e))
+        pure [Assign n e]
+  IfS cond cons alt -> do
+    condV <- peCmp cond
+    case condV of
+      Left (PE.Bool True) -> peBlock cons
+      Left (PE.Bool False) -> peBlock alt
+      _ -> do
+        (consSS, consM) <- runLocal (peBlock cons)
+        (altSS, altM) <- runLocal (peBlock alt)
+        put (mergeMaps consM altM)
+        pure [IfS (toCmp condV) consSS altSS]
 
 partialEval :: [Stmt] -> [Stmt]
-partialEval stmts = flip evalState Map.empty $
-  catMaybes <$> mapM peStmt stmts
+partialEval stmts = evalState (peBlock stmts) Map.empty
