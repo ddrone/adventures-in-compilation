@@ -1,13 +1,16 @@
 module LVar.Liveness where
-import LVar.X86 (GenInstr (..), Arg (..), Reg (..), Program (Program))
+import LVar.X86 (GenInstr (..), Arg (..), Reg (..), Program (Program), Block)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import UndirectedGraph (Graph)
 import qualified UndirectedGraph
+import qualified DirectedGraph
 import Control.Monad (guard)
 import Data.Map (Map)
 import Data.Text (Text)
-import Utils (mapFst)
+import Utils (mapFst, concatSetsMap)
+import Data.Maybe (fromJust)
+import qualified Data.Map as Map
 
 argumentRegisters :: [Reg]
 argumentRegisters = [Rdi, Rsi, Rdx, Rcx, R8, R9]
@@ -76,9 +79,23 @@ computeLiveBlock liveStart instrs =
   let revInstrs = reverse instrs
       go curr = \case
         [] -> ([], curr)
-        (instr : rest) -> mapFst (curr :) (go (beforeInstr instr curr) rest)
+        (instr : rest) -> mapFst ((instr, curr) :) (go (beforeInstr instr curr) rest)
       (revLiveAfters, liveBefore) = go liveStart revInstrs
-  in LiveBlock (zip instrs (reverse revLiveAfters)) liveBefore
+  in LiveBlock (reverse revLiveAfters) liveBefore
+
+computeLiveMap :: (Ord n, Ord k) => [k] -> DirectedGraph.Graph k -> Map k (Block n) -> Map k (LiveBlock n)
+computeLiveMap queue g blockMap =
+  let go map q = case q of
+        [] -> map
+        hd : tl ->
+          let followingBlocks = DirectedGraph.edgesList hd g
+              block = fromJust (Map.lookup hd blockMap)
+              -- fromJust should not fail, because following blocks should have been computed before
+              lookupLive = lbLiveBefore . fromJust . flip Map.lookup map
+              liveStart = concatSetsMap lookupLive followingBlocks
+              liveBlock = computeLiveBlock liveStart block
+          in go (Map.insert hd liveBlock map) tl
+  in go Map.empty queue
 
 interferenceGraph :: Ord n => [GenInstr n] -> Graph (Arg n)
 interferenceGraph instrs =

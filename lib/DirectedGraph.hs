@@ -29,6 +29,9 @@ addEdge from to (Graph g) =
 edgesFrom :: Ord v => v -> Graph v -> Set v
 edgesFrom v (Graph g) = SetMultimap.lookup v g
 
+edgesList :: Ord v => v -> Graph v -> [v]
+edgesList v g = Set.toList (edgesFrom v g)
+
 allEdges :: Ord v => Graph v -> [(v, v)]
 allEdges (Graph g) = do
   (from, tos) <- Map.toList (SetMultimap.getMap g)

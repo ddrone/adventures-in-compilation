@@ -1,8 +1,10 @@
 module Utils where
 
 import Data.IntMap (IntMap)
+import Data.Set (Set)
 import Data.Map (Map)
 import Data.Text (Text)
+import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.Text as Text
@@ -56,3 +58,6 @@ mapFst f (x, y) = (f x, y)
 
 mapSnd :: (b -> c) -> (a, b) -> (a, c)
 mapSnd f (x, y) = (x, f y)
+
+concatSetsMap :: Ord b => (a -> Set b) -> [a] -> Set b
+concatSetsMap f = foldr (Set.union . f) Set.empty
