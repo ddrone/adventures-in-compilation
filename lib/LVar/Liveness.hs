@@ -82,6 +82,11 @@ printLiveBlock n (LiveBlock ss before) =
   let printStmt (instr, liveAfter) = ["    " <> X86.rawPrintInstr n instr, "  " <> printBracketedSet (X86.printArg n) liveAfter] in
   Text.unlines ("  " <> printBracketedSet (X86.printArg n) before : concatMap printStmt ss)
 
+printLiveBlockMap :: Ord n => (n -> Text) -> Map Text (LiveBlock n) -> Text
+printLiveBlockMap n map =
+  let printBlock (name, block) = [name <> ":", printLiveBlock n block] in
+  Text.unlines (concatMap printBlock (Map.toList map))
+
 computeLiveBlock :: Ord n => Set (Arg n) -> [GenInstr n] -> LiveBlock n
 computeLiveBlock liveStart instrs =
   let revInstrs = reverse instrs

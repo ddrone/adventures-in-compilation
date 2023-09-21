@@ -1,0 +1,33 @@
+block_0:
+  {$0, $1, $7, $42}
+    movq $1, v
+  {$0, $7, $42, v}
+    movq $42, w
+  {$0, $7, v, w}
+    movq v, x
+  {$0, $7, w, x}
+    addq $7, x
+  {$0, w, x}
+    movq x, y
+  {$0, w, x, y}
+    movq x, z
+  {$0, w, y, z}
+    addq w, z
+  {$0, y, z}
+    movq y, $0
+  {$0, z, $0}
+    negq $0
+  {$0, z, $0}
+    movq z, $1
+  {$0, $0, $1}
+    addq $0, $1
+  {$0, $1}
+    movq $1, %rdi
+  {$0, %rdi}
+    callq print_int
+  {$0}
+    movq $0, %rax
+  ∅
+    jmp conclusion
+  ∅
+

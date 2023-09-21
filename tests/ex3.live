@@ -1,0 +1,15 @@
+block_0:
+  {$0, $42}
+    movq $42, a
+  {$0, a}
+    movq a, b
+  {$0, b}
+    movq b, %rdi
+  {$0, %rdi}
+    callq print_int
+  {$0}
+    movq $0, %rax
+  ∅
+    jmp conclusion
+  ∅
+

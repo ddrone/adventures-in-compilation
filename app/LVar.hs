@@ -9,12 +9,15 @@ import qualified Data.Text.IO as TextIO
 
 import LVar.AST (mapModule)
 import LVar.ASTC (printModule)
-import LVar.Compiler (compileAll, rcoModule, shrinkExpr)
+import LVar.Compiler (compileAll, rcoModule, shrinkExpr, selectInstructions)
 import LVar.ExplicateControl (explicateControl)
+import LVar.Liveness (computeLiveMap, printLiveBlockMap)
 import LVar.Parser (program)
 import LVar.Typechecker (typecheckModule)
-import LVar.X86 (printProgram)
+import LVar.X86 (printProgram, progBlocks)
 import qualified LVar.ASTMon as ASTMon
+import qualified DirectedGraph
+import qualified LVar.ASTC as ASTC
 
 main = do
   files <- getArgs
@@ -33,6 +36,12 @@ main = do
             TextIO.writeFile (replaceExtensions file "mon") (ASTMon.printModule (fst rco))
             let clike = uncurry explicateControl rco
             TextIO.writeFile (replaceExtensions file "clike") (printModule clike)
+            let explicatedGraph = ASTC.toGraph clike
+            let topSort = DirectedGraph.topologicalSort explicatedGraph 0
+            let queue = reverse (map ASTC.printLabel topSort)
+            let selected = selectInstructions clike
+            let map = computeLiveMap queue (DirectedGraph.map ASTC.printLabel explicatedGraph) (progBlocks selected)
+            TextIO.writeFile (replaceExtension file "live") (printLiveBlockMap ASTMon.printName map)
             let code = compileAll p
             TextIO.writeFile assemblyName code
             callProcess "cc"
