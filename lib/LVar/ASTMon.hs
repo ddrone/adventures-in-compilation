@@ -159,7 +159,22 @@ toCmp :: Either Value Cmp -> Cmp
 toCmp = either (CmpAtom . liftValue) id
 
 peCmp :: Cmp -> PE (Either Value Cmp)
-peCmp = undefined
+peCmp = \case
+  CmpLit x -> pure (Left (PE.Bool x))
+  CmpAtom a -> do
+    v <- peAtom a
+    case v of
+      Left v -> pure (Left v)
+      Right a -> pure (Right (CmpAtom a))
+  CmpOp op e1 e2 -> do
+    p1 <- peAtom e1
+    p2 <- peAtom e2
+    pure $ case (p1, p2) of
+      (Left v1, Left v2) ->
+        case evalBinop op v1 v2 of
+          Just v -> Left v
+          Nothing -> Right (CmpOp op (toAtom p1) (toAtom p2))
+      _-> Right (CmpOp op (toAtom p1) (toAtom p2))
 
 mergeMaps :: (Ord k, Eq v) => Map k v -> Map k v -> Map k v
 mergeMaps m1 m2 = Map.filterWithKey (\k v -> Map.lookup k m2 == Just v) m1
