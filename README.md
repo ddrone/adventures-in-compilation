@@ -25,7 +25,11 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Convert C-like IR module to a directed graph of jumps needed for liveness analysis
 - [x] Implement topological sorting for arbitrary graphs
 - [x] Print the topological sorting of blocks in C-like IR
-- [ ] Implement liveness analysis for acyclic CFG
+- [x] Implement liveness analysis for acyclic CFG
+- [ ] Change the computation of interference graph to use the full liveness information
+- [ ] Write the code to perform location replacement on graph of blocks
+- [ ] Change the output assembly generation to include labels as well
+- [ ] Make the partial evaluation work for conditional expressions
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
