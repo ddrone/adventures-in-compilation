@@ -7,10 +7,12 @@ import Data.Map (Map)
 import Data.Void (Void)
 import Data.Maybe (fromJust)
 import Data.Set (Set)
+import Data.Text (Text)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.IntMap as IntMap
 
+import DirectedGraph (topologicalSort)
 import LVar.X86 (GenInstr(..), Reg(..))
 import LVar.Liveness
 import LVar.ExplicateControl (explicateControl)
@@ -20,7 +22,7 @@ import qualified LVar.AST as AST
 import qualified LVar.ASTC as ASTC
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
-import DirectedGraph (topologicalSort)
+import qualified DirectedGraph
 
 type RCO a = State Int a
 
@@ -213,8 +215,8 @@ selectBlock (ASTC.Block ss tail) = concatMap selectStmt ss ++ selectTail tail
 selectInstructions :: ASTC.Module -> X86.Program ASTMon.Name
 selectInstructions (ASTC.Module start blocks) =
   let select (blockId, block) = (ASTC.printLabel blockId, selectBlock block)
-      selected = Map.fromList (map select (IntMap.toList blocks)) in
-  X86.Program (selectBlock start) selected
+      selected = Map.fromList (map select ((0, start) : IntMap.toList blocks)) in
+  X86.Program (ASTC.printLabel 0) selected
 
 raRegisters :: [X86.Reg]
 raRegisters =
@@ -286,13 +288,13 @@ colorsToLocMapping colors =
 data AssignHomesResult = AssignHomesResult
   { ahStackLocations :: Int
   , ahUsedCalleeSavedRegisters :: Set X86.Reg
-  , ahInstructions :: [X86.GenInstr Void]
+  , ahInstructions :: X86.Program Void
   }
 
-assignHomesAndCountVars :: [Instr] -> AssignHomesResult
-assignHomesAndCountVars instrs = do
-  let ig = interferenceGraph instrs
-  let mr = moveRelated instrs
+assignHomesAndCountVars :: DirectedGraph.Graph Text -> [Text] -> X86.Program ASTMon.Name -> AssignHomesResult
+assignHomesAndCountVars graph blockOrder program = do
+  let ig = interferenceGraph graph (reverse blockOrder) program
+  let mr = moveRelated (Map.elems (X86.progBlocks program))
   let colors = UndirectedGraph.moveBiasedSaturationColoring (UndirectedGraph.allNodes ig) initialColors mr ig
   let locations = colorsToLocMapping colors
   let maxColor = maximum (Map.elems colors)
@@ -300,7 +302,7 @@ assignHomesAndCountVars instrs = do
         if maxColor < length raRegisters
           then 0
           else (maxColor - length raRegisters) + 1
-  let result = runReader (mapM ahInstr instrs) locations
+  let result = runReader (X86.mapProgramM ahInstr program) locations
   let addReg loc set =
         case loc of
           LocReg r | Set.member r calleeSaved -> Set.insert r set
@@ -367,15 +369,15 @@ generateWrapper savedRegisters localsCount =
         ]
   in (prefix, suffix)
 
-compileAll :: AST.Module -> [X86.GenInstr Void]
+compileAll :: AST.Module -> Text
 compileAll mod =
   let (rco, ecStart) = rcoModule (AST.mapModule shrinkExpr mod)
       pevaled = peModule rco
       explicated = explicateControl pevaled ecStart
-      topSort = topologicalSort (ASTC.toGraph explicated) 0
+      explicatedGraph = ASTC.toGraph explicated
+      topSort = topologicalSort explicatedGraph 0
       selected = selectInstructions explicated
-      -- TODO: have to fix up the compilation here
-      AssignHomesResult count csr assigned = assignHomesAndCountVars undefined
-      patched = patchInstructions assigned
+      AssignHomesResult count csr assigned = assignHomesAndCountVars (DirectedGraph.map ASTC.printLabel explicatedGraph) (map ASTC.printLabel topSort) selected
+      patched = X86.mapProgramBlocks patchInstructions assigned
       (prefix, suffix) = generateWrapper csr count
-  in prefix ++ patched ++ suffix
+  in X86.printProgram prefix suffix patched

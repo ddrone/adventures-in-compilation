@@ -11,6 +11,8 @@ import Data.Text (Text)
 import Utils (mapFst, concatSetsMap)
 import Data.Maybe (fromJust)
 import qualified Data.Map as Map
+import qualified LVar.X86 as X86
+import qualified LVar.ASTMon as ASTMon
 
 argumentRegisters :: [Reg]
 argumentRegisters = [Rdi, Rsi, Rdx, Rcx, R8, R9]
@@ -97,8 +99,13 @@ computeLiveMap queue g blockMap =
           in go (Map.insert hd liveBlock map) tl
   in go Map.empty queue
 
-interferenceGraph :: Ord n => [LiveBlock n] -> Graph (Arg n)
-interferenceGraph = foldr addToInterferenceGraph UndirectedGraph.empty
+interferenceGraph :: DirectedGraph.Graph Text -> [Text] -> X86.Program ASTMon.Name -> Graph (Arg ASTMon.Name)
+interferenceGraph g queue program =
+  let live = computeLiveMap queue g (X86.progBlocks program)
+  in justInterferenceGraph (Map.elems live)
+
+justInterferenceGraph :: Ord n => [LiveBlock n] -> Graph (Arg n)
+justInterferenceGraph = foldr addToInterferenceGraph UndirectedGraph.empty
 
 addToInterferenceGraph :: Ord n => LiveBlock n -> Graph (Arg n) -> Graph (Arg n)
 addToInterferenceGraph instrs g =

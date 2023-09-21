@@ -2,10 +2,12 @@ module LVar.X86 where
 
 import Data.Char (toLower)
 import Data.Int (Int64)
+import Data.Map (Map)
 import Data.Text (Text)
 import Data.Void (Void, absurd)
+import qualified Data.Map as Map
 import qualified Data.Text as Text
-import Data.Map (Map)
+import Data.Maybe (fromJust)
 
 data ByteReg
   = Ah
@@ -93,8 +95,8 @@ data GenInstr n
   | JumpIf Cmp Text
   deriving (Show)
 
-printInstr :: (n -> Text) -> GenInstr n -> Text
-printInstr pn =
+rawPrintInstr :: (n -> Text) -> GenInstr n -> Text
+rawPrintInstr pn =
   let pa = printArg pn
       binary instr a1 a2 = Text.concat
         [ instr
@@ -125,12 +127,23 @@ printInstr pn =
     Retq -> "retq"
     Jump label -> Text.unwords ["jump", label]
 
-printProgram :: [GenInstr Void] -> Text
-printProgram instrs = Text.unlines
-  ( "    .globl main"
-  : "main:"
-  : map (Text.append "    " . printInstr absurd) instrs
-  )
+printInstr :: GenInstr Void -> Text
+printInstr instr = "    " <> rawPrintInstr absurd instr
+
+printBlock :: Text -> Block Void -> [Text]
+printBlock label instrs = (label <> ":") : map printInstr instrs
+
+printProgram :: [GenInstr Void] -> [GenInstr Void] -> Program Void -> Text
+printProgram prefix suffix program =
+  let startBlock = fromJust (Map.lookup (progStartBlock program) (progBlocks program))
+      otherBlocks = Map.toList (Map.delete (progStartBlock program) (progBlocks program))
+      body = map printInstr startBlock ++ concatMap (uncurry printBlock) otherBlocks
+      wholeBody = map printInstr prefix ++ body ++ map printInstr suffix
+  in Text.unlines
+    ( "    .globl main"
+    : "main:"
+    : wholeBody
+    )
 
 traverseInstr :: Applicative a => (Arg n -> a (Arg m)) -> GenInstr n -> a (GenInstr m)
 traverseInstr f = \case
@@ -152,7 +165,16 @@ traverseInstr f = \case
 type Block n = [GenInstr n]
 
 data Program n = Program
-  { progStartBlock :: Block n
+  { progStartBlock :: Text
   , progBlocks :: Map Text (Block n)
   }
   deriving (Show)
+
+mapProgram :: (GenInstr n -> GenInstr m) -> Program n -> Program m
+mapProgram f = mapProgramBlocks (map f)
+
+mapProgramBlocks :: (Block n -> Block m) -> Program n -> Program m
+mapProgramBlocks f (Program start blocks) = Program start (Map.map f blocks)
+
+mapProgramM :: Monad f => (GenInstr n -> f (GenInstr m)) -> Program n -> f (Program m)
+mapProgramM f (Program start blocks) = Program start <$> (mapM (mapM f) blocks)

@@ -33,8 +33,7 @@ main = do
             TextIO.writeFile (replaceExtensions file "mon") (ASTMon.printModule (fst rco))
             let clike = uncurry explicateControl rco
             TextIO.writeFile (replaceExtensions file "clike") (printModule clike)
-            let instrs = compileAll p
-            let code = printProgram instrs
+            let code = compileAll p
             TextIO.writeFile assemblyName code
             callProcess "cc"
               [ "-m64"
