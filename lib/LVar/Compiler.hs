@@ -23,6 +23,7 @@ import qualified LVar.ASTC as ASTC
 import qualified LVar.ASTMon as ASTMon
 import qualified LVar.X86 as X86
 import qualified DirectedGraph
+import Debug.Trace (traceShow)
 
 type RCO a = State Int a
 
@@ -308,7 +309,7 @@ assignHomesAndCountVars graph blockOrder program = do
           _ -> set
   -- Callee-saved registers
   let csr = foldr addReg Set.empty (Map.elems locations)
-  AssignHomesResult stackLocs csr result
+  ig `traceShow` AssignHomesResult stackLocs csr result
 
 immediateLimit :: Int64
 immediateLimit = 2 ^ 16

@@ -34,7 +34,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Make the partial evaluation work for conditional expressions
 - [x] Finish peCmp function
 - [x] Remove CmpLit constructor
-- [ ] Figure out why one of the tests does not compile successfully
+- [x] Figure out why one of the tests does not compile successfully (some locations do not show up in the interference graph)
+- [ ] Write a function to print X86 code with names in them, together with liveness information.
+- [ ] Remove `traceShow` from Compiler.hs
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 
