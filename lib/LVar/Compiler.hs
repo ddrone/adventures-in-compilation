@@ -294,11 +294,20 @@ data AssignHomesResult = AssignHomesResult
 
 printInterferenceGraph = UndirectedGraph.printGraphSimple (Text.pack . show . X86.printArg ASTMon.printName)
 
+collectArgument :: Ord n => X86.Arg n -> Set (X86.Arg n) -> Set (X86.Arg n)
+collectArgument = \case
+  a@(X86.Name n) -> Set.insert a
+  _ -> id
+
+collectLocations :: Ord n => X86.GenInstr n -> Set (X86.Arg n) -> Set (X86.Arg n)
+collectLocations instr start = foldr collectArgument start (X86.getArgs instr)
+
 assignHomesAndCountVars :: DirectedGraph.Graph Text -> [Text] -> X86.Program ASTMon.Name -> AssignHomesResult
 assignHomesAndCountVars graph blockOrder program = do
   let ig = interferenceGraph graph (reverse blockOrder) program
   let mr = moveRelated (Map.elems (X86.progBlocks program))
-  let colors = UndirectedGraph.moveBiasedSaturationColoring (UndirectedGraph.allNodes ig) initialColors mr ig
+  let namesToColor = X86.foldProgramInstrs collectLocations Set.empty program
+  let colors = UndirectedGraph.moveBiasedSaturationColoring namesToColor initialColors mr ig
   let locations = colorsToLocMapping colors
   let maxColor = maximum (Map.elems colors)
   let stackLocs =

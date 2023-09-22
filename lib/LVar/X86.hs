@@ -100,6 +100,23 @@ data GenInstr n
   | JumpIf Cmp Text
   deriving (Show)
 
+getArgs :: GenInstr n -> [Arg n]
+getArgs = \case
+  Addq a1 a2 -> [a1, a2]
+  Subq a1 a2 -> [a1, a2]
+  Movq a1 a2 -> [a1, a2]
+  Negq a1 -> [a1]
+  Pushq a1 -> [a1]
+  Popq a1 -> [a1]
+  Callq{} -> []
+  Retq -> []
+  Jump{} -> []
+  Xorq a1 a2 -> [a1, a2]
+  Cmpq a1 a2 -> [a1, a2]
+  Set _ a1 -> [a1]
+  Movzbq a1 a2 -> [a1, a2]
+  JumpIf{} -> []
+
 rawPrintInstr :: (n -> Text) -> GenInstr n -> Text
 rawPrintInstr pn =
   let pa = printArg pn
@@ -183,3 +200,9 @@ mapProgramBlocks f (Program start blocks) = Program start (Map.map f blocks)
 
 mapProgramM :: Monad f => (GenInstr n -> f (GenInstr m)) -> Program n -> f (Program m)
 mapProgramM f (Program start blocks) = Program start <$> (mapM (mapM f) blocks)
+
+foldProgram :: (Block n -> a -> a) -> a -> Program n -> a
+foldProgram f start = foldr f start . Map.elems . progBlocks
+
+foldProgramInstrs :: (GenInstr n -> a -> a) -> a -> Program n -> a
+foldProgramInstrs f start = foldProgram (flip (foldr f)) start
