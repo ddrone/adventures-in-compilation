@@ -12,6 +12,7 @@ import LVar.ASTMon (Atom, Name)
 import Data.Map (Map)
 import Control.Monad.State
 import qualified Data.Map as Map
+import LVar.ASTMon (Atom(..))
 
 countBlockUses :: Module -> IntMap Int
 countBlockUses (Module start blocks) = do
@@ -67,3 +68,49 @@ procStmt time stmt = case stmt of
       _ -> pure ()
     modify $ \s -> s { bosLastModified = Map.insert n time (bosLastModified s) }
 
+appendStmts :: [Stmt] -> Block -> Block
+appendStmts ss (Block ss1 tail) = Block (ss ++ ss1) tail
+
+isFreshEnough :: Int -> Atom -> BlockOpt Bool
+isFreshEnough time atom = case atom of
+  Name n -> do
+    lastModified <- gets (Map.lookup n . bosLastModified)
+    pure $ case lastModified of
+      Nothing -> True
+      Just v -> v < time
+  Const _ -> pure True
+  Bool _ -> pure True
+
+optimizeBlock :: Module -> IntMap Int -> Block -> Block
+optimizeBlock (Module start blocks) useCounts (Block ss tail) = do
+  let canInline blockId =
+        let singleUse = IntMap.lookup blockId useCounts == Just 1
+            noStatements = null (blockStmts (fromJust (IntMap.lookup blockId blocks)))
+        in singleUse || noStatements
+  let procStmts start ss tail = do
+        mapM_ (uncurry procStmt) (zip [start..] ss)
+        case tail of
+          Return _ -> pure (Block ss tail)
+          Goto l ->
+            if canInline l
+              then
+                let Block ss1 tail1 = fromJust (IntMap.lookup l blocks) in
+                appendStmts ss <$> procStmts (start + length ss) ss1 tail1
+              else
+                pure (Block ss tail)
+          CondJump cnd l1 l2 ->
+            case cnd of
+              AtomC (Name n) -> do
+                v <- gets (Map.lookup n . bosMap)
+                case v of
+                  Nothing -> defaultOption
+                  Just v1 -> do
+                    ok1 <- isFreshEnough (cvTimeSaved v1) (cvArg1 v1)
+                    ok2 <- isFreshEnough (cvTimeSaved v1) (cvArg2 v1)
+                    if ok1 && ok2
+                      then pure (Block ss (CondJump (CmpC (cvBinop v1) (cvArg1 v1) (cvArg2 v1)) l1 l2))
+                      else defaultOption
+              _ -> defaultOption
+            where
+              defaultOption = pure (Block ss tail)
+  undefined -- TODO: continue from building a map of blocks

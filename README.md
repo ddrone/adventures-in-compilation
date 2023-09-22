@@ -143,6 +143,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 ## Bucket list
 
 - Refactor regular expression compilation code: especially subset construction and DFA minimization are quite messy
+- Refactor OptimizeBlocks.hs: some code is really messy
 
 ## Useful CLI incantations
 
