@@ -47,8 +47,6 @@ main:
     movq %r12, %rdi
     callq print_int
     movq $0, %rax
-    jmp conclusion
-conclusion:
     addq $72, %rsp
     popq %r14
     popq %r13

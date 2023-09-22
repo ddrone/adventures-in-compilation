@@ -168,8 +168,17 @@ printProgram :: [GenInstr Void] -> [GenInstr Void] -> Program Void -> Text
 printProgram prefix suffix program =
   let startBlock = fromJust (Map.lookup (progStartBlock program) (progBlocks program))
       otherBlocks = Map.toList (Map.delete (progStartBlock program) (progBlocks program))
-      body = map printInstr startBlock ++ concatMap (uncurry printBlock) otherBlocks
-      wholeBody = map printInstr prefix ++ body ++ ("conclusion:" : map printInstr suffix)
+      onlyStartBlock = null otherBlocks
+      startBody =
+        if onlyStartBlock
+          then map printInstr (init startBlock)
+          else map printInstr startBlock
+      body = startBody ++ concatMap (uncurry printBlock) otherBlocks
+      wholeSuffix =
+        if onlyStartBlock
+          then map printInstr suffix
+          else "conclusion:" : map printInstr suffix
+      wholeBody = map printInstr prefix ++ body ++ wholeSuffix
   in Text.unlines
     ( "    .globl main"
     : "main:"
