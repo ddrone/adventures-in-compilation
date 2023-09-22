@@ -91,10 +91,13 @@ printModule mod@(Module start blocks) =
       topSortLine = Text.concat ["topsort: ", Text.pack (show (Graph.topologicalSort (toGraph mod) 0))]
   in Text.unlines (lines ++ ["", topSortLine])
 
+tailOuts :: Tail -> [Label]
+tailOuts = \case
+  Return _ -> []
+  Goto l -> [l]
+  CondJump _ l1 l2 -> [l1, l2]
+
 toGraph :: Module -> Graph Int
 toGraph (Module start blocks) =
-  let blockEdge id block = case blockTail block of
-        Return _ -> []
-        Goto l -> [(id, l)]
-        CondJump _ l1 l2 -> [(id, l1), (id, l2)]
+  let blockEdge id block = map ((,) id) (tailOuts (blockTail block))
   in foldr (uncurry Graph.addEdge) Graph.empty (concatMap (uncurry blockEdge) ((0, start) : IntMap.toList blocks))
