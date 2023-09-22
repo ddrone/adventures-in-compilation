@@ -113,4 +113,4 @@ optimizeBlock (Module start blocks) useCounts (Block ss tail) = do
               _ -> defaultOption
             where
               defaultOption = pure (Block ss tail)
-  undefined -- TODO: continue from building a map of blocks
+  evalState (procStmts 0 ss tail) (BlockOptState Map.empty Map.empty)
