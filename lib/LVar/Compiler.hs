@@ -181,13 +181,18 @@ selectExpr dest = \case
         , Movq (X86.Reg Rax) dest
         ]
 
+cmpq :: X86.Arg n -> X86.Arg n -> X86.Cmp -> (X86.GenInstr n, X86.Cmp)
+cmpq a1 a2 c = case a2 of
+  X86.Immediate{} -> (Cmpq a2 a1, X86.oppositeCmp c)
+  _ -> (Cmpq a1 a2, c)
+
 selectCmp :: ASTC.Cond -> (Instr, X86.Cmp)
 selectCmp = \case
-  ASTC.AtomC a -> (Cmpq (X86.Immediate 1) (atom a), X86.E)
+  ASTC.AtomC a -> cmpq (X86.Immediate 1) (atom a) X86.E
   ASTC.CmpC op a1 a2 ->
     case Map.lookup op comparisonBinops of
       Nothing -> error $ "should not have used " ++ show op ++ " in comparison"
-      Just c -> (Cmpq (atom a2) (atom a1), c)
+      Just c -> cmpq (atom a2) (atom a1) c
 
 selectStmt :: ASTC.Stmt -> [Instr]
 selectStmt = \case
@@ -353,6 +358,13 @@ patchInstruction = \case
   Subq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
     [ Movq src rax
     , Subq rax dest
+    ]
+  -- Comparisons that are used in conditionals are inverted in the case if
+  -- second parameter is an immediate, but second parameter being immediate
+  -- can still appear when comparison is saved to a variable.
+  Cmpq src dest@X86.Immediate{} ->
+    [ Movq dest rax
+    , Cmpq src rax
     ]
   other -> [other]
 

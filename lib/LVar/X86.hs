@@ -29,6 +29,15 @@ data Cmp
   | Ge -- Greater than or equal
   deriving (Eq, Ord, Show)
 
+oppositeCmp :: Cmp -> Cmp
+oppositeCmp = \case
+  E -> E
+  Ne -> Ne
+  L -> G
+  Le -> Ge
+  G -> L
+  Ge -> Le
+
 printCmp :: Cmp -> Text
 printCmp c = Text.pack (map toLower (show c))
 

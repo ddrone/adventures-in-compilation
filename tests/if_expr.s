@@ -27,12 +27,14 @@ block_4:
     je block_2
     jmp block_3
 block_5:
-    cmpq %r12, $0
+    movq $0, %rax
+    cmpq %r12, %rax
     sete %al
     movzbq %al, %rdx
     jmp block_4
 block_6:
-    cmpq %r12, $2
+    movq $2, %rax
+    cmpq %r12, %rax
     sete %al
     movzbq %al, %rdx
     jmp block_4
