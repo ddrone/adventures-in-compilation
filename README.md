@@ -40,8 +40,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Collect all locations present in the program to compute the coloring instead of relying on those present in interference graph
 - [x] Remove `traceShow` from Compiler.hs
 - [x] Refactor patchInstruction to reduce the amount of boilerplate, also add support for `xorq` and maybe `cmpq` instrctions (find out if that's really necessary first)
-- [ ] Clean up the current mess that is the current executable: there should be only one flow through the compilation passes, that might emit additional files in the process
+- [x] Clean up the current mess that is the current executable: there should be only one flow through the compilation passes, that might emit additional files in the process
 - [ ] Implement the basic blocks optimization before register allocation
+- [ ] Implement pretty-printing of typechecker error and use it in the compiler pipeline
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 

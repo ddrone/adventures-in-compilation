@@ -40,6 +40,7 @@ library
         , LVar.ASTC
         , LVar.ASTMon
         , LVar.Compiler
+        , LVar.CompilerPipeline
         , LVar.ExplicateControl
         , LVar.Liveness
         , LVar.MoveBiasing

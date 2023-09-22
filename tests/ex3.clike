@@ -1,6 +1,4 @@
-  a = 42
-  b = a
-  print(b)
+  print(42)
   return 0
 
 topsort: [0]

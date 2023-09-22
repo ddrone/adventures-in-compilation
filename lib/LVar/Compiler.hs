@@ -380,16 +380,3 @@ generateWrapper savedRegisters localsCount =
         , Retq
         ]
   in (prefix, suffix)
-
-compileAll :: AST.Module -> Text
-compileAll mod =
-  let (rco, ecStart) = rcoModule (AST.mapModule shrinkExpr mod)
-      pevaled = peModule rco
-      explicated = explicateControl pevaled ecStart
-      explicatedGraph = ASTC.toGraph explicated
-      topSort = topologicalSort explicatedGraph 0
-      selected = selectInstructions explicated
-      AssignHomesResult count csr assigned = assignHomesAndCountVars (DirectedGraph.map ASTC.printLabel explicatedGraph) (map ASTC.printLabel topSort) selected
-      patched = X86.mapProgramBlocks patchInstructions assigned
-      (prefix, suffix) = generateWrapper csr count
-  in X86.printProgram prefix suffix patched
