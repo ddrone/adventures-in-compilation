@@ -46,6 +46,7 @@ library
         , LVar.MoveBiasing
         , LVar.PartialEval
         , LVar.Parser
+        , LVar.OptimizeBlocks
         , LVar.Typechecker
         , LVar.X86
         , Grammar.Grammar
