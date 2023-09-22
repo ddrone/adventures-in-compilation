@@ -7,10 +7,11 @@ import qualified Data.IntSet as IntSet
 
 import LVar.ASTC
 import Data.Maybe (fromJust)
-import LVar.AST (Binop)
+import LVar.AST (Binop, isComparisonOp)
 import LVar.ASTMon (Atom, Name)
 import Data.Map (Map)
-import Control.Monad.State (State)
+import Control.Monad.State
+import qualified Data.Map as Map
 
 countBlockUses :: Module -> IntMap Int
 countBlockUses (Module start blocks) = do
@@ -54,5 +55,15 @@ data BlockOptState = BlockOptState
 
 type BlockOpt a = State BlockOptState a
 
-optStmt :: Int -> Stmt -> BlockOpt Stmt
-optStmt time stmt = undefined -- TODO: continue here
+procStmt :: Int -> Stmt -> BlockOpt ()
+procStmt time stmt = case stmt of
+  Print _ -> pure ()
+  Calc _ -> pure ()
+  Assign n e -> do
+    case e of
+      Bin op a1 a2 | isComparisonOp op -> do
+        let value = CmpValue op a1 a2 time
+        modify $ \s -> s { bosMap = Map.insert n value (bosMap s) }
+      _ -> pure ()
+    modify $ \s -> s { bosLastModified = Map.insert n time (bosLastModified s) }
+
