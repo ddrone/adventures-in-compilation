@@ -335,38 +335,27 @@ rax = X86.Reg Rax
 patchInstruction :: X86.GenInstr Void -> [X86.GenInstr Void]
 patchInstruction = \case
   Movq src dest | src == dest -> []
-  Movq src@X86.Deref{} dest@X86.Deref{} ->
-    [ Movq src rax
-    , Movq rax dest
-    ]
-  Addq src@X86.Deref{} dest@X86.Deref{} ->
-    [ Movq src rax
-    , Addq rax dest
-    ]
-  Subq src@X86.Deref{} dest@X86.Deref{} ->
-    [ Movq src rax
-    , Subq rax dest
-    ]
+  Movq src@X86.Deref{} dest@X86.Deref{} -> useIntermediate src dest Movq
+  Addq src@X86.Deref{} dest@X86.Deref{} -> useIntermediate src dest Addq
+  Subq src@X86.Deref{} dest@X86.Deref{} -> useIntermediate src dest Subq
+  Xorq src@X86.Deref{} dest@X86.Deref{} -> useIntermediate src dest Xorq
   Movq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
-    [ Movq src rax
-    , Movq rax dest
-    ]
+    useIntermediate src dest Movq
   Addq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
-    [ Movq src rax
-    , Addq rax dest
-    ]
+    useIntermediate src dest Addq
   Subq src@(X86.Immediate n) dest@X86.Deref{} | n > immediateLimit ->
-    [ Movq src rax
-    , Subq rax dest
-    ]
+    useIntermediate src dest Subq
   -- Comparisons that are used in conditionals are inverted in the case if
   -- second parameter is an immediate, but second parameter being immediate
   -- can still appear when comparison is saved to a variable.
   Cmpq src dest@X86.Immediate{} ->
+    -- Not using `useIntermediate` here because the restriction is on the second argument
     [ Movq dest rax
     , Cmpq src rax
     ]
   other -> [other]
+  where
+    useIntermediate src dest instr = [ Movq src rax, instr rax dest ]
 
 patchInstructions :: [X86.GenInstr Void] -> [X86.GenInstr Void]
 patchInstructions = concatMap patchInstruction
