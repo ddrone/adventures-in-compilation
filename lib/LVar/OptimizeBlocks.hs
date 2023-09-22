@@ -7,6 +7,10 @@ import qualified Data.IntSet as IntSet
 
 import LVar.ASTC
 import Data.Maybe (fromJust)
+import LVar.AST (Binop)
+import LVar.ASTMon (Atom, Name)
+import Data.Map (Map)
+import Control.Monad.State (State)
 
 countBlockUses :: Module -> IntMap Int
 countBlockUses (Module start blocks) = do
@@ -35,3 +39,20 @@ countBlockUses (Module start blocks) = do
 -- 1.3.2. If tail is a conditional jump, see if it uses atom as a condition
 --          If condition is both a comparison, and none of the values of comparison have
 --          been overwritten in the mean time, inline the comparison into a goto.
+
+data CmpValue = CmpValue
+  { cvBinop :: Binop
+  , cvArg1 :: Atom
+  , cvArg2 :: Atom
+  , cvTimeSaved :: Int
+  }
+
+data BlockOptState = BlockOptState
+  { bosMap :: Map Name CmpValue
+  , bosLastModified :: Map Name Int
+  }
+
+type BlockOpt a = State BlockOptState a
+
+optStmt :: Int -> Stmt -> BlockOpt Stmt
+optStmt time stmt = undefined -- TODO: continue here
