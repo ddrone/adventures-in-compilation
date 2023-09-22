@@ -99,5 +99,5 @@ tailOuts = \case
 
 toGraph :: Module -> Graph Int
 toGraph (Module start blocks) =
-  let blockEdge id block = map ((,) id) (tailOuts (blockTail block))
-  in foldr (uncurry Graph.addEdge) Graph.empty (concatMap (uncurry blockEdge) ((0, start) : IntMap.toList blocks))
+  let blockEdge (id, block) = map ((,) id) (tailOuts (blockTail block))
+  in foldr (uncurry Graph.addEdge) Graph.empty (concatMap blockEdge ((0, start) : IntMap.toList blocks))
