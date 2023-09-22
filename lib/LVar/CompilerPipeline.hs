@@ -13,6 +13,7 @@ import LVar.ExplicateControl (explicateControl)
 import qualified LVar.ASTC as ASTC
 import qualified DirectedGraph
 import qualified LVar.X86 as X86
+import LVar.OptimizeBlocks (optimizeModule)
 
 compile :: FilePath -> Text -> Pipeline Text
 compile filename source = do
@@ -26,7 +27,7 @@ compile filename source = do
   let (rco, ecStart) = rcoModule (AST.mapModule shrinkExpr mod)
   let pevaled = peModule rco
   emit "mon" (ASTMon.printModule pevaled)
-  let explicated = explicateControl pevaled ecStart
+  let explicated = optimizeModule (explicateControl pevaled ecStart)
   emit "clike" (ASTC.printModule explicated)
   let explicatedGraph = ASTC.toGraph explicated
   let topSort = DirectedGraph.topologicalSort explicatedGraph 0

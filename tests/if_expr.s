@@ -22,22 +22,22 @@ block_2:
 block_3:
     addq $10, %rcx
     jmp block_1
-block_4:
-    cmpq $1, %rdx
-    je block_2
-    jmp block_3
 block_5:
     movq $0, %rax
     cmpq %r12, %rax
     sete %al
     movzbq %al, %rdx
-    jmp block_4
+    cmpq $0, %r12
+    je block_2
+    jmp block_3
 block_6:
     movq $2, %rax
     cmpq %r12, %rax
     sete %al
     movzbq %al, %rdx
-    jmp block_4
+    cmpq $2, %r12
+    je block_2
+    jmp block_3
 conclusion:
     addq $8, %rsp
     popq %r12
