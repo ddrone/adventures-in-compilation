@@ -38,7 +38,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Write a function to print X86 code with names in them, together with liveness information.
 - [x] There seems to be a mess in the X86-with-variables output that immediates are printed in the same way as variables. Fix it.
 - [x] Collect all locations present in the program to compute the coloring instead of relying on those present in interference graph
-- [ ] Remove `traceShow` from Compiler.hs
+- [x] Remove `traceShow` from Compiler.hs
 - [ ] Refactor patchInstruction to reduce the amount of boilerplate, also add support for `xorq` and maybe `cmpq` instrctions (find out if that's really necessary first)
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
