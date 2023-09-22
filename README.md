@@ -41,7 +41,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Remove `traceShow` from Compiler.hs
 - [x] Refactor patchInstruction to reduce the amount of boilerplate, also add support for `xorq` and maybe `cmpq` instrctions (find out if that's really necessary first)
 - [x] Clean up the current mess that is the current executable: there should be only one flow through the compilation passes, that might emit additional files in the process
-- [ ] Implement the basic blocks optimization before register allocation
+- [x] Implement the basic blocks optimization before register allocation
 - [ ] Omit "conclusion" label from the suffix of the program if there is only one basic block
 - [ ] Implement pretty-printing of typechecker error and use it in the compiler pipeline
 
