@@ -114,3 +114,18 @@ optimizeBlock (Module start blocks) useCounts (Block ss tail) = do
             where
               defaultOption = pure (Block ss tail)
   evalState (procStmts 0 ss tail) (BlockOptState Map.empty Map.empty)
+
+optimizeModule :: Module -> Module
+optimizeModule mod@(Module start blocks) = do
+  let useCounts = countBlockUses mod
+  let newStartBlock = optimizeBlock mod useCounts start
+  let getBlock id = fromJust (IntMap.lookup id blocks)
+  let go map queue = case queue of
+        [] -> map
+        hd : tl ->
+          if IntMap.member hd map
+            then go map tl
+            else do
+              let newBlock = optimizeBlock mod useCounts (getBlock hd)
+              go (IntMap.insert hd newBlock map) (blockOuts newBlock ++ tl)
+  Module newStartBlock (go IntMap.empty (blockOuts newStartBlock))

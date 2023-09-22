@@ -97,6 +97,9 @@ tailOuts = \case
   Goto l -> [l]
   CondJump _ l1 l2 -> [l1, l2]
 
+blockOuts :: Block -> [Label]
+blockOuts = tailOuts . blockTail
+
 toGraph :: Module -> Graph Int
 toGraph (Module start blocks) =
   let blockEdge (id, block) = map ((,) id) (tailOuts (blockTail block))
