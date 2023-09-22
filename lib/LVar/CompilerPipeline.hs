@@ -7,7 +7,7 @@ import Text.Megaparsec (runParser, errorBundlePretty)
 import LVar.Parser (program)
 import qualified Data.Text as Text
 import qualified LVar.AST as AST
-import LVar.Typechecker (typecheckModule)
+import LVar.Typechecker (typecheckModule, printTypeError)
 import qualified LVar.ASTMon as ASTMon
 import LVar.ExplicateControl (explicateControl)
 import qualified LVar.ASTC as ASTC
@@ -22,8 +22,7 @@ compile filename source = do
     Right m -> pure m
   case typecheckModule mod of
     Nothing -> pure ()
-    -- TODO: write a function to pretty-print typechecker error
-    Just err -> abort (Text.pack (show err))
+    Just err -> abort (printTypeError err)
   let (rco, ecStart) = rcoModule (AST.mapModule shrinkExpr mod)
   let pevaled = peModule rco
   emit "mon" (ASTMon.printModule pevaled)

@@ -43,7 +43,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Clean up the current mess that is the current executable: there should be only one flow through the compilation passes, that might emit additional files in the process
 - [x] Implement the basic blocks optimization before register allocation
 - [x] Omit "conclusion" label from the suffix of the program if there is only one basic block
-- [ ] Implement pretty-printing of typechecker error and use it in the compiler pipeline
+- [x] Implement pretty-printing of typechecker error and use it in the compiler pipeline
 
 ## Adventure 5: back to actual compilation; implement register allocation for LVar
 

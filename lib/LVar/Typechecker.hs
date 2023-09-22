@@ -4,6 +4,7 @@ import Data.Text (Text)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Control.Monad (when)
+import qualified Data.Text as Text
 
 data Type
   = Int64T
@@ -154,3 +155,11 @@ typecheckModule :: Module -> Maybe (TypeError Source)
 typecheckModule (Module stmts) = case typecheckBlock Map.empty stmts of
   Left err -> Just err
   Right _ -> Nothing
+
+printTypeError :: TypeError Source -> Text
+printTypeError (TypeError src reason) = Text.unlines
+  [ "Error:"
+  , "  " <> reason
+  , "In:"
+  , "  " <> Text.pack (show src)
+  ]
