@@ -84,6 +84,7 @@ data Stmt
   | Calc Expr
   | Assign Text Expr
   | IfS Expr Block Block
+  | While Expr Block
   deriving (Show)
 
 mapExpr :: (Expr -> Expr) -> Stmt -> Stmt
@@ -92,6 +93,7 @@ mapExpr f = \case
   Calc e -> Calc (f e)
   Assign n e -> Assign n (f e)
   IfS cond cons alt -> IfS (f cond) (map (mapExpr f) cons) (map (mapExpr f) alt)
+  While e body -> While e (map (mapExpr f) body)
 
 data GenModule s = Module
   { modStmts :: [s]

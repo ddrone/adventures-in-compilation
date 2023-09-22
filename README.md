@@ -2,6 +2,10 @@
 
 Instead of trying to "implement a cool programming language", a project that I have started maybe a dozen times and never got far with, the idea here is to play with different algorithms of compilation on extremely simplistic languages.
 
+## Adventure 7: implement while-loops
+
+- [ ] Implement conversion through IRs that I have
+
 ## Adventure 6: convert LVar to LIf following chapter 5 of Essentials of Compilation
 
 - [x] Implement postfix conditional in the parser

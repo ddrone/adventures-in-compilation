@@ -75,6 +75,11 @@ stmt = choice
         ]
       pure (IfS e cons alt)
   , do
+      symbol "while"
+      e <- expr
+      body <- block
+      pure (While e body)
+  , do
       var <- ident
       symbol "="
       e <- expr

@@ -140,6 +140,14 @@ typecheckStmt env stmt = case stmt of
     when (envCons /= envAlt) $
       tyErr "both branches of conditional should define same set of variables!"
     pure envCons
+  While cond body -> do
+    t <- check cond
+    when (t /= BoolT) $
+      tyErr "condition expression must be boolean!"
+    envBody <- typecheckBlock env body
+    when (env /= envBody) $
+      tyErr "while loop should not introduce new variables!"
+    pure env
   where
     check = mapLeft (fmap Expr) . typecheckExpr env
     tyErr = Left . TypeError (Stmt stmt)
