@@ -27,6 +27,7 @@ common binary
 library
     import: shared-properties
     exposed-modules:  AST
+        , Free
         , Interp
         , Parser
         , Utils
@@ -54,6 +55,7 @@ library
         , Graph.DominatorTree
         , Graph.Parser
         , Graphviz
+        , Pipeline
         , Regular.DFA
         , Regular.Expr
         , Regular.Lexer
