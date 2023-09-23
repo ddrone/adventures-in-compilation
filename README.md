@@ -4,7 +4,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 ## Adventure 7: implement while-loops
 
-- [ ] Implement conversion through IRs that I have
+- [x] Implement conversion through IRs that I have
+- [ ] Fix liveness analysis to use search for fixed point
 
 ## Adventure 6: convert LVar to LIf following chapter 5 of Essentials of Compilation
 

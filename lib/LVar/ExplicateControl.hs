@@ -33,6 +33,15 @@ freshBlock cont = do
   modify $ \s -> s { ecsBlocks = IntMap.insert result cont (ecsBlocks s) }
   pure result
 
+saveBlock :: Int -> Cont -> EC ()
+saveBlock blockId block = do
+  existing <- gets (IntMap.lookup blockId . ecsBlocks)
+  case existing of
+    Nothing ->
+      modify $ \s -> s { ecsBlocks = IntMap.insert blockId block (ecsBlocks s) }
+    Just _ ->
+      error $ "trying to save " ++ show blockId ++ " more than once!"
+
 fresh :: EC ASTMon.Name
 fresh = do
   next <- gets ecsNextVar
@@ -117,6 +126,15 @@ explicateStatement stmt cont = case stmt of
     altCont <- explicateBlock alt (goto contLabel)
     explicatePred cond consCont altCont
   ASTMon.Assign n e -> explicateAssign e n cont
+  ASTMon.While condDeps cond body -> do
+    contLabel <- createBlock cont
+    startLoop <- freshBlockId
+    loopBodyLabel <- freshBlockId
+    condBody <- explicateBlock condDeps =<< explicatePred cond (goto loopBodyLabel) (goto contLabel)
+    loopBody <- explicateBlock body (goto startLoop)
+    saveBlock startLoop condBody
+    saveBlock loopBodyLabel loopBody
+    pure (goto startLoop)
 
 explicateControl :: ASTMon.Module -> Int -> ASTC.Module
 explicateControl (AST.Module stmts) startVar =

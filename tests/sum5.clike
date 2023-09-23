@@ -1,0 +1,16 @@
+  if i > 0
+    then jump block_3
+    else jump block_1
+
+block_1:
+  print(sum)
+  return 0
+
+block_3:
+  sum = sum + i
+  i = i - 1
+  if i > 0
+    then jump block_3
+    else jump block_1
+
+topsort: [0,3,1]
