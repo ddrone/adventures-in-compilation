@@ -108,6 +108,14 @@ printStmt level stmt =
           , printBlock (level + 1) alt
           , indent <> "}"
           ]
+        While condDeps cond body -> Text.intercalate "\n"
+          [ "while ("
+          , printBlock (level + 1) condDeps
+          , indent <> "  " <> printCmp cond
+          , indent <> ") {"
+          , printBlock (level + 1) body
+          , indent <> "}"
+          ]
         Assign n e -> Text.concat [printName n, " = ", fst (printExpr level e)]
   in indent <> content
 
@@ -122,6 +130,7 @@ data Stmt
   = Print Atom
   | Calc Expr
   | IfS Cmp Block Block
+  | While Block Cmp Block
   | Assign Name Expr
   deriving (Show)
 
@@ -217,8 +226,19 @@ peExpr = \case
 peBlock :: [Stmt] -> PE [Stmt]
 peBlock ss = concat <$> mapM peStmt ss
 
+clearBlock :: [Stmt] -> PE ()
+clearBlock = mapM_ clearStmt
+
+clearStmt :: Stmt -> PE ()
+clearStmt = \case
+  Print _ -> pure ()
+  Calc _ -> pure ()
+  Assign n _ -> modify (Map.delete n)
+  IfS _ cons alt -> clearBlock cons >> clearBlock alt
+  While condDeps _ body -> clearBlock condDeps >> clearBlock body
+
 peStmt :: Stmt -> PE [Stmt]
-peStmt = \case
+peStmt stmt = case stmt of
   Print a -> singleton . Print . toAtom <$> peAtom a
   Calc e -> singleton . Calc . toExpr <$> peExpr e
   Assign n e -> do
@@ -240,6 +260,21 @@ peStmt = \case
         (altSS, altM) <- runLocal (peBlock alt)
         put (mergeMaps consM altM)
         pure [IfS (toCmp condV) consSS altSS]
+  While condDeps cond body -> do
+    currState <- get
+    let (result, nextState) = flip runState currState $ do
+          peBlock condDeps
+          peCmp cond
+    case result of
+      -- Condition evaluated to False right away, the loop is not going to be executed
+      Left (PE.Bool False) -> do
+        put nextState
+        pure []
+      -- In literally other case we need to traverse the block, remove all the variables
+      -- that can be possibly set in either condition or the body
+      _ -> do
+        clearStmt stmt
+        pure [stmt]
 
 partialEval :: [Stmt] -> [Stmt]
 partialEval stmts = evalState (peBlock stmts) Map.empty

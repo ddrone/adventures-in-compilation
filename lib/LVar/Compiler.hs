@@ -91,6 +91,10 @@ rcoStmt = \case
     cons1 <- concat <$> mapM rcoStmt cons
     alt1 <- concat <$> mapM rcoStmt alt
     pure (cs ++ [ASTMon.IfS ca cons1 alt1])
+  AST.While cond body -> do
+    (ca, cs) <- rcoCond cond
+    body1 <- concat <$> mapM rcoStmt body
+    pure [ASTMon.While cs ca body1]
   where
     wrapAtom f e = do
       (ea, es) <- rcoAtom e
