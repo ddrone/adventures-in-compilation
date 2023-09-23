@@ -1,0 +1,14 @@
+n = input_int()
+next = 1
+curr = 0
+i = 0
+while (
+
+  i < n
+) {
+  tmp = next
+  next = curr + next
+  curr = tmp
+  i = i + 1
+}
+print(curr)

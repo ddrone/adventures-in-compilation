@@ -226,16 +226,23 @@ peExpr = \case
 peBlock :: [Stmt] -> PE [Stmt]
 peBlock ss = concat <$> mapM peStmt ss
 
-clearBlock :: [Stmt] -> PE ()
-clearBlock = mapM_ clearStmt
+clearBlock :: [Stmt] -> PE [Stmt]
+clearBlock block = concat <$> mapM clearStmt block
 
-clearStmt :: Stmt -> PE ()
+clearStmt :: Stmt -> PE [Stmt]
 clearStmt = \case
-  Print _ -> pure ()
-  Calc _ -> pure ()
-  Assign n _ -> modify (Map.delete n)
-  IfS _ cons alt -> clearBlock cons >> clearBlock alt
-  While condDeps _ body -> clearBlock condDeps >> clearBlock body
+  Print _ -> pure []
+  Calc _ -> pure []
+  Assign n _ -> do
+    maybeVal <- gets (Map.lookup n)
+    case maybeVal of
+      Nothing -> pure []
+      Just v -> do
+        modify (Map.delete n)
+        let e = Atom (liftValue v)
+        pure [Assign n e]
+  IfS _ cons alt -> (++) <$> clearBlock cons <*> clearBlock alt
+  While condDeps _ body -> (++) <$> clearBlock condDeps <*> clearBlock body
 
 peStmt :: Stmt -> PE [Stmt]
 peStmt stmt = case stmt of
@@ -273,8 +280,8 @@ peStmt stmt = case stmt of
       -- In literally other case we need to traverse the block, remove all the variables
       -- that can be possibly set in either condition or the body
       _ -> do
-        clearStmt stmt
-        pure [stmt]
+        dump <- clearStmt stmt
+        pure (dump ++ [stmt])
 
 partialEval :: [Stmt] -> [Stmt]
 partialEval stmts = evalState (peBlock stmts) Map.empty

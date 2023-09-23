@@ -3,21 +3,23 @@ main:
     pushq %rbp
     movq %rsp, %rbp
     subq $0, %rsp
-    movq $0, %rdx
-    movq $5, %rcx
-    cmpq $0, %rcx
-    jg block_3
+    callq read_int
+    movq %rax, %rdx
+    movq $0, %rsi
+    movq $0, %rcx
+    cmpq %rdx, %rcx
+    jle block_3
     jmp block_1
 block_1:
-    movq %rdx, %rdi
+    movq %rsi, %rdi
     callq print_int
     movq $0, %rax
     jmp conclusion
 block_3:
-    addq %rcx, %rdx
-    subq $1, %rcx
-    cmpq $0, %rcx
-    jg block_3
+    addq %rcx, %rsi
+    addq $1, %rcx
+    cmpq %rdx, %rcx
+    jle block_3
     jmp block_1
 conclusion:
     addq $0, %rsp

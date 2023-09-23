@@ -144,9 +144,7 @@ typecheckStmt env stmt = case stmt of
     t <- check cond
     when (t /= BoolT) $
       tyErr "condition expression must be boolean!"
-    envBody <- typecheckBlock env body
-    when (env /= envBody) $
-      tyErr "while loop should not introduce new variables!"
+    _ <- typecheckBlock env body
     pure env
   where
     check = mapLeft (fmap Expr) . typecheckExpr env

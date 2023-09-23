@@ -1,6 +1,7 @@
+  n = input_int()
   sum = 0
-  i = 5
-  if i > 0
+  i = 0
+  if i <= n
     then jump block_3
     else jump block_1
 
@@ -10,8 +11,8 @@ block_1:
 
 block_3:
   sum = sum + i
-  i = i - 1
-  if i > 0
+  i = i + 1
+  if i <= n
     then jump block_3
     else jump block_1
 

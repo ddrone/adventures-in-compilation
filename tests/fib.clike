@@ -1,0 +1,22 @@
+  n = input_int()
+  next = 1
+  curr = 0
+  i = 0
+  if i < n
+    then jump block_3
+    else jump block_1
+
+block_1:
+  print(curr)
+  return 0
+
+block_3:
+  tmp = next
+  next = curr + next
+  curr = tmp
+  i = i + 1
+  if i < n
+    then jump block_3
+    else jump block_1
+
+topsort: [0,3,1]
