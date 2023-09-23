@@ -6,7 +6,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 - [x] Implement conversion through IRs that I have
 - [x] Fix liveness analysis to use search for fixed point
-- [ ] Debug the output of compilation of sum5.lvar
+- [x] Debug the output of compilation of sum5.lvar (the partial evaluator is not correct)
+- [ ] Fix partial evaluation
 
 ## Adventure 6: convert LVar to LIf following chapter 5 of Essentials of Compilation
 
