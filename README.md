@@ -5,7 +5,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 ## Adventure 7: implement while-loops
 
 - [x] Implement conversion through IRs that I have
-- [ ] Fix liveness analysis to use search for fixed point
+- [x] Fix liveness analysis to use search for fixed point
+- [ ] Debug the output of compilation of sum5.lvar
 
 ## Adventure 6: convert LVar to LIf following chapter 5 of Essentials of Compilation
 
