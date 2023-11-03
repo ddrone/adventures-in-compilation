@@ -42,6 +42,7 @@ library
         , LVar.Compiler
         , LVar.CompilerPipeline
         , LVar.ExplicateControl
+        , LVar.Lexer
         , LVar.Liveness
         , LVar.MoveBiasing
         , LVar.PartialEval
@@ -69,6 +70,7 @@ library
         , MultiWayIf
         , DeriveFunctor
     hs-source-dirs:   lib
+    build-tool-depends: alex:alex
 
 executable interpreter
     import:           binary
@@ -93,3 +95,7 @@ executable ll1
 executable regular
     import:           binary
     main-is:          app/Regular.hs
+
+executable lexemes
+    import:           binary
+    main-is:          app/Lexemes.hs
