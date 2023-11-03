@@ -105,3 +105,10 @@ executable lexemes
 executable parser-test
     import:           binary
     main-is:          app/ParserTest.hs
+    build-depends:    aeson
+        , servant-server
+        , wai
+        , warp
+    extensions:       DataKinds
+        , TemplateHaskell
+        , TypeOperators
