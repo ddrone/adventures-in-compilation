@@ -5,7 +5,9 @@ Instead of trying to "implement a cool programming language", a project that I h
 ## Sub-adventure 8.0: move parsing from Megaparsec to Alex+Happy
 
 - [x] Lexemes migrated
-- [ ] Re-implement parser
+- [x] Re-implement parser
+- [ ] Implement a simple UI to test the parser interactively
+- [ ] Fix the parser bugs by working on it iteratively
 - [ ] Write necessary boilerplate to display errors nicely
 - [ ] Migrate existing compiler pipeline to a new parser
 
