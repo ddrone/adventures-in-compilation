@@ -89,6 +89,9 @@ Stmt
   : 'print' Exp { prefix Print $1 $2 }
   | 'if' Exp Block { error "handle if blocks" }
   | 'if' Exp Block 'else' Block { error "handle if-else blocks" }
+  | 'while' Exp Block { error "handle while blocks" }
+  | ident '=' Exp { error "handle assignments" }
+  | Exp { (fst $1, Calc $1) }
 
 Block
   : '{' '}' { (,) (combine (fst $1) (fst $2)) [] }
