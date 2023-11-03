@@ -2,6 +2,13 @@
 
 Instead of trying to "implement a cool programming language", a project that I have started maybe a dozen times and never got far with, the idea here is to play with different algorithms of compilation on extremely simplistic languages.
 
+## Sub-adventure 8.0: move parsing from Megaparsec to Alex+Happy
+
+- [x] Lexemes migrated
+- [ ] Re-implement parser
+- [ ] Write necessary boilerplate to display errors nicely
+- [ ] Migrate existing compiler pipeline to a new parser
+
 ## Adventure 8: reverse mapping
 
 Currently, the compiler works just one way, and it would be close to impossible to figure out where the resulting code comes from. What I want is to have a "source mapping" between each compiler pass, so that it's possible to trace the source of a particular instruction.
