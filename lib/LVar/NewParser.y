@@ -1,11 +1,11 @@
 {
 module LVar.NewParser where
 
-import LVar.Lexer (Token(..), AlexPosn)
+import LVar.Lexer (Token(..), TokenInfo)
 }
 
 %name parse
-%tokentype { (AlexPosn, Token) }
+%tokentype { (TokenInfo, Token) }
 %error { parseError }
 
 %token
@@ -31,7 +31,7 @@ Factor
 
 {
 data Exp
-  = Lit (AlexPosn, Integer)
+  = Lit (TokenInfo, Integer)
   | Add Exp Exp
   | Mul Exp Exp
   deriving (Show)

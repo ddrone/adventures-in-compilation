@@ -23,7 +23,18 @@ data Token
   | TokenLit String
   deriving (Show)
 
-go pos s = (pos, TokenLit s)
+data TokenInfo = TokenInfo
+  { tokOffset :: Int
+  , tokRow :: Int
+  , tokColumn :: Int
+  , tokEnd :: Int
+  }
+  deriving (Show)
 
-number pos s = (pos, TokenInt (read s))
+action f (AlexPn offset line row) s =
+  (TokenInfo offset line row (offset + length s), f s)
+
+go = action TokenLit
+
+number = action (TokenInt . read)
 }
