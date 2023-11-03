@@ -11,12 +11,19 @@ $alnum = [a-zA-Z0-9]
 tokens :-
   $white+ ;
   "#".* ;
-  "(" { action }
-  ")" { action }
-  "+" { action }
-  "*" { action }
-  $digit+ { action }
+  "(" { go }
+  ")" { go }
+  "+" { go }
+  "*" { go }
+  $digit+ { number }
 
 {
-action (AlexPn offset row col) s = (offset, row, col, s)
+data Token
+  = TokenInt Integer
+  | TokenLit String
+  deriving (Show)
+
+go (AlexPn offset row col) s = (offset, row, col, TokenLit s)
+
+number (AlexPn offset row col) s = (offset, row, col, TokenInt (read s))
 }
