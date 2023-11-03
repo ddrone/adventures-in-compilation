@@ -23,6 +23,7 @@ import LVar.AST (Binop(..), Unop(..))
   '}' { (_, TokenLit "}") }
   'print' { (_, TokenLit "print") }
   'while' { (_, TokenLit "while") }
+  ';' { (_, TokenLit ";") }
   '=' { (_, TokenLit "=") }
   '+' { (_, TokenOp "+") }
   '-' { (_, TokenOp "-") }
@@ -37,6 +38,8 @@ import LVar.AST (Binop(..), Unop(..))
   'not' { (_, TokenOp "not") }
 
 %%
+
+Module : Stmts { $1 }
 
 Exp : Exp0 { $1 }
 
@@ -71,8 +74,8 @@ Exp5
 
 Exp6
   : Exp7 { $1 }
-  | 'not' Exp6 { prefix Not $1 $2 }
-  | '-' Exp6 { prefix Neg $1 $2 }
+  | 'not' Exp6 { unary Not $1 $2 }
+  | '-' Exp6 { unary Neg $1 $2 }
 
 Exp7
   : '(' Exp ')' { wrap $1 $3 $2 }
@@ -81,6 +84,19 @@ Exp7
   | 'False' { constE $1 (Bool False) }
   | 'input_int' '(' ')' { (,) (combine (fst $1) (fst $3)) InputInt }
   | ident { identE $1 }
+
+Stmt
+  : 'print' Exp { prefix Print $1 $2 }
+  | 'if' Exp Block { error "handle if blocks" }
+  | 'if' Exp Block 'else' Block { error "handle if-else blocks" }
+
+Block
+  : '{' '}' { (,) (combine (fst $1) (fst $2)) [] }
+  | '{' Stmts '}' { wrap $1 $3 $2 }
+
+Stmts
+  : Stmt { (fst $1, [$1]) }
+  | Stmt ';' Stmts { (,) (combine (fst $1) (fst $3)) ($1 : snd $3) }
 
 {
 data Expr
@@ -96,6 +112,17 @@ data Expr
 -- This is the actual return type of parser
 type E = (TokenInfo, Expr)
 
+data Stmt
+  = Print E
+  | Calc E
+  | Assign String E
+  | IfS E Block Block
+  | While E Block
+  deriving (Show)
+
+type S = (TokenInfo, Stmt)
+type Block = (TokenInfo, [S])
+
 lit (pos, TokenInt n) = (pos, Const n)
 
 -- Get a source span starting with the first argument and
@@ -105,7 +132,9 @@ combine t1 t2 = t1 { tokEnd = tokEnd t2 }
 -- Apply a binary tree constructor combining the source spans
 bin op w1@(i1, _) w2@(i2, _) = (combine i1 i2, Bin op w1 w2)
 
-prefix op (i1, _) w2@(i2, _) = (combine i1 i2, Unary op w2)
+prefix op (i1, _) w2@(i2, _) = (combine i1 i2, op w2)
+
+unary op = prefix (Unary op)
 
 constE (i1, _) v = (i1, v)
 
