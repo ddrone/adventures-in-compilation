@@ -1,5 +1,7 @@
 {
 module LVar.Lexer where
+
+-- Block comment, /* */
 }
 
 %wrapper "posn"
@@ -16,11 +18,25 @@ tokens :-
   "+" { go }
   "*" { go }
   $digit+ { number }
+  "True" { go }
+  "False" { go }
+  "input_int" { go }
+  "if" { go }
+  "else" { go }
+  "{" { go }
+  "}" { go }
+  "print" { go }
+  "while" { go }
+  "+" | "-" | "<=" | "<" | ">=" | ">" | "==" | "!=" | "and" | "or" | "not" { op }
+  "=" { go }
+  $alpha $alnum* { ident }
 
 {
 data Token
   = TokenInt Integer
   | TokenLit String
+  | TokenIdent String
+  | TokenOp String
   deriving (Show)
 
 data TokenInfo = TokenInfo
@@ -36,5 +52,9 @@ action f (AlexPn offset line row) s =
 
 go = action TokenLit
 
+ident = action TokenIdent
+
 number = action (TokenInt . read)
+
+op = action TokenOp
 }
