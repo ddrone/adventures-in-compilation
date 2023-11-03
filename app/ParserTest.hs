@@ -5,5 +5,5 @@ import LVar.NewParser
 
 main = do
   s <- getContents
-  let lexemes = map snd (alexScanTokens s)
+  let lexemes = alexScanTokens s
   print (parse lexemes)

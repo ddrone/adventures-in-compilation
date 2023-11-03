@@ -1,19 +1,19 @@
 {
 module LVar.NewParser where
 
-import LVar.Lexer (Token(..))
+import LVar.Lexer (Token(..), AlexPosn)
 }
 
 %name parse
-%tokentype { Token }
+%tokentype { (AlexPosn, Token) }
 %error { parseError }
 
 %token
-  '(' { TokenLit "(" }
-  ')' { TokenLit ")" }
-  '+' { TokenLit "+" }
-  '*' { TokenLit "*" }
-  int { TokenInt $$ }
+  '(' { (_, TokenLit "(") }
+  ')' { (_, TokenLit ")") }
+  '+' { (_, TokenLit "+") }
+  '*' { (_, TokenLit "*") }
+  int { $$@(_, TokenInt _) }
 
 %%
 
@@ -26,15 +26,17 @@ Term
   | Term '*' Factor { Mul $1 $3 }
 
 Factor
-  : int { Lit $1 }
+  : int { lit $1 }
   | '(' Exp ')' { $2 }
 
 {
 data Exp
-  = Lit Integer
+  = Lit (AlexPosn, Integer)
   | Add Exp Exp
   | Mul Exp Exp
   deriving (Show)
+
+lit (pos, TokenInt n) = Lit (pos, n)
 
 parseError _ = error "parse error!"
 }
