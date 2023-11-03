@@ -12,20 +12,29 @@ import LVar.Lexer (Token(..), TokenInfo(..))
   '(' { (_, TokenLit "(") }
   ')' { (_, TokenLit ")") }
   '+' { (_, TokenLit "+") }
-  '*' { (_, TokenLit "*") }
+  '-' { (_, TokenLit "-") }
   int { (_, TokenInt _) }
+  ident { (_, TokenIdent _) }
+  'True' { (_, TokenLit "True") }
+  'False' { (_, TokenLit "False") }
+  'input_int' { (_, TokenLit "input_int") }
+  'if' { (_, TokenLit "if") }
+  'else' { (_, TokenLit "else") }
+  '{' { (_, TokenLit "{") }
+  '}' { (_, TokenLit "}") }
+  'print' { (_, TokenLit "print") }
+  'while' { (_, TokenLit "while") }
+  '=' { (_, TokenLit "=") }
+
 
 %%
 
 Exp
   : Term { $1 }
   | Exp '+' Term { bin Add $1 $3 }
+  | Exp '-' Term { bin Sub $1 $3 }
 
 Term
-  : Factor { $1 }
-  | Term '*' Factor { bin Mul $1 $3 }
-
-Factor
   : int { lit $1 }
   | '(' Exp ')' { wrap $1 $3 $2 }
 
@@ -33,7 +42,7 @@ Factor
 data Exp
   = Lit Integer
   | Add E E
-  | Mul E E
+  | Sub E E
   deriving (Show)
 
 -- This is the actual return type of parser
