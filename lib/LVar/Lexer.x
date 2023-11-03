@@ -33,7 +33,7 @@ tokens :-
 
 {
 data Token
-  = TokenInt Integer
+  = TokenInt Int
   | TokenLit String
   | TokenIdent String
   | TokenOp String
