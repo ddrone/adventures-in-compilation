@@ -13,7 +13,7 @@ import LVar.Lexer (Token(..), AlexPosn)
   ')' { (_, TokenLit ")") }
   '+' { (_, TokenLit "+") }
   '*' { (_, TokenLit "*") }
-  int { $$@(_, TokenInt _) }
+  int { (_, TokenInt _) }
 
 %%
 
