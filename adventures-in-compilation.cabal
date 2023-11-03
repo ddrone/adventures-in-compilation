@@ -45,6 +45,7 @@ library
         , LVar.Lexer
         , LVar.Liveness
         , LVar.MoveBiasing
+        , LVar.NewParser
         , LVar.PartialEval
         , LVar.Parser
         , LVar.OptimizeBlocks
@@ -71,6 +72,7 @@ library
         , DeriveFunctor
     hs-source-dirs:   lib
     build-tool-depends: alex:alex
+        , happy:happy
 
 executable interpreter
     import:           binary

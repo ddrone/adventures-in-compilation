@@ -23,7 +23,7 @@ data Token
   | TokenLit String
   deriving (Show)
 
-go (AlexPn offset row col) s = (offset, row, col, TokenLit s)
+go pos s = (pos, TokenLit s)
 
-number (AlexPn offset row col) s = (offset, row, col, TokenInt (read s))
+number pos s = (pos, TokenInt (read s))
 }
