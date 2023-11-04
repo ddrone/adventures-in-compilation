@@ -57,4 +57,22 @@ ident = action TokenIdent
 number = action (TokenInt . read)
 
 op = action TokenOp
+
+data Tokens = Tokens
+  { tkTokens :: [(TokenInfo, Token)]
+  , tkError :: Maybe AlexPosn
+  }
+  deriving (Show)
+
+addToken tok (Tokens toks tkErr) = Tokens (tok : toks) tkErr
+
+scanTokens :: String -> Tokens
+scanTokens input = go (alexStartPos, '\n', [], input)
+  where
+    go inp@(pos, _, _, str) =
+      case alexScan inp 0 of
+        AlexEOF -> Tokens [] Nothing
+        AlexSkip inp' len -> go inp'
+        AlexToken inp' len act -> addToken (act pos (take len str)) (go inp')
+        AlexError (pos, _, _, _) -> Tokens [] (Just pos)
 }

@@ -9,7 +9,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [ ] Implement a simple UI to test the parser interactively
   - [x] Implement simple server skeleton
   - [x] Implement frontend using that server
-  - [ ] Make the lexer fail without `error` on lexing error
+  - [x] Make the lexer fail without `error` on lexing error
   - [ ] Make the parser fail without `error` on parsing error
   - [ ] Make server actually perform the parsing
 - [ ] Fix the parser bugs by working on it iteratively
@@ -176,6 +176,12 @@ Using profiling from Cabal:
 
 ```
 cabal run --enable-profiling lvar -- tests/cond.lvar +RTS -p
+```
+
+Building a specific executable via Stack:
+
+```
+stack build :lexemes
 ```
 
 ## Things I've learned while working on this
