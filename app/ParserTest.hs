@@ -26,14 +26,20 @@ app :: Application
 app = serve api server
 
 server :: String -> Handler ParseResponse
-server input = pure RespOK
+server input = pure (runParser input)
 
 runServer :: IO ()
 runServer = run 8080 app
 
-main :: IO ()
-main = do
-  s <- getContents
-  let lexemes = scanTokens s
-  print (runP parse (tkTokens lexemes))
+runParser :: String -> ParseResponse
+runParser input =
+  let tokens = scanTokens input in
+  case tkError tokens of
+    Just ti -> RespLexerError "Lexer error" ti
+    Nothing ->
+      case runP parse (tkTokens tokens) of
+        Left (info, msg) -> RespParserError msg info
+        Right _ -> RespOK
 
+main :: IO ()
+main = runServer

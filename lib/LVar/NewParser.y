@@ -151,12 +151,7 @@ wrap (beg, _) (end, _) (_, t) = (combine beg end, t)
 
 type Lexeme = (TokenInfo, Token)
 
-data NextToken
-  = NtEOF
-  | NtToken TokenInfo
-  deriving (Show)
-
-type ParseError = (NextToken, String)
+type ParseError = (TokenInfo, String)
 
 newtype P a = P { runP :: [Lexeme] -> Either ParseError (a, [Lexeme]) }
 
@@ -174,12 +169,12 @@ failP err = P f
     f input =
       let
         nt = case input of
-          (info, _) : _ -> NtToken info
-          [] -> NtEOF
+          (info, _) : _ -> info
+          [] -> error "Internal parse error: failP does not see further lexemes"
       in Left (nt, err)
 
 parseError :: Lexeme -> P a
-parseError (info, _) = P (\input -> Left (NtToken info, "Happy parse error"))
+parseError (info, _) = P (\input -> Left (info, "Happy parse error"))
 
 nextLexeme :: P Lexeme
 nextLexeme = P f
