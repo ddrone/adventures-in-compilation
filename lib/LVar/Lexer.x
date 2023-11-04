@@ -20,8 +20,6 @@ tokens :-
   "#".* ;
   "(" { go }
   ")" { go }
-  "+" { go }
-  "-" { go }
   $digit+ { number }
   "True" { go }
   "False" { go }

@@ -14,6 +14,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Extract TokenInfo to a separate file, make it implement JSON conversion
   - [x] Make server actually perform the parsing
   - [x] Make Ctrl+Enter run the parsing
+  - [ ] Rewrite operators parsing using token precedences, this is too terrible to debug
   - [ ] Figure out how to make Servant generate TypeScript types for API
   - [ ] Highlight the location of parse error in the UI
 - [ ] Cleanup: now that I have my own wrapper, I don't need to pass position in every single token action
@@ -187,6 +188,12 @@ Building a specific executable via Stack:
 
 ```
 stack build :lexemes
+```
+
+Running diagnostics on Happy parser:
+
+```
+stack exec happy -- lib/LVar/NewParser.y --info=parser_diagnostics.txt --out=/dev/null
 ```
 
 ## Things I've learned while working on this
