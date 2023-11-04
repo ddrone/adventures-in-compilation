@@ -13,7 +13,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Make the parser fail without `error` on parsing error
   - [x] Extract TokenInfo to a separate file, make it implement JSON conversion
   - [x] Make server actually perform the parsing
-  - [ ] Make Ctrl+Enter run the parsing
+  - [x] Make Ctrl+Enter run the parsing
   - [ ] Figure out how to make Servant generate TypeScript types for API
   - [ ] Highlight the location of parse error in the UI
 - [ ] Cleanup: now that I have my own wrapper, I don't need to pass position in every single token action

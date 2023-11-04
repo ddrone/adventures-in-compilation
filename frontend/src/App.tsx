@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { KeyboardEvent, useRef, useState } from "react";
 
 function App() {
   const [msg, setMsg] = useState('');
@@ -8,6 +8,7 @@ function App() {
   async function handleClick() {
     const text = textarea.current!.value;
     setLastText(text);
+    setMsg('');
     const response = await fetch('/api/parse', {
       method: 'POST',
       body: text
@@ -16,9 +17,18 @@ function App() {
     setMsg(JSON.stringify(json));
   }
 
+  function handleKeyUp(e: KeyboardEvent): boolean {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleClick();
+      return true;
+    }
+
+    return false;
+  }
+
   return (
     <>
-      <textarea ref={textarea} rows={10} cols={80}>
+      <textarea ref={textarea} rows={10} cols={80} onKeyUp={handleKeyUp}>
       </textarea><br />
       <button onClick={handleClick}>
         Click me
