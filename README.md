@@ -14,7 +14,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Extract TokenInfo to a separate file, make it implement JSON conversion
   - [x] Make server actually perform the parsing
   - [x] Make Ctrl+Enter run the parsing
-  - [ ] Figure out how to make Servant generate TypeScript types for API
+  - [ ] Write types for JSON data passed from server manually in TypeScript
   - [ ] Highlight the location of parse error in the UI
 - [ ] Cleanup: now that I have my own wrapper, I don't need to pass position in every single token action
 - [ ] Fix the parser bugs by working on it iteratively
