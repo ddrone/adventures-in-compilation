@@ -16,6 +16,7 @@ common shared-properties
         , parser-combinators
         , filepath
         , process
+        , aeson
     default-language: Haskell2010
     ghc-options:      -Wincomplete-patterns
 
@@ -23,6 +24,7 @@ common binary
     import: shared-properties
     build-depends: adventures-in-compilation
     extensions: OverloadedStrings
+        , TemplateHaskell
 
 library
     import: shared-properties
@@ -43,6 +45,7 @@ library
         , LVar.CompilerPipeline
         , LVar.ExplicateControl
         , LVar.Lexer
+        , LVar.LexerDeps
         , LVar.Liveness
         , LVar.MoveBiasing
         , LVar.NewParser
@@ -70,6 +73,7 @@ library
         , LambdaCase
         , MultiWayIf
         , DeriveFunctor
+        , TemplateHaskell
     hs-source-dirs:   lib
     build-tool-depends: alex:alex
         , happy:happy
@@ -105,10 +109,8 @@ executable lexemes
 executable parser-test
     import:           binary
     main-is:          app/ParserTest.hs
-    build-depends:    aeson
-        , servant-server
+    build-depends:    servant-server
         , wai
         , warp
     extensions:       DataKinds
-        , TemplateHaskell
         , TypeOperators

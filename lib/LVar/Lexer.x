@@ -1,7 +1,12 @@
 {
-module LVar.Lexer where
+module LVar.Lexer
+  ( module LVar.LexerDeps
+  , module LVar.Lexer
+  ) where
 
--- Block comment, /* */
+import LVar.LexerDeps
+
+-- TODO: Block comment, /* */
 }
 
 %wrapper "posn"
@@ -38,14 +43,6 @@ data Token
   | TokenIdent String
   | TokenOp String
   | TokenEof
-  deriving (Show)
-
-data TokenInfo = TokenInfo
-  { tokOffset :: Int
-  , tokRow :: Int
-  , tokColumn :: Int
-  , tokEnd :: Int
-  }
   deriving (Show)
 
 action f (AlexPn offset line row) s =

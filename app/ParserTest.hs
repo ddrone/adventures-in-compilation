@@ -10,7 +10,8 @@ import LVar.Lexer
 import LVar.NewParser
 
 data ParseResponse
-  = RespError String
+  = RespLexerError String TokenInfo
+  | RespParserError String TokenInfo
   | RespOK
   deriving (Eq, Show)
 
