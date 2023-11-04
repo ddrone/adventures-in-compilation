@@ -8,7 +8,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Re-implement parser
 - [ ] Implement a simple UI to test the parser interactively
   - [x] Implement simple server skeleton
-  - [ ] Implement frontend using that server
+  - [x] Implement frontend using that server
   - [ ] Make server actually perform the parsing
 - [ ] Fix the parser bugs by working on it iteratively
 - [ ] Write necessary boilerplate to display errors nicely
