@@ -181,6 +181,12 @@ failP err = P f
 parseError :: Lexeme -> P a
 parseError (info, _) = P (\input -> Left (NtToken info, "Happy parse error"))
 
+nextLexeme :: P Lexeme
+nextLexeme = P f
+  where
+    f [] = error "Internal parse error: trying to access lexemes beyond EOF"
+    f (first : rest) = Right (first, rest)
+
 lexer :: (Lexeme -> P a) -> P a
-lexer = undefined
+lexer = thenP nextLexeme
 }

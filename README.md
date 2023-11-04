@@ -10,7 +10,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Implement simple server skeleton
   - [x] Implement frontend using that server
   - [x] Make the lexer fail without `error` on lexing error
-  - [ ] Make the parser fail without `error` on parsing error
+  - [x] Make the parser fail without `error` on parsing error
   - [ ] Make server actually perform the parsing
 - [ ] Cleanup: now that I have my own wrapper, I don't need to pass position in every single token action
 - [ ] Fix the parser bugs by working on it iteratively
