@@ -37,6 +37,7 @@ data Token
   | TokenLit String
   | TokenIdent String
   | TokenOp String
+  | TokenEof
   deriving (Show)
 
 data TokenInfo = TokenInfo
@@ -66,15 +67,15 @@ data Tokens = Tokens
 
 addToken tok (Tokens toks tkErr) = Tokens (tok : toks) tkErr
 
+posToTokenInfo (AlexPn offset line row) = TokenInfo offset line row offset
+
 scanTokens :: String -> Tokens
 scanTokens input = go (alexStartPos, '\n', [], input)
   where
     go inp@(pos, _, _, str) =
       case alexScan inp 0 of
-        AlexEOF -> Tokens [] Nothing
+        AlexEOF -> Tokens [(posToTokenInfo pos, TokenEof)] Nothing
         AlexSkip inp' len -> go inp'
         AlexToken inp' len act -> addToken (act pos (take len str)) (go inp')
-        AlexError (AlexPn offset line row, _, _, _) -> Tokens [] (Just info)
-          where
-            info = TokenInfo offset line row offset
+        AlexError (pos, _, _, _) -> Tokens [] (Just (posToTokenInfo pos))
 }

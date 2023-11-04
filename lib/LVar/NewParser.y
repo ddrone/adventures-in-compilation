@@ -8,6 +8,8 @@ import LVar.AST (Binop(..), Unop(..))
 %name parse
 %tokentype { (TokenInfo, Token) }
 %error { parseError }
+%monad { P } { thenP } { returnP }
+%lexer { lexer } { (_, TokenEof) }
 
 %token
   '(' { (_, TokenLit "(") }
@@ -45,7 +47,7 @@ Exp : Exp0 { $1 }
 
 Exp0
   : Exp1 { $1 }
-  | Exp1 'if' Exp1 'else' Exp1 { error "Fixme" }
+  | Exp1 'if' Exp1 'else' Exp1 {% failP "Fixme" }
 
 Exp1
   : Exp2 { $1 }
@@ -87,10 +89,10 @@ Exp7
 
 Stmt
   : 'print' Exp { prefix Print $1 $2 }
-  | 'if' Exp Block { error "handle if blocks" }
-  | 'if' Exp Block 'else' Block { error "handle if-else blocks" }
-  | 'while' Exp Block { error "handle while blocks" }
-  | ident '=' Exp { error "handle assignments" }
+  | 'if' Exp Block {% failP "handle if blocks" }
+  | 'if' Exp Block 'else' Block {% failP "handle if-else blocks" }
+  | 'while' Exp Block {% failP "handle while blocks" }
+  | ident '=' Exp {% failP "handle assignments" }
   | Exp { (fst $1, Calc $1) }
 
 Block
@@ -147,5 +149,38 @@ identE (i, TokenIdent v) = (i, Name v)
 -- brackets).
 wrap (beg, _) (end, _) (_, t) = (combine beg end, t)
 
-parseError _ = error "parse error!"
+type Lexeme = (TokenInfo, Token)
+
+data NextToken
+  = NtEOF
+  | NtToken TokenInfo
+  deriving (Show)
+
+type ParseError = (NextToken, String)
+
+newtype P a = P { runP :: [Lexeme] -> Either ParseError (a, [Lexeme]) }
+
+thenP (P a) f = P b
+  where
+    b input = case a input of
+      Left pe -> Left pe
+      Right (a, rest) -> runP (f a) rest
+
+returnP a = P (\input -> Right (a, input))
+
+failP :: String -> P a
+failP err = P f
+  where
+    f input =
+      let
+        nt = case input of
+          (info, _) : _ -> NtToken info
+          [] -> NtEOF
+      in Left (nt, err)
+
+parseError :: Lexeme -> P a
+parseError (info, _) = P (\input -> Left (NtToken info, "Happy parse error"))
+
+lexer :: (Lexeme -> P a) -> P a
+lexer = undefined
 }

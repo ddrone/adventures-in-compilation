@@ -34,5 +34,5 @@ main :: IO ()
 main = do
   s <- getContents
   let lexemes = scanTokens s
-  print (parse (tkTokens lexemes))
+  print (runP parse (tkTokens lexemes))
 
