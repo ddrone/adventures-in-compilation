@@ -60,7 +60,7 @@ op = action TokenOp
 
 data Tokens = Tokens
   { tkTokens :: [(TokenInfo, Token)]
-  , tkError :: Maybe AlexPosn
+  , tkError :: Maybe TokenInfo
   }
   deriving (Show)
 
@@ -74,5 +74,7 @@ scanTokens input = go (alexStartPos, '\n', [], input)
         AlexEOF -> Tokens [] Nothing
         AlexSkip inp' len -> go inp'
         AlexToken inp' len act -> addToken (act pos (take len str)) (go inp')
-        AlexError (pos, _, _, _) -> Tokens [] (Just pos)
+        AlexError (AlexPn offset line row, _, _, _) -> Tokens [] (Just info)
+          where
+            info = TokenInfo offset line row offset
 }

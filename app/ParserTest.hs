@@ -27,6 +27,12 @@ app = serve api server
 server :: String -> Handler ParseResponse
 server input = pure RespOK
 
+runServer :: IO ()
+runServer = run 8080 app
+
 main :: IO ()
-main = run 8080 app
+main = do
+  s <- getContents
+  let lexemes = scanTokens s
+  print (parse (tkTokens lexemes))
 
