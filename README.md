@@ -16,6 +16,9 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Make Ctrl+Enter run the parsing
   - [x] Write types for JSON data passed from server manually in TypeScript
   - [x] Highlight the location of parse error in the UI
+  - [ ] Return parse tree to the UI in case of successful parse
+  - [ ] Write a TypeScript type for a parse tree
+  - [ ] Connect the tree structure with the source view
 - [ ] Cleanup: now that I have my own wrapper, I don't need to pass position in every single token action
 - [ ] Fix the parser bugs by working on it iteratively
 - [ ] Write necessary boilerplate to display errors nicely
