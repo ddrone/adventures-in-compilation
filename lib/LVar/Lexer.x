@@ -30,6 +30,7 @@ tokens :-
   "}" { go }
   "print" { go }
   "while" { go }
+  ";" { go }
   "+" | "-" | "<=" | "<" | ">=" | ">" | "==" | "!=" | "and" | "or" | "not" { op }
   "=" { go }
   $alpha $alnum* { ident }
