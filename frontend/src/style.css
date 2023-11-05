@@ -6,3 +6,8 @@ textarea {
 .error {
   color: red;
 }
+
+.error-marker {
+  background-color: red;
+  color: white;
+}

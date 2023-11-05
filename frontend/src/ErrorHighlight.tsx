@@ -14,7 +14,7 @@ function ErrorHighlight(props: ErrorHighlightProps) {
     return (
       <>
         {prefix}
-        <span className="error">
+        <span className={middle.length === 0 ? 'error-marker' : 'error'}>
           {middle.length === 0 ? '|' : middle}
         </span>
         {suffix}
