@@ -1,20 +1,22 @@
 import { KeyboardEvent, useRef, useState } from "react";
+import { Resp, description, tokenInfo } from "./api";
+import ErrorHighlight from "./ErrorHighlight";
 
 function App() {
-  const [msg, setMsg] = useState('');
+  const [resp, setResp] = useState<Resp>({tag: "RespOK"});
   const [lastText, setLastText] = useState('');
   const textarea = useRef<HTMLTextAreaElement|null>(null);
 
   async function handleClick() {
     const text = textarea.current!.value;
     setLastText(text);
-    setMsg('');
+    setResp({tag: "RespOK"});
     const response = await fetch('/api/parse', {
       method: 'POST',
       body: text
     });
     const json = await response.json();
-    setMsg(JSON.stringify(json));
+    setResp(json as Resp);
   }
 
   function handleKeyUp(e: KeyboardEvent): boolean {
@@ -34,14 +36,10 @@ function App() {
         Click me
       </button><br />
       <div className="output">
-        <div className="text">
-          <pre>
-            {lastText}
-          </pre>
-        </div>
-        <div className="result">
-          {msg}
-        </div>
+        <ErrorHighlight
+          text={lastText}
+          info={tokenInfo(resp)} />
+        {description(resp)}
       </div>
     </>
   )
