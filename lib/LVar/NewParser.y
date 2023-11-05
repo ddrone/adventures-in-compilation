@@ -47,7 +47,7 @@ Exp : Exp0 { $1 }
 
 Exp0
   : Exp1 { $1 }
-  | Exp1 'if' Exp1 'else' Exp1 {% failP "Fixme" }
+  | Exp1 'if' Exp1 'else' Exp1 {% failWrap $1 $5 "Fixme" }
 
 Exp1
   : Exp2 { $1 }
@@ -89,10 +89,10 @@ Exp7
 
 Stmt
   : 'print' Exp { prefix Print $1 $2 }
-  | 'if' Exp Block {% failP "handle if blocks" }
-  | 'if' Exp Block 'else' Block {% failP "handle if-else blocks" }
-  | 'while' Exp Block {% failP "handle while blocks" }
-  | ident '=' Exp {% failP "handle assignments" }
+  | 'if' Exp Block {% failWrap $1 $3 "handle if blocks" }
+  | 'if' Exp Block 'else' Block {% failWrap $1 $5 "handle if-else blocks" }
+  | 'while' Exp Block {% failWrap $1 $3 "handle while blocks" }
+  | ident '=' Exp {% failWrap $1 $3 "handle assignments" }
   | Exp { (fst $1, Calc $1) }
 
 Block
@@ -163,15 +163,10 @@ thenP (P a) f = P b
 
 returnP a = P (\input -> Right (a, input))
 
-failP :: String -> P a
-failP err = P f
-  where
-    f input =
-      let
-        nt = case input of
-          (info, _) : _ -> info
-          [] -> error "Internal parse error: failP does not see further lexemes"
-      in Left (nt, err)
+failWrap (i1, _) (i2, _) err = failP (combine i1 i2) err
+
+failP :: TokenInfo -> String -> P a
+failP info err = P (const (Left (info, err)))
 
 parseError :: Lexeme -> P a
 parseError (info, _) = P (\input -> Left (info, "Happy parse error"))
