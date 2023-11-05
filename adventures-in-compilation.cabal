@@ -51,6 +51,7 @@ library
         , LVar.NewParser
         , LVar.PartialEval
         , LVar.Parser
+        , LVar.ParseTree
         , LVar.OptimizeBlocks
         , LVar.Typechecker
         , LVar.X86

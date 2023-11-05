@@ -8,11 +8,12 @@ import Servant
 
 import LVar.Lexer
 import LVar.NewParser
+import LVar.ParseTree
 
 data ParseResponse
   = RespLexerError String TokenInfo
   | RespParserError String TokenInfo
-  | RespOK
+  | RespOK ParseForest
   deriving (Eq, Show)
 
 $(deriveJSON defaultOptions ''ParseResponse)
@@ -39,7 +40,7 @@ runParser input =
     Nothing ->
       case runP parse (tkTokens tokens) of
         Left (info, msg) -> RespParserError msg info
-        Right _ -> RespOK
+        Right _ -> RespOK []
 
 main :: IO ()
 main = runServer
