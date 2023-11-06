@@ -40,7 +40,7 @@ runParser input =
     Nothing ->
       case runP parse (tkTokens tokens) of
         Left (info, msg) -> RespParserError msg info
-        Right _ -> RespOK []
+        Right ((_, r), _) -> RespOK (toParseForest r)
 
 main :: IO ()
 main = runServer

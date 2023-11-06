@@ -1,5 +1,6 @@
 export interface RespOK {
-  tag: "RespOK"
+  tag: "RespOK";
+  contents: [ParseForest];
 }
 
 export interface TokenInfo {
@@ -42,3 +43,11 @@ export function description(resp: Resp): string {
       return `Parser error: ${resp.contents[0]}`;
   }
 }
+
+export interface ParseTree {
+  ptName: string;
+  ptTokenInfo: TokenInfo;
+  ptChildren: ParseForest;
+}
+
+export type ParseForest = ParseTree[];
