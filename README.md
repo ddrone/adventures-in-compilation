@@ -21,7 +21,6 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Connect the tree structure with the source view
   - [x] Fix the issue with hovering on text in the parsed source with nested highlights handled incorrectly
 - [ ] Fix the parser bugs by working on it iteratively
-- [ ] Write necessary boilerplate to display errors nicely
 - [ ] Migrate existing compiler pipeline to a new parser
 
 ## Adventure 8: reverse mapping
