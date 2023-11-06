@@ -1,6 +1,6 @@
 export interface RespOK {
   tag: "RespOK";
-  contents: [ParseForest];
+  contents: ParseForest;
 }
 
 export interface TokenInfo {
@@ -24,7 +24,7 @@ export type Resp = RespOK | RespLexerError | RespParserError;
 
 export const emptyResponse: RespOK = {
   tag: 'RespOK',
-  contents: [[]]
+  contents: []
 }
 
 export function tokenInfo(resp: Resp): TokenInfo | undefined {

@@ -1,6 +1,7 @@
 import { KeyboardEvent, useRef, useState } from "react";
 import { Resp, description, emptyResponse, tokenInfo } from "./api";
 import ErrorHighlight from "./ErrorHighlight";
+import TreeView, { processParseForest } from "./TreeView";
 
 function App() {
   const [resp, setResp] = useState<Resp>(emptyResponse);
@@ -36,6 +37,7 @@ function App() {
         Click me
       </button><br />
       <div className="output">
+        {resp.tag === 'RespOK' && <TreeView text={lastText} forest={processParseForest(resp.contents)} />}
         <ErrorHighlight
           text={lastText}
           info={tokenInfo(resp)} />
