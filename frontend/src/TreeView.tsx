@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import { ParseForest, ParseTree, TokenInfo } from "./api";
 
 interface ProcParseTree {
@@ -38,13 +38,63 @@ interface TextTreeChunk {
 
 interface TextTreeNode {
   tag: 'node';
-  children: [TextTree];
+  children: TextTree[];
 }
 
 type TextTree = TextTreeChunk | TextTreeNode;
 
-function toTextTree(text: string, forest: ProcParseForest): TextTree {
-  throw new Error('TODO: implement me');
+// This function has to be recursive, therefore it needs to accept the start position to maintain
+// necessary invariant.
+function toTextTree(text: string, start: number, forest: ProcParseForest, parentId?: number): TextTreeNode {
+  const children: TextTree[] = [];
+  let lastAdded = start;
+
+  function addChunk(from: number, to: number, id?: number) {
+    if (from !== lastAdded) {
+      throw new Error(`missing chunks from ${lastAdded} to ${from}`);
+    }
+    children.push({
+      tag: 'chunk',
+      contents: text.substring(from, to),
+      id
+    });
+    lastAdded = to;
+  }
+
+  function go(node: ProcParseTree, parentNode?: ProcParseTree) {
+    // This if might not be needed
+    if (node.tokenInfo.tokOffset > lastAdded) {
+      addChunk(lastAdded, node.tokenInfo.tokOffset);
+      children.push({
+        tag: 'chunk',
+        contents: text.substring(lastAdded, node.tokenInfo.tokOffset),
+        id: parentNode === undefined ? undefined : parentNode.id
+      });
+      lastAdded = node.tokenInfo.tokOffset;
+    }
+
+    if (node.children.length === 0) {
+      children.push({
+        tag: 'chunk',
+        contents: text.substring(node.tokenInfo.tokOffset, node.tokenInfo.tokEnd),
+        id: node.id
+      });
+    }
+    for (const child of node.children) {
+      if (child.tokenInfo.tokOffset > lastAdded) {
+      }
+      go(child, node);
+    }
+
+    if (lastAdded < node.tokenInfo.tokEnd) {
+      children.push({
+        tag: 'chunk',
+        contents: text.substring(lastAdded, node.tokenInfo.tokEnd),
+        id: node.id
+      });
+      lastAdded = node.tokenInfo.tokEnd;
+    }
+  }
 }
 
 function TreeView(props: TreeViewProps) {
@@ -77,7 +127,56 @@ function TreeView(props: TreeViewProps) {
     )
   }
 
-  return goForest(props.forest);
+  let lastAdded = 0;
+  function goText(tree: ProcParseTree): ReactElement {
+    const prefix = lastAdded < tree.tokenInfo.tokOffset && props.text.substring(lastAdded, tree.tokenInfo.tokOffset);
+    lastAdded = tree.tokenInfo.tokOffset;
+
+    const className = tree.id === highlightId ? 'highlight' : '';
+    const children: ReactElement[] = [];
+
+    for (const child of tree.children) {
+      children.push(goText(child));
+      lastAdded = child.tokenInfo.tokEnd;
+    }
+
+    const suffix = lastAdded < tree.tokenInfo.tokEnd && props.text.substring(lastAdded, tree.tokenInfo.tokEnd);
+    lastAdded = tree.tokenInfo.tokEnd;
+
+    return (
+      <>
+        {prefix}
+        <span
+          className={className}
+          onMouseEnter={() => setHighlightId(tree.id)}
+          onMouseLeave={resetHighlight}>
+          {children}
+          {suffix}
+        </span>
+      </>
+    )
+  }
+
+  function topLevelText(forest: ProcParseForest): ReactElement {
+    const children = forest.map(goText);
+    const suffix = lastAdded < props.text.length && props.text.substring(lastAdded);
+
+    return (
+      <>
+        {children}
+        {suffix}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <pre>
+        {topLevelText(props.forest)}
+      </pre>
+      {goForest(props.forest)}
+    </>
+  );
 }
 
 export default TreeView

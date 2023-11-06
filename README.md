@@ -18,8 +18,8 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Highlight the location of parse error in the UI
   - [x] Return parse tree to the UI in case of successful parse
   - [x] Write a TypeScript type for a parse tree
-  - [ ] Implement function `toTextTree`
-  - [ ] Connect the tree structure with the source view
+  - [x] Connect the tree structure with the source view
+  - [ ] Fix the issue with hovering on text in the parsed source with nested highlights handled incorrectly
 - [ ] Cleanup: now that I have my own wrapper, I don't need to pass position in every single token action
 - [ ] Fix the parser bugs by working on it iteratively
 - [ ] Write necessary boilerplate to display errors nicely
