@@ -22,6 +22,11 @@ export interface RespLexerError {
 
 export type Resp = RespOK | RespLexerError | RespParserError;
 
+export const emptyResponse: RespOK = {
+  tag: 'RespOK',
+  contents: [[]]
+}
+
 export function tokenInfo(resp: Resp): TokenInfo | undefined {
   switch (resp.tag) {
     case "RespOK":

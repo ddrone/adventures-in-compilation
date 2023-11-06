@@ -1,16 +1,16 @@
 import { KeyboardEvent, useRef, useState } from "react";
-import { Resp, description, tokenInfo } from "./api";
+import { Resp, description, emptyResponse, tokenInfo } from "./api";
 import ErrorHighlight from "./ErrorHighlight";
 
 function App() {
-  const [resp, setResp] = useState<Resp>({tag: "RespOK"});
+  const [resp, setResp] = useState<Resp>(emptyResponse);
   const [lastText, setLastText] = useState('');
   const textarea = useRef<HTMLTextAreaElement|null>(null);
 
   async function handleClick() {
     const text = textarea.current!.value;
     setLastText(text);
-    setResp({tag: "RespOK"});
+    setResp(emptyResponse);
     const response = await fetch('/api/parse', {
       method: 'POST',
       body: text
