@@ -128,15 +128,19 @@ function TreeView(props: TreeViewProps) {
   }
 
   let lastAdded = 0;
-  function goText(tree: ProcParseTree): ReactElement {
-    const prefix = lastAdded < tree.tokenInfo.tokOffset && props.text.substring(lastAdded, tree.tokenInfo.tokOffset);
+  function goText(tree: ProcParseTree, parentId: number): ReactElement {
+    const prefix = lastAdded < tree.tokenInfo.tokOffset && (
+      <span onMouseEnter={() => setHighlightId(parentId)} onMouseLeave={resetHighlight}>
+        {props.text.substring(lastAdded, tree.tokenInfo.tokOffset)}
+      </span>
+    );
     lastAdded = tree.tokenInfo.tokOffset;
 
     const className = tree.id === highlightId ? 'highlight' : '';
     const children: ReactElement[] = [];
 
     for (const child of tree.children) {
-      children.push(goText(child));
+      children.push(goText(child, tree.id));
       lastAdded = child.tokenInfo.tokEnd;
     }
 
@@ -146,19 +150,18 @@ function TreeView(props: TreeViewProps) {
     return (
       <>
         {prefix}
-        <span
-          className={className}
-          onMouseEnter={() => setHighlightId(tree.id)}
-          onMouseLeave={resetHighlight}>
+        <span className={className}>
           {children}
-          {suffix}
+          <span onMouseEnter={() => setHighlightId(tree.id)} onMouseLeave={resetHighlight}>
+            {suffix}
+          </span>
         </span>
       </>
     )
   }
 
   function topLevelText(forest: ProcParseForest): ReactElement {
-    const children = forest.map(goText);
+    const children = forest.map(child => goText(child, -1));
     const suffix = lastAdded < props.text.length && props.text.substring(lastAdded);
 
     return (
