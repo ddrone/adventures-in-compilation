@@ -15,3 +15,12 @@ data ParseTree = ParseTree
   deriving (Eq, Show)
 
 $(deriveJSON defaultOptions ''ParseTree)
+
+class ToParseForest a where
+  toParseForest :: a -> ParseForest
+
+class ToParseTree a where
+  toParseTree :: a -> ParseTree
+
+instance ToParseTree a => ToParseForest [a] where
+  toParseForest = map toParseTree

@@ -3,6 +3,7 @@ module LVar.NewParser where
 
 import LVar.Lexer (Token(..), TokenInfo(..))
 import LVar.AST (Binop(..), Unop(..))
+import LVar.ParseTree
 }
 
 %name parse
@@ -117,6 +118,21 @@ data Expr
 -- This is the actual return type of parser
 type E = (TokenInfo, Expr)
 
+instance ToParseTree (TokenInfo, Expr) where
+  toParseTree (ti, e) =
+    let
+      go :: String -> [E] -> ParseTree
+      go name children = ParseTree name ti (toParseForest children)
+    in
+    case e of
+      Const _ -> go "Const" []
+      Bool _ -> go "Bool" []
+      Name _ -> go "Name" []
+      Bin _ l r -> go "Bin" [l, r]
+      If cond cons alt -> go "If" [cond, cons, alt]
+      Unary _ e -> go "Unary" [e]
+      InputInt -> go "InputInt" []
+
 data Stmt
   = Print E
   | Calc E
@@ -125,8 +141,26 @@ data Stmt
   | While E Block
   deriving (Show)
 
+instance ToParseTree (TokenInfo, Stmt) where
+  toParseTree (ti, s) =
+    let go name children = ParseTree name ti children in
+    case s of
+      Print e -> go "Print" [toParseTree e]
+      Calc e -> go "Calc" [toParseTree e]
+      Assign _ e -> go "Assign" [toParseTree e]
+      IfS cond cons alt -> go "IfS" [toParseTree cond, toParseTree cons, toParseTree alt]
+      While cond block -> go "While" [toParseTree cond, toParseTree block]
+
 type S = (TokenInfo, Stmt)
-type Block = (TokenInfo, [S])
+
+data Block = Block
+  { blockInfo :: TokenInfo
+  , blockStmts :: [S]
+  }
+  deriving (Show)
+
+instance ToParseTree Block where
+  toParseTree (Block info stmts) = ParseTree "Block" info (toParseForest stmts)
 
 lit (pos, TokenInt n) = (pos, Const n)
 
