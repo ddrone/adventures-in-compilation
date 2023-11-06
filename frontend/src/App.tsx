@@ -1,7 +1,7 @@
 import { KeyboardEvent, useRef, useState } from "react";
-import { Resp, description, emptyResponse, tokenInfo } from "./api";
+import { Resp, description, emptyResponse, processParseForest, tokenInfo } from "./api";
 import ErrorHighlight from "./ErrorHighlight";
-import TreeView, { processParseForest } from "./TreeView";
+import TreeView from "./TreeView";
 
 function App() {
   const [resp, setResp] = useState<Resp>(emptyResponse);

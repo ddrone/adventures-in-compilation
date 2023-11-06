@@ -56,3 +56,27 @@ export interface ParseTree {
 }
 
 export type ParseForest = ParseTree[];
+
+export interface ProcParseTree {
+  id: number;
+  name: string;
+  tokenInfo: TokenInfo;
+  children: ProcParseForest;
+}
+
+export type ProcParseForest = ProcParseTree[];
+
+export function processParseForest(forest: ParseForest): ProcParseForest {
+  let id = 0;
+
+  function go(tree: ParseTree): ProcParseTree {
+    return {
+      id: id++,
+      name: tree.ptName,
+      tokenInfo: tree.ptTokenInfo,
+      children: tree.ptChildren.map(go)
+    }
+  }
+
+  return forest.map(go);
+}

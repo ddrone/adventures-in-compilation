@@ -1,29 +1,5 @@
 import { ReactElement, useState } from "react";
-import { ParseForest, ParseTree, TokenInfo } from "./api";
-
-interface ProcParseTree {
-  id: number;
-  name: string;
-  tokenInfo: TokenInfo;
-  children: ProcParseForest;
-}
-
-export type ProcParseForest = ProcParseTree[];
-
-export function processParseForest(forest: ParseForest): ProcParseForest {
-  let id = 0;
-
-  function go(tree: ParseTree): ProcParseTree {
-    return {
-      id: id++,
-      name: tree.ptName,
-      tokenInfo: tree.ptTokenInfo,
-      children: tree.ptChildren.map(go)
-    }
-  }
-
-  return forest.map(go);
-}
+import { ProcParseForest, ProcParseTree } from "./api";
 
 interface TreeViewProps {
   text: string;
