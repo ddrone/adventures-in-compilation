@@ -99,9 +99,13 @@ export interface TestResponse {
 }
 
 export async function getTests(): Promise<TestResponse> {
-  const response = await fetch('/api/parse', {
+  const response = await fetch('/api/test', {
     method: 'GET',
   });
   const json = await response.json();
   return json as TestResponse;
 }
+
+export const emptyTests: TestResponse = {
+  trFiles: []
+};

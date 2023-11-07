@@ -1,12 +1,18 @@
-import { KeyboardEvent, useRef, useState } from "react";
-import { Resp, description, emptyResponse, processParseForest, singleParse, tokenInfo } from "./api";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { Resp, description, emptyResponse, emptyTests, getTests, processParseForest, singleParse, tokenInfo } from "./api";
 import ErrorHighlight from "./ErrorHighlight";
 import TreeView from "./TreeView";
+import TestList from "./TestList";
 
 function App() {
   const [resp, setResp] = useState<Resp>(emptyResponse);
   const [lastText, setLastText] = useState('');
+  const [tests, setTests] = useState(emptyTests);
   const textarea = useRef<HTMLTextAreaElement|null>(null);
+
+  useEffect(() => {
+    getTests().then(setTests);
+  }, []);
 
   async function handleClick() {
     const text = textarea.current!.value;
@@ -38,6 +44,7 @@ function App() {
           info={tokenInfo(resp)} />
         {description(resp)}
       </div>
+      <TestList tests={tests} />
     </>
   )
 }
