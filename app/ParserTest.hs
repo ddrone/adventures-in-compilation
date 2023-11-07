@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Monad (forM)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson
 import Data.Aeson.TH
@@ -8,11 +9,13 @@ import Data.Text (Text)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
+import System.FilePath
 import System.Directory
 import qualified Data.Text as Text
+import qualified Data.Text.IO as TextIO
 
 import LVar.Lexer
-import LVar.NewParser
+import LVar.NewParser hiding (combine)
 import LVar.ParseTree
 
 data ParseResponse
@@ -25,6 +28,8 @@ $(deriveJSON defaultOptions ''ParseResponse)
 
 data TestFile = TestFile
   { tfName :: Text
+  , tfContents :: Text
+  , tfParseResult :: ParseResponse
   }
   deriving (Eq, Show)
 
@@ -70,7 +75,10 @@ runParser input =
 getTestFiles :: IO [TestFile]
 getTestFiles = do
   all <- getDirectoryContents "tests"
-  pure . map (TestFile . Text.pack) . filter (isSuffixOf ".lvar") $ all
+  files <- forM (filter (isSuffixOf ".lvar") all) $ \file -> do
+    contents <- TextIO.readFile (combine "tests" file)
+    pure (TestFile (Text.pack file) contents (runParser contents))
+  pure files
 
 main :: IO ()
 main = runServer
