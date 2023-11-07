@@ -3,6 +3,7 @@ import { Resp, TestFile, TestResponse } from "./api"
 
 interface TestListProps {
   tests: TestResponse;
+  onLoad: (text: string) => void;
 }
 
 function TestList(props: TestListProps) {
@@ -27,6 +28,11 @@ function TestList(props: TestListProps) {
         <td>{file.tfName}</td>
         <td>
           {renderParseStatus(file.tfParseResult)}
+        </td>
+        <td>
+          <button onClick={() => props.onLoad(file.tfContents)}>
+            Load
+          </button>
         </td>
       </tr>
     );

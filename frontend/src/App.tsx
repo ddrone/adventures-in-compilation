@@ -15,7 +15,10 @@ function App() {
   }, []);
 
   async function handleClick() {
-    const text = textarea.current!.value;
+    parseText(textarea.current!.value);
+  }
+
+  async function parseText(text: string) {
     setLastText(text);
     setResp(emptyResponse);
     setResp(await singleParse(text));
@@ -44,7 +47,7 @@ function App() {
           info={tokenInfo(resp)} />
         {description(resp)}
       </div>
-      <TestList tests={tests} />
+      <TestList tests={tests} onLoad={parseText} />
     </>
   )
 }
