@@ -1,6 +1,8 @@
 {
 module LVar.NewParser where
 
+import Data.Text (Text)
+
 import LVar.Lexer (Token(..), TokenInfo(..))
 import LVar.AST (Binop(..), Unop(..))
 import LVar.ParseTree
@@ -108,7 +110,7 @@ Stmts
 data Expr
   = Const Int
   | Bool Bool
-  | Name String
+  | Name Text
   | Bin Binop E E
   | If E E E
   | Unary Unop E
@@ -136,7 +138,7 @@ instance ToParseTree (TokenInfo, Expr) where
 data Stmt
   = Print E
   | Calc E
-  | Assign String E
+  | Assign Text E
   | IfS E Block Block
   | While E Block
   deriving (Show)

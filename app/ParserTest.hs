@@ -2,6 +2,7 @@ module Main where
 
 import Data.Aeson
 import Data.Aeson.TH
+import Data.Text (Text)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
@@ -18,7 +19,7 @@ data ParseResponse
 
 $(deriveJSON defaultOptions ''ParseResponse)
 
-type API = "parse" :> ReqBody '[PlainText] String :> Post '[JSON] ParseResponse
+type API = "parse" :> ReqBody '[PlainText] Text :> Post '[JSON] ParseResponse
 
 api :: Proxy API
 api = Proxy
@@ -26,13 +27,13 @@ api = Proxy
 app :: Application
 app = serve api server
 
-server :: String -> Handler ParseResponse
+server :: Text -> Handler ParseResponse
 server input = pure (runParser input)
 
 runServer :: IO ()
 runServer = run 8080 app
 
-runParser :: String -> ParseResponse
+runParser :: Text -> ParseResponse
 runParser input =
   let tokens = scanTokens input in
   case tkError tokens of

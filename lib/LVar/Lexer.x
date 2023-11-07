@@ -4,12 +4,13 @@ module LVar.Lexer
   , module LVar.Lexer
   ) where
 
+import Data.Text (Text)
 import LVar.LexerDeps
 
 -- TODO: Block comment, /* */
 }
 
-%wrapper "posn"
+%wrapper "posn-strict-text"
 
 $digit = 0-9
 $alpha = [a-zA-Z]
@@ -38,20 +39,20 @@ tokens :-
 {
 data Token
   = TokenInt Int
-  | TokenLit String
-  | TokenIdent String
-  | TokenOp String
+  | TokenLit Text
+  | TokenIdent Text
+  | TokenOp Text
   | TokenEof
   deriving (Show)
 
 action f (AlexPn offset line row) s =
-  (TokenInfo offset line row (offset + length s), f s)
+  (TokenInfo offset line row (offset + Data.Text.length s), f s)
 
 go = action TokenLit
 
 ident = action TokenIdent
 
-number = action (TokenInt . read)
+number = action (TokenInt . read . Data.Text.unpack)
 
 op = action TokenOp
 
@@ -65,13 +66,13 @@ addToken tok (Tokens toks tkErr) = Tokens (tok : toks) tkErr
 
 posToTokenInfo (AlexPn offset line row) = TokenInfo offset line row offset
 
-scanTokens :: String -> Tokens
+scanTokens :: Text -> Tokens
 scanTokens input = go (alexStartPos, '\n', [], input)
   where
     go inp@(pos, _, _, str) =
       case alexScan inp 0 of
         AlexEOF -> Tokens [(posToTokenInfo pos, TokenEof)] Nothing
         AlexSkip inp' len -> go inp'
-        AlexToken inp' len act -> addToken (act pos (take len str)) (go inp')
+        AlexToken inp' len act -> addToken (act pos (Data.Text.take len str)) (go inp')
         AlexError (pos, _, _, _) -> Tokens [] (Just (posToTokenInfo pos))
 }
