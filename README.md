@@ -21,6 +21,7 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Connect the tree structure with the source view
   - [x] Fix the issue with hovering on text in the parsed source with nested highlights handled incorrectly
 - [x] Change the tokenizer to use Text instead of String to have better correspondence to existing AST
+- [ ] Expand the grammar to support every single language construct I currently have
 - [ ] Migrate existing compiler pipeline to a new parser
 
 ## Adventure 8: reverse mapping
