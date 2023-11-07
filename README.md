@@ -26,7 +26,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Add the list of files into the UI
 - [x] Actually provide the list of test files from the API endpoint
 - [x] Also run the new parser
-- [ ] Show the parse results in the UI
+- [x] Show the parse results in the UI
 - [ ] Implement a way to see the detailed view of parser failure
 - [ ] Migrate the existing test cases to conform to a new parser
 - [ ] Migrate existing compiler pipeline to a new parser

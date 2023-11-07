@@ -7,6 +7,10 @@ textarea {
   color: red;
 }
 
+.good {
+  color: green;
+}
+
 .error-marker {
   background-color: red;
   color: white;

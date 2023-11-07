@@ -92,6 +92,8 @@ export function processParseForest(forest: ParseForest): ProcParseForest {
 
 export interface TestFile {
   tfName: string;
+  tfContents: string;
+  tfParseResult: Resp;
 }
 
 export interface TestResponse {

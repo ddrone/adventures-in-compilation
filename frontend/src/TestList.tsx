@@ -1,4 +1,5 @@
-import { TestResponse } from "./api"
+import { ReactElement } from "react";
+import { Resp, TestFile, TestResponse } from "./api"
 
 interface TestListProps {
   tests: TestResponse;
@@ -9,10 +10,32 @@ function TestList(props: TestListProps) {
     return null;
   }
 
+  function renderParseStatus(status: Resp): ReactElement {
+    switch (status.tag) {
+      case 'RespOK':
+        return <span className="good">OK</span>;
+      case 'RespLexerError':
+        return <span className="error">Lexer error</span>;
+      case 'RespParserError':
+        return <span className="error">Parser error</span>;
+    }
+  }
+
+  function renderRow(file: TestFile) {
+    return (
+      <tr>
+        <td>{file.tfName}</td>
+        <td>
+          {renderParseStatus(file.tfParseResult)}
+        </td>
+      </tr>
+    );
+  }
+
   return (
-    <ul>
-      {props.tests.trFiles.map(file => <li>{file.tfName}</li>)}
-    </ul>
+    <table>
+      {props.tests.trFiles.map(renderRow)}
+    </table>
   );
 }
 
