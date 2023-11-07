@@ -24,7 +24,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Expand the grammar to support every single language construct I currently have
 - [x] Create an API endpoint that would discover and run the parser on existing tests that I have (start from an endpoint that just returns a list of files)
 - [x] Add the list of files into the UI
-- [ ] Actually provide the list of test files from the API endpoint
+- [x] Actually provide the list of test files from the API endpoint
 - [ ] Also run the new parser and show the results in the UI as well
 - [ ] Implement a way to see the detailed view of parser failure
 - [ ] Migrate the existing test cases to conform to a new parser
