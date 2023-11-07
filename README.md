@@ -22,6 +22,11 @@ Instead of trying to "implement a cool programming language", a project that I h
   - [x] Fix the issue with hovering on text in the parsed source with nested highlights handled incorrectly
 - [x] Change the tokenizer to use Text instead of String to have better correspondence to existing AST
 - [x] Expand the grammar to support every single language construct I currently have
+- [ ] Create an API endpoint that would discover and run the parser on existing tests that I have (start from an endpoint that just returns a list of files)
+- [ ] Add the list of files into the UI
+- [ ] Also run the new parser and show the results in the UI as well
+- [ ] Implement a way to see the detailed view of parser failure
+- [ ] Migrate the existing test cases to conform to a new parser
 - [ ] Migrate existing compiler pipeline to a new parser
 
 ## Adventure 8: reverse mapping
