@@ -19,16 +19,34 @@ data ParseResponse
 
 $(deriveJSON defaultOptions ''ParseResponse)
 
+data TestFile = TestFile
+  { tfName :: Text
+  }
+  deriving (Eq, Show)
+
+$(deriveJSON defaultOptions ''TestFile)
+
+data TestResponse = TestResponse
+  { trFiles :: [TestFile]
+  }
+  deriving (Eq, Show)
+
+$(deriveJSON defaultOptions ''TestResponse)
+
 type API = "parse" :> ReqBody '[PlainText] Text :> Post '[JSON] ParseResponse
+  :<|> "test" :> Post '[JSON] TestResponse
 
 api :: Proxy API
 api = Proxy
 
 app :: Application
-app = serve api server
+app = serve api (serveSingleParse :<|> serveTests)
 
-server :: Text -> Handler ParseResponse
-server input = pure (runParser input)
+serveSingleParse :: Text -> Handler ParseResponse
+serveSingleParse input = pure (runParser input)
+
+serveTests :: Handler TestResponse
+serveTests = pure (TestResponse [TestFile "dragons be here"])
 
 runServer :: IO ()
 runServer = run 8080 app
