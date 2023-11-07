@@ -30,6 +30,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Implement a way to see the detailed view of parser failure
 - [x] Migrate the existing test cases to conform to a new parser
 - [ ] Migrate existing compiler pipeline to a new parser
+- [ ] Remove the old parser
 
 ## Adventure 8: reverse mapping
 
