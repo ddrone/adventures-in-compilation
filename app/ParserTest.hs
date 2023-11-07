@@ -34,7 +34,7 @@ data TestResponse = TestResponse
 $(deriveJSON defaultOptions ''TestResponse)
 
 type API = "parse" :> ReqBody '[PlainText] Text :> Post '[JSON] ParseResponse
-  :<|> "test" :> Post '[JSON] TestResponse
+  :<|> "test" :> Get '[JSON] TestResponse
 
 api :: Proxy API
 api = Proxy

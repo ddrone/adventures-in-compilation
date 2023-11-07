@@ -1,5 +1,5 @@
 import { KeyboardEvent, useRef, useState } from "react";
-import { Resp, description, emptyResponse, processParseForest, tokenInfo } from "./api";
+import { Resp, description, emptyResponse, processParseForest, singleParse, tokenInfo } from "./api";
 import ErrorHighlight from "./ErrorHighlight";
 import TreeView from "./TreeView";
 
@@ -12,12 +12,7 @@ function App() {
     const text = textarea.current!.value;
     setLastText(text);
     setResp(emptyResponse);
-    const response = await fetch('/api/parse', {
-      method: 'POST',
-      body: text
-    });
-    const json = await response.json();
-    setResp(json as Resp);
+    setResp(await singleParse(text));
   }
 
   function handleKeyUp(e: KeyboardEvent): boolean {

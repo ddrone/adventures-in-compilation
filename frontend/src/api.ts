@@ -22,6 +22,15 @@ export interface RespLexerError {
 
 export type Resp = RespOK | RespLexerError | RespParserError;
 
+export async function singleParse(body: string): Promise<Resp> {
+  const response = await fetch('/api/parse', {
+    method: 'POST',
+    body
+  });
+  const json = await response.json();
+  return json as Resp;
+}
+
 export const emptyResponse: RespOK = {
   tag: 'RespOK',
   contents: []
@@ -79,4 +88,20 @@ export function processParseForest(forest: ParseForest): ProcParseForest {
   }
 
   return forest.map(go);
+}
+
+export interface TestFile {
+  tfName: string;
+}
+
+export interface TestResponse {
+  trFiles: TestFile[];
+}
+
+export async function getTests(): Promise<TestResponse> {
+  const response = await fetch('/api/parse', {
+    method: 'GET',
+  });
+  const json = await response.json();
+  return json as TestResponse;
 }
