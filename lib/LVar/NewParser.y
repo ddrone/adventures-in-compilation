@@ -50,7 +50,7 @@ Exp : Exp0 { $1 }
 
 Exp0
   : Exp1 { $1 }
-  | Exp1 'if' Exp1 'else' Exp1 {% failWrap $1 $5 "Fixme" }
+  | Exp1 'if' Exp1 'else' Exp1 { wrapNew $1 $5 (If $1 $3 $5) }
 
 Exp1
   : Exp2 { $1 }
