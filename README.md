@@ -36,6 +36,8 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 Currently, the compiler works just one way, and it would be close to impossible to figure out where the resulting code comes from. What I want is to have a "source mapping" between each compiler pass, so that it's possible to trace the source of a particular instruction.
 
+- [ ] Figure out how to make HLS working again, it's really hard to actually work on Haskell code without any kind of code intelligence features
+
 ## Adventure 7: implement while-loops
 
 - [x] Implement conversion through IRs that I have
