@@ -1,6 +1,6 @@
-x = True
-y = False
-z = 45 + 10 if x else 20
+x = True;
+y = False;
+z = 45 + 10 if x else 20;
 
 if x and not y {
   print(10)

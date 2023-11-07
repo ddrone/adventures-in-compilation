@@ -28,7 +28,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Also run the new parser
 - [x] Show the parse results in the UI
 - [x] Implement a way to see the detailed view of parser failure
-- [ ] Migrate the existing test cases to conform to a new parser
+- [x] Migrate the existing test cases to conform to a new parser
 - [ ] Migrate existing compiler pipeline to a new parser
 
 ## Adventure 8: reverse mapping
