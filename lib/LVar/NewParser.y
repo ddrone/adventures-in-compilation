@@ -92,10 +92,10 @@ Exp7
 
 Stmt
   : 'print' Exp { prefix Print $1 $2 }
-  | 'if' Exp Block {% failWrap $1 $3 "handle if blocks" }
-  | 'if' Exp Block 'else' Block {% failWrap $1 $5 "handle if-else blocks" }
-  | 'while' Exp Block {% failWrap $1 $3 "handle while blocks" }
-  | ident '=' Exp {% failWrap $1 $3 "handle assignments" }
+  | 'if' Exp Block { wrapNew $1 $3 (IfS $2 $3 Nothing) }
+  | 'if' Exp Block 'else' Block { wrapNew $1 $5 (IfS $2 $3 (Just $5)) }
+  | 'while' Exp Block { wrapNew $1 $3 (While $2 $3) }
+  | ident '=' Exp { wrapNew $1 $3 (Assign (identS $1) $3) }
   | Exp { (fst $1, Calc $1) }
 
 Block
@@ -138,10 +138,13 @@ instance ToParseTree (TokenInfo, Expr) where
 data Stmt
   = Print E
   | Calc E
-  | Assign Text E
-  | IfS E Block Block
+  | Assign (TokenInfo, Text) E
+  | IfS E Block (Maybe Block)
   | While E Block
   deriving (Show)
+
+type S = (TokenInfo, Stmt)
+type Block = (TokenInfo, [S])
 
 instance ToParseTree (TokenInfo, Stmt) where
   toParseTree (ti, s) =
@@ -149,20 +152,15 @@ instance ToParseTree (TokenInfo, Stmt) where
     case s of
       Print e -> go "Print" [toParseTree e]
       Calc e -> go "Calc" [toParseTree e]
-      Assign _ e -> go "Assign" [toParseTree e]
-      IfS cond cons alt -> go "IfS" [toParseTree cond, toParseTree cons, toParseTree alt]
+      Assign (nameInfo, name) e -> go "Assign" [ParseTree "Name" nameInfo [], toParseTree e]
+      IfS cond cons mAlt ->
+        case mAlt of
+          Nothing -> go "IfS" [toParseTree cond, toParseTree cons]
+          Just alt -> go "IfS" [toParseTree cond, toParseTree cons, toParseTree alt]
       While cond block -> go "While" [toParseTree cond, toParseTree block]
 
-type S = (TokenInfo, Stmt)
-
-data Block = Block
-  { blockInfo :: TokenInfo
-  , blockStmts :: [S]
-  }
-  deriving (Show)
-
-instance ToParseTree Block where
-  toParseTree (Block info stmts) = ParseTree "Block" info (toParseForest stmts)
+instance ToParseTree (TokenInfo, [S]) where
+  toParseTree (info, stmts) = ParseTree "Block" info (toParseForest stmts)
 
 lit (pos, TokenInt n) = (pos, Const n)
 
@@ -181,9 +179,13 @@ constE (i1, _) v = (i1, v)
 
 identE (i, TokenIdent v) = (i, Name v)
 
+identS (i, TokenIdent v) = (i, v)
+
 -- Wrap an existing tree into other tokens (for things like
 -- brackets).
 wrap (beg, _) (end, _) (_, t) = (combine beg end, t)
+
+wrapNew (beg, _) (end, _) t = (combine beg end, t)
 
 type Lexeme = (TokenInfo, Token)
 
