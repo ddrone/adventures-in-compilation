@@ -1,22 +1,18 @@
-module LVar.AST where
+module LVar.AST
+  ( module LVar.AST
+  , module LVar.Operators
+  , Expr(..)
+  , Stmt(..)
+  ) where
 
-import Data.Int (Int64)
+import Control.Arrow ((***))
 import Data.Set (Set)
 import Data.Text (Text)
 import qualified Data.Set as Set
 
-data Binop
-  = Add
-  | Sub
-  | Le
-  | Lt
-  | Ge
-  | Gt
-  | Eq
-  | Ne
-  | And
-  | Or
-  deriving (Show, Eq, Ord)
+import LVar.Operators
+import LVar.Lexer (TokenInfo)
+import LVar.NewParser (Expr(..), E, Stmt(..))
 
 comparisonOps :: Set Binop
 comparisonOps = Set.fromList [Le, Lt, Ge, Gt, Eq, Ne]
@@ -37,11 +33,6 @@ binopRepr = \case
   And -> "and"
   Or -> "or"
 
-data Unop
-  = Neg
-  | Not
-  deriving (Show)
-
 prependUnop :: Text -> Unop -> Text
 prependUnop t = \case
   Neg -> "-" <> t
@@ -52,55 +43,50 @@ unopRepr = \case
   Neg -> "-"
   Not -> "not"
 
-data Expr
-  = Const Int64
-  | Bool Bool
-  | Name Text
-  | Bin Binop Expr Expr
-  | If Expr Expr Expr
-  | Unary Unop Expr
-  | InputInt
-  deriving (Show)
-
-exprPlate :: (Expr -> Expr) -> Expr -> Expr
+exprPlate :: (Expr a -> Expr a) -> Expr a -> Expr a
 exprPlate c e = case e of
   -- Apply the function to constructors that actually have children
-  Bin op e1 e2 -> Bin op (c e1) (c e2)
-  If cond cons alt -> If (c cond) (c cons) (c alt)
-  Unary op e -> Unary op (c e)
+  Bin op (i1, e1) (i2, e2) -> Bin op (i1, c e1) (i2, c e2)
+  If (iCond, cond) (iCons, cons) (iAlt, alt) ->
+    If (iCond, c cond) (iCons, c cons) (iAlt, c alt)
+  Unary op (i, e) -> Unary op (i, c e)
   -- Don't do anything to the constructors that do not have children
   Const _ -> e
   Bool _ -> e
   Name _ -> e
   InputInt -> e
 
-exprTopdown :: (Expr -> Expr) -> Expr -> Expr
+mapInfoE :: (Expr a -> Expr a) -> E a -> E a
+mapInfoE f (i, x) = (i, f x)
+
+exprTopdown :: (Expr a -> Expr a) -> Expr a -> Expr a
 exprTopdown transform = transform . exprPlate (exprTopdown transform)
 
-type Block = [Stmt]
-
-data Stmt
-  = Print Expr
-  | Calc Expr
-  | Assign Text Expr
-  | IfS Expr Block Block
-  | While Expr Block
-  deriving (Show)
-
-mapExpr :: (Expr -> Expr) -> Stmt -> Stmt
+mapExpr :: (Expr a -> Expr a) -> Stmt a -> Stmt a
 mapExpr f = \case
-  Print e -> Print (f e)
-  Calc e -> Calc (f e)
-  Assign n e -> Assign n (f e)
-  IfS cond cons alt -> IfS (f cond) (map (mapExpr f) cons) (map (mapExpr f) alt)
-  While e body -> While e (map (mapExpr f) body)
+  Print (i, e) -> Print (i, f e)
+  Calc (i, e) -> Calc (i, f e)
+  Assign n (i, e) -> Assign n (i, f e)
+  IfS (iCond, cond) (iCons, cons) alt ->
+    IfS (iCond, f cond) (iCons, map (id *** mapExpr f) cons) mappedAlt
+    where
+      mappedAlt = case alt of
+        Nothing -> Nothing
+        Just (iAlt, block) -> Just (iAlt, map (id *** mapExpr f) block)
+  -- TODO: figure out whether this should actually map the expression in the while loop as well?
+  -- Pretty sure the way it's going to break right now if I'm going to have and/or inside condition
+  -- of a while loop, make note to test
+  While e (info, body) -> While e (info, map (id *** mapExpr f) body)
 
-data GenModule s = Module
-  { modStmts :: [s]
+data GenModule s ann = Module
+  { modStmts :: [(ann, s)]
   }
   deriving (Show)
 
-type Module = GenModule Stmt
+type Module = GenModule (Stmt TokenInfo) TokenInfo
 
-mapModule :: (Expr -> Expr) -> Module -> Module
-mapModule f (Module stmts) = Module (map (mapExpr f) stmts)
+stripAnn :: Module -> GenModule (Stmt ()) ()
+stripAnn (Module ss) = Module (map (const () *** fmap (const ())) ss)
+
+mapModule :: (Expr ann -> Expr ann) -> GenModule (Stmt ann) ann -> GenModule (Stmt ann) ann
+mapModule f (Module stmts) = Module (map (id *** mapExpr f) stmts)

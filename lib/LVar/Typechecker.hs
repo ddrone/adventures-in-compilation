@@ -1,5 +1,8 @@
 module LVar.Typechecker where
-import LVar.AST (Expr (..), Binop (..), Unop (..), Stmt (..), Block, Module, GenModule (Module))
+
+import LVar.Lexer (TokenInfo)
+import LVar.NewParser (Block)
+import LVar.AST (Expr (..), Binop (..), Unop (..), Stmt (..), Module, GenModule (Module))
 import Data.Text (Text)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -55,7 +58,7 @@ unopTy = \case
 
 type TyEnv = Map Text Type
 
-typecheckExpr :: TyEnv -> Expr -> Either (TypeError Expr) Type
+typecheckExpr :: TyEnv -> Expr a -> Either (TypeError (Expr a)) Type
 typecheckExpr env expr = case expr of
   Const _ -> pure Int64T
   Bool _ -> pure BoolT
@@ -98,22 +101,22 @@ typecheckExpr env expr = case expr of
     pure t
   InputInt -> pure Int64T
   where
-    check = typecheckExpr env
+    check = typecheckExpr env . snd
     tyErr = Left . TypeError expr
 
-data Source
-  = Expr Expr
-  | Stmt Stmt
+data Source ann
+  = Expr (Expr ann)
+  | Stmt (Stmt ann)
   deriving (Show)
 
-type TC a = Either (TypeError Source) a
+type TC a = Either (TypeError (Source TokenInfo)) a
 
 mapLeft :: (a -> b) -> Either a c -> Either b c
 mapLeft f = \case
   Left x -> Left (f x)
   Right y -> Right y
 
-typecheckStmt :: TyEnv -> Stmt -> TC TyEnv
+typecheckStmt :: TyEnv -> Stmt TokenInfo -> TC TyEnv
 typecheckStmt env stmt = case stmt of
   Print e -> do
     t <- check e
@@ -123,7 +126,7 @@ typecheckStmt env stmt = case stmt of
   Calc e -> do
     _ <- check e
     pure env
-  Assign n e -> do
+  Assign (_, n) e -> do
     t <- check e
     case Map.lookup n env of
       Nothing -> pure (Map.insert n t env)
@@ -136,7 +139,7 @@ typecheckStmt env stmt = case stmt of
     when (t /= BoolT) $
       tyErr "condition expression must be boolean!"
     envCons <- typecheckBlock env cons
-    envAlt <- typecheckBlock env alt
+    envAlt <- typecheckAlt env alt
     when (envCons /= envAlt) $
       tyErr "both branches of conditional should define same set of variables!"
     pure envCons
@@ -147,22 +150,30 @@ typecheckStmt env stmt = case stmt of
     _ <- typecheckBlock env body
     pure env
   where
-    check = mapLeft (fmap Expr) . typecheckExpr env
+    check = mapLeft (fmap Expr) . typecheckExpr env . snd
     tyErr = Left . TypeError (Stmt stmt)
 
-typecheckBlock :: TyEnv -> Block -> TC TyEnv
-typecheckBlock env ls = case ls of
-  [] -> pure env
-  hd : tl -> do
-    env1 <- typecheckStmt env hd
-    typecheckBlock env1 tl
+typecheckBlock :: TyEnv -> Block TokenInfo -> TC TyEnv
+typecheckBlock env (_, ls) = typecheckStatements env ls
 
-typecheckModule :: Module -> Maybe (TypeError Source)
-typecheckModule (Module stmts) = case typecheckBlock Map.empty stmts of
+typecheckStatements :: TyEnv -> [(TokenInfo, Stmt TokenInfo)] -> TC TyEnv
+typecheckStatements env ls = case ls of
+  [] -> pure env
+  (_, hd) : tl -> do
+    env1 <- typecheckStmt env hd
+    typecheckStatements env1 tl
+
+typecheckAlt :: TyEnv -> Maybe (Block TokenInfo) -> TC TyEnv
+typecheckAlt env alt = case alt of
+  Nothing -> pure env
+  Just block -> typecheckBlock env block
+
+typecheckModule :: Module -> Maybe (TypeError (Source TokenInfo))
+typecheckModule (Module stmts) = case typecheckStatements Map.empty stmts of
   Left err -> Just err
   Right _ -> Nothing
 
-printTypeError :: TypeError Source -> Text
+printTypeError :: TypeError (Source TokenInfo) -> Text
 printTypeError (TypeError src reason) = Text.unlines
   [ "Error:"
   , "  " <> reason

@@ -27,10 +27,10 @@ import qualified Data.Text as Text
 
 type RCO a = State Int a
 
-shrinkExpr :: AST.Expr -> AST.Expr
+shrinkExpr :: AST.Expr () -> AST.Expr ()
 shrinkExpr = AST.exprTopdown $ \case
-  AST.Bin AST.And e1 e2 -> AST.If e1 e2 (AST.Bool False)
-  AST.Bin AST.Or e1 e2 -> AST.If e1 (AST.Bool False) e2
+  AST.Bin AST.And e1 e2 -> AST.If e1 e2 ((), AST.Bool False)
+  AST.Bin AST.Or e1 e2 -> AST.If e1 ((), AST.Bool False) e2
   e -> e
 
 fresh :: RCO ASTMon.Name
@@ -39,7 +39,7 @@ fresh = do
   modify (+1)
   pure (ASTMon.Gen next)
 
-rcoAtom :: AST.Expr -> RCO (ASTMon.Atom, [ASTMon.Stmt])
+rcoAtom :: AST.Expr a -> RCO (ASTMon.Atom, [ASTMon.Stmt])
 rcoAtom e = case e of
   AST.Const n -> pure (ASTMon.Const n, [])
   AST.Bool b -> pure (ASTMon.Bool b, [])
@@ -49,9 +49,9 @@ rcoAtom e = case e of
     name <- fresh
     pure (ASTMon.Name name, ls ++ [ASTMon.Assign name le])
 
-rcoCond :: AST.Expr -> RCO (ASTMon.Cmp, [ASTMon.Stmt])
+rcoCond :: AST.Expr a -> RCO (ASTMon.Cmp, [ASTMon.Stmt])
 rcoCond e = case e of
-  AST.Bin op l r | AST.isComparisonOp op -> do
+  AST.Bin op (_, l) (_, r) | AST.isComparisonOp op -> do
     (la, ls) <- rcoAtom l
     (ra, rs) <- rcoAtom r
     pure (ASTMon.CmpOp op la ra, ls ++ rs)
@@ -59,18 +59,18 @@ rcoCond e = case e of
     (ea, es) <- rcoAtom e
     pure (ASTMon.CmpAtom ea, es)
 
-rcoExpr :: AST.Expr -> RCO (ASTMon.Expr, [ASTMon.Stmt])
+rcoExpr :: AST.Expr a -> RCO (ASTMon.Expr, [ASTMon.Stmt])
 rcoExpr e = case e of
-  AST.Bin op l r -> do
+  AST.Bin op (_, l) (_, r) -> do
     (la, ls) <- rcoAtom l
     (ra, rs) <- rcoAtom r
     pure (ASTMon.Bin op la ra, ls ++ rs)
-  AST.Unary op inner -> do
+  AST.Unary op (_, inner) -> do
     (ia, is) <- rcoAtom inner
     pure (ASTMon.Unary op ia, is)
   AST.InputInt ->
     pure (ASTMon.InputInt, [])
-  AST.If cond cons alt -> do
+  AST.If (_, cond) (_, cons) (_, alt) -> do
     (cond1, condSs) <- rcoCond cond
     cons1 <- rcoBlock cons
     alt1 <- rcoBlock alt
@@ -81,19 +81,21 @@ rcoExpr e = case e of
   where
     rcoBlock e = uncurry ASTMon.begin <$> rcoExpr e
 
-rcoStmt :: AST.Stmt -> RCO [ASTMon.Stmt]
+rcoStmt :: AST.Stmt a -> RCO [ASTMon.Stmt]
 rcoStmt = \case
-  AST.Print e -> wrapAtom ASTMon.Print e
-  AST.Calc e -> wrap ASTMon.Calc e
-  AST.Assign n e -> wrap (ASTMon.Assign (ASTMon.Source n)) e
-  AST.IfS cond cons alt -> do
+  AST.Print (_, e) -> wrapAtom ASTMon.Print e
+  AST.Calc (_, e) -> wrap ASTMon.Calc e
+  AST.Assign (_, n) (_, e) -> wrap (ASTMon.Assign (ASTMon.Source n)) e
+  AST.IfS (_, cond) (_, cons) mAlt -> do
     (ca, cs) <- rcoCond cond
-    cons1 <- concat <$> mapM rcoStmt cons
-    alt1 <- concat <$> mapM rcoStmt alt
+    cons1 <- concat <$> mapM (rcoStmt . snd) cons
+    alt1 <- case mAlt of
+      Nothing -> pure []
+      Just (_, alt) -> concat <$> mapM (rcoStmt . snd) alt
     pure (cs ++ [ASTMon.IfS ca cons1 alt1])
-  AST.While cond body -> do
+  AST.While (_, cond) (_, body) -> do
     (ca, cs) <- rcoCond cond
-    body1 <- concat <$> mapM rcoStmt body
+    body1 <- concat <$> mapM (rcoStmt . snd) body
     pure [ASTMon.While cs ca body1]
   where
     wrapAtom f e = do
@@ -103,13 +105,13 @@ rcoStmt = \case
       (ea, es) <- rcoExpr e
       pure (es ++ [f ea])
 
-rcoModule :: AST.Module -> (ASTMon.Module, Int)
+rcoModule :: AST.GenModule (AST.Stmt a) a -> (ASTMon.Module, Int)
 rcoModule (AST.Module stmts) = flip runState 0 $ do
-  newStmts <- concat <$> mapM rcoStmt stmts
-  pure (AST.Module newStmts)
+  newStmts <- concat <$> mapM (rcoStmt . snd) stmts
+  pure (AST.Module $ map ((,) ()) newStmts)
 
 peModule :: ASTMon.Module -> ASTMon.Module
-peModule (AST.Module stmts) = AST.Module (ASTMon.partialEval stmts)
+peModule (AST.Module stmts) = AST.Module (map ((,) ()) $ ASTMon.partialEval (map snd stmts))
 
 type Instr = X86.GenInstr ASTMon.Name
 

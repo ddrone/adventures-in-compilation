@@ -51,8 +51,9 @@ library
         , LVar.MoveBiasing
         , LVar.NewParser
         , LVar.PartialEval
-        , LVar.Parser
+        , LVar.ParserWrapper
         , LVar.ParseTree
+        , LVar.Operators
         , LVar.OptimizeBlocks
         , LVar.Typechecker
         , LVar.X86

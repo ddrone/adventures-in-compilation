@@ -141,5 +141,5 @@ explicateControl (AST.Module stmts) startVar =
   -- Starting to number blocks from 1 to leave 0 as ID for starting block
   let initState = ECState 1 IntMap.empty startVar
       ret = ASTC.Return (ASTC.Atom (ASTMon.Const 0))
-      (startBlock, endState) = runState (explicateBlock stmts (tail ret)) initState
+      (startBlock, endState) = runState (explicateBlock (map snd stmts) (tail ret)) initState
   in ASTC.Module startBlock (ecsBlocks endState)

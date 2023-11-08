@@ -1,10 +1,11 @@
 {
 module LVar.NewParser where
 
+import Data.Int (Int64)
 import Data.Text (Text)
 
 import LVar.Lexer (Token(..), TokenInfo(..))
-import LVar.AST (Binop(..), Unop(..))
+import LVar.Operators (Binop(..), Unop(..))
 import LVar.ParseTree
 }
 
@@ -107,23 +108,35 @@ Stmts
   | Stmt ';' Stmts { (,) (combine (fst $1) (fst $3)) ($1 : snd $3) }
 
 {
-data Expr
-  = Const Int
+data Expr ann
+  = Const Int64
   | Bool Bool
   | Name Text
-  | Bin Binop E E
-  | If E E E
-  | Unary Unop E
+  | Bin Binop (E ann) (E ann)
+  | If (E ann) (E ann) (E ann)
+  | Unary Unop (E ann)
   | InputInt
   deriving (Show)
 
--- This is the actual return type of parser
-type E = (TokenInfo, Expr)
+instance Functor Expr where
+  fmap f e = case e of
+    Const c -> Const c
+    Bool b -> Bool b
+    Name t -> Name t
+    Bin op e1 e2 -> Bin op (go e1) (go e2)
+    If cond cons alt -> If (go cond) (go cons) (go alt)
+    Unary op e -> Unary op (go e)
+    InputInt -> InputInt
+    where
+      go (i, e) = (f i, fmap f e)
 
-instance ToParseTree (TokenInfo, Expr) where
+-- This is the actual return type of parser
+type E ann = (ann, Expr ann)
+
+instance ToParseTree (TokenInfo, Expr TokenInfo) where
   toParseTree (ti, e) =
     let
-      go :: String -> [E] -> ParseTree
+      go :: String -> [E TokenInfo] -> ParseTree
       go name children = ParseTree name ti (toParseForest children)
     in
     case e of
@@ -135,18 +148,30 @@ instance ToParseTree (TokenInfo, Expr) where
       Unary _ e -> go "Unary" [e]
       InputInt -> go "InputInt" []
 
-data Stmt
-  = Print E
-  | Calc E
-  | Assign (TokenInfo, Text) E
-  | IfS E Block (Maybe Block)
-  | While E Block
+data Stmt ann
+  = Print (E ann)
+  | Calc (E ann)
+  | Assign (ann, Text) (E ann)
+  | IfS (E ann) (Block ann) (Maybe (Block ann))
+  | While (E ann) (Block ann)
   deriving (Show)
 
-type S = (TokenInfo, Stmt)
-type Block = (TokenInfo, [S])
+instance Functor Stmt where
+  fmap f e = case e of
+    Print e -> Print (goE e)
+    Calc e -> Calc (goE e)
+    Assign (a, name) e -> Assign (f a, name) (goE e)
+    IfS cond cons mAlt -> IfS (goE cond) (goSS cons) (fmap goSS mAlt)
+    While cond block -> While (goE cond) (goSS block)
+    where
+      goE (i, e) = (f i, fmap f e)
+      go (i, s) = (f i, fmap f s)
+      goSS (i, ss) = (f i, map go ss)
 
-instance ToParseTree (TokenInfo, Stmt) where
+type S ann = (ann, Stmt ann)
+type Block ann = (ann, [S ann])
+
+instance ToParseTree (TokenInfo, Stmt TokenInfo) where
   toParseTree (ti, s) =
     let go name children = ParseTree name ti children in
     case s of
@@ -159,7 +184,7 @@ instance ToParseTree (TokenInfo, Stmt) where
           Just alt -> go "IfS" [toParseTree cond, toParseTree cons, toParseTree alt]
       While cond block -> go "While" [toParseTree cond, toParseTree block]
 
-instance ToParseTree (TokenInfo, [S]) where
+instance ToParseTree (TokenInfo, [S TokenInfo]) where
   toParseTree (info, stmts) = ParseTree "Block" info (toParseForest stmts)
 
 lit (pos, TokenInt n) = (pos, Const n)

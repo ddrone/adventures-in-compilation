@@ -134,10 +134,10 @@ data Stmt
   | Assign Name Expr
   deriving (Show)
 
-type Module = GenModule Stmt
+type Module = GenModule Stmt ()
 
 printModule :: Module -> Text
-printModule (AST.Module ss) = printBlock 0 ss
+printModule (AST.Module ss) = printBlock 0 (map snd ss)
 
 type PE a = State (Map Name Value) a
 

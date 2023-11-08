@@ -4,6 +4,7 @@ module LVar.Lexer
   , module LVar.Lexer
   ) where
 
+import Data.Int (Int64)
 import Data.Text (Text)
 import LVar.LexerDeps
 
@@ -38,7 +39,7 @@ tokens :-
 
 {
 data Token
-  = TokenInt Int
+  = TokenInt Int64
   | TokenLit Text
   | TokenIdent Text
   | TokenOp Text

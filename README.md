@@ -29,14 +29,15 @@ Instead of trying to "implement a cool programming language", a project that I h
 - [x] Show the parse results in the UI
 - [x] Implement a way to see the detailed view of parser failure
 - [x] Migrate the existing test cases to conform to a new parser
-- [ ] Migrate existing compiler pipeline to a new parser
-- [ ] Remove the old parser
+- [x] Migrate existing compiler pipeline to a new parser
+- [x] Remove the old parser
 
 ## Adventure 8: reverse mapping
 
 Currently, the compiler works just one way, and it would be close to impossible to figure out where the resulting code comes from. What I want is to have a "source mapping" between each compiler pass, so that it's possible to trace the source of a particular instruction.
 
 - [ ] Figure out how to make HLS working again, it's really hard to actually work on Haskell code without any kind of code intelligence features
+- [ ] Test the compiler on having `and` inside while-loop
 
 ## Adventure 7: implement while-loops
 
