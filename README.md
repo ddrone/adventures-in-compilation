@@ -184,6 +184,11 @@ Currently, the compiler works just one way, and it would be close to impossible 
 - [x] Computing domination frontier
 - [x] Write a CLI to print out domination frontier for a graph
 
+## Fun compiler-related sidetracks to do
+
+- Try out language workbenches (e.g. MPS) to implement a simple compiler
+- Implement my own parser generator
+
 ## Bucket list
 
 - Refactor regular expression compilation code: especially subset construction and DFA minimization are quite messy
