@@ -20,6 +20,10 @@ export interface RespLexerError {
   contents: [string, TokenInfo]
 }
 
+export interface RespServerError {
+  tag: "RespServerError";
+}
+
 export interface SuccessfulParse {
   spParseForest: ParseForest;
   spCompileResult: CompileResult;
@@ -37,7 +41,7 @@ interface CRFailure {
 
 export type CompileResult = CRSucess | CRFailure;
 
-export type Resp = RespOK | RespLexerError | RespParserError;
+export type Resp = RespOK | RespLexerError | RespParserError | RespServerError;
 
 export async function singleParse(body: string): Promise<Resp> {
   const response = await fetch('/api/parse', {
@@ -67,6 +71,8 @@ export function tokenInfo(resp: Resp): TokenInfo | undefined {
       return resp.contents[1];
     case "RespParserError":
       return resp.contents[1];
+    case "RespServerError":
+      return undefined;
   }
 }
 
@@ -78,6 +84,8 @@ export function description(resp: Resp): string {
       return `Lexer error: ${resp.contents[0]}`;
     case "RespParserError":
       return `Parser error: ${resp.contents[0]}`;
+    case "RespServerError":
+      return 'Server error';
   }
 }
 

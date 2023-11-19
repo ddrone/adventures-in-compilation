@@ -21,7 +21,11 @@ function App() {
   async function parseText(text: string) {
     setLastText(text);
     setResp(emptyResponse);
-    setResp(await singleParse(text));
+    try {
+      setResp(await singleParse(text));
+    } catch (e) {
+      setResp({tag: 'RespServerError'});
+    }
   }
 
   function handleKeyUp(e: KeyboardEvent): boolean {
@@ -50,7 +54,7 @@ function App() {
         <ErrorHighlight
           text={lastText}
           info={tokenInfo(resp)} />
-        {description(resp)}
+        <p className={resp.tag === 'RespServerError' ? 'error' : ''}>{description(resp)}</p>
       </div>
       <TestList tests={tests} onLoad={parseText} />
     </>
