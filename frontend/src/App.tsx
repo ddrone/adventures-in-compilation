@@ -41,7 +41,12 @@ function App() {
         Click me
       </button><br />
       <div className="output">
-        {resp.tag === 'RespOK' && <TreeView text={lastText} forest={processParseForest(resp.contents.spParseForest)} />}
+        {resp.tag === 'RespOK' && <>
+          <TreeView text={lastText} forest={processParseForest(resp.contents.spParseForest)} />
+          <pre className={resp.contents.spCompileResult.tag === 'CRFailure' ? 'error' : ''}>
+            {resp.contents.spCompileResult.contents}
+          </pre>
+        </>}
         <ErrorHighlight
           text={lastText}
           info={tokenInfo(resp)} />
