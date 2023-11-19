@@ -44,10 +44,18 @@ rcoAtom e = case e of
   AST.Const n -> pure (ASTMon.Const n, [])
   AST.Bool b -> pure (ASTMon.Bool b, [])
   AST.Name v -> pure (ASTMon.Name (ASTMon.Source v), [])
-  _ -> do
-    (le, ls) <- rcoExpr e
-    name <- fresh
-    pure (ASTMon.Name name, ls ++ [ASTMon.Assign name le])
+  -- This repetition is annoying, but because rcoAtom and rcoExpr are mutually recursive
+  -- they can silently get into infinite loops without raising any compiler errors when
+  -- adding new constructors
+  AST.Bin{} -> handleExpr
+  AST.If{} -> handleExpr
+  AST.InputInt -> handleExpr
+  AST.Unary{} -> handleExpr
+  where
+    handleExpr = do
+      (le, ls) <- rcoExpr e
+      name <- fresh
+      pure (ASTMon.Name name, ls ++ [ASTMon.Assign name le])
 
 rcoCond :: AST.Expr a -> RCO (ASTMon.Cmp, [ASTMon.Stmt])
 rcoCond e = case e of
@@ -75,11 +83,17 @@ rcoExpr e = case e of
     cons1 <- rcoBlock cons
     alt1 <- rcoBlock alt
     pure (ASTMon.If cond1 cons1 alt1, condSs)
-  _ -> do
-    (ea, es) <- rcoAtom e
-    pure (ASTMon.Atom ea, es)
+  -- This repetition is annoying, but because rcoAtom and rcoExpr are mutually recursive
+  -- they can silently get into infinite loops without raising any compiler errors when
+  -- adding new constructors
+  AST.Const{} -> handleAtom
+  AST.Bool{} -> handleAtom
+  AST.Name{} -> handleAtom
   where
     rcoBlock e = uncurry ASTMon.begin <$> rcoExpr e
+    handleAtom = do
+      (ea, es) <- rcoAtom e
+      pure (ASTMon.Atom ea, es)
 
 rcoStmt :: AST.Stmt a -> RCO [ASTMon.Stmt]
 rcoStmt = \case
