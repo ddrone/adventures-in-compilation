@@ -5,7 +5,7 @@ module LVar.AST
   , Stmt(..)
   ) where
 
-import Control.Arrow ((***))
+import Control.Arrow ((***), second)
 import Data.Set (Set)
 import Data.Text (Text)
 import qualified Data.Set as Set
@@ -68,17 +68,17 @@ mapExpr f = \case
   Calc (i, e) -> Calc (i, f e)
   Assign n (i, e) -> Assign n (i, f e)
   IfS (iCond, cond) (iCons, cons) alt ->
-    IfS (iCond, f cond) (iCons, map (id *** mapExpr f) cons) mappedAlt
+    IfS (iCond, f cond) (iCons, map (second (mapExpr f)) cons) mappedAlt
     where
       mappedAlt = case alt of
         Nothing -> Nothing
-        Just (iAlt, block) -> Just (iAlt, map (id *** mapExpr f) block)
+        Just (iAlt, block) -> Just (iAlt, map (second (mapExpr f)) block)
   -- TODO: figure out whether this should actually map the expression in the while loop as well?
   -- Pretty sure the way it's going to break right now if I'm going to have and/or inside condition
   -- of a while loop, make note to test
-  While e (info, body) -> While e (info, map (id *** mapExpr f) body)
+  While e (info, body) -> While e (info, map (second (mapExpr f)) body)
 
-data GenModule s ann = Module
+newtype GenModule s ann = Module
   { modStmts :: [(ann, s)]
   }
   deriving (Show)
@@ -89,4 +89,4 @@ stripAnn :: Module -> GenModule (Stmt ()) ()
 stripAnn (Module ss) = Module (map (const () *** fmap (const ())) ss)
 
 mapModule :: (Expr ann -> Expr ann) -> GenModule (Stmt ann) ann -> GenModule (Stmt ann) ann
-mapModule f (Module stmts) = Module (map (id *** mapExpr f) stmts)
+mapModule f (Module stmts) = Module (map (second (mapExpr f)) stmts)
