@@ -17,11 +17,28 @@ import qualified Data.Text.IO as TextIO
 import LVar.Lexer
 import LVar.NewParser hiding (combine)
 import LVar.ParseTree
+import LVar.CompilerPipeline (compile)
+import qualified Pipeline
+
+data CompileResult
+  = CRSuccess Text
+  | CRFailure Text
+  deriving (Eq, Show)
+
+$(deriveJSON defaultOptions ''CompileResult)
+
+data SuccessfulParse = SuccessfulParse
+  { spParseForest :: ParseForest
+  , spCompileResult :: CompileResult
+  }
+  deriving (Eq, Show)
+
+$(deriveJSON defaultOptions ''SuccessfulParse)
 
 data ParseResponse
   = RespLexerError String TokenInfo
   | RespParserError String TokenInfo
-  | RespOK ParseForest
+  | RespOK SuccessfulParse
   deriving (Eq, Show)
 
 $(deriveJSON defaultOptions ''ParseResponse)
@@ -35,7 +52,7 @@ data TestFile = TestFile
 
 $(deriveJSON defaultOptions ''TestFile)
 
-data TestResponse = TestResponse
+newtype TestResponse = TestResponse
   { trFiles :: [TestFile]
   }
   deriving (Eq, Show)
@@ -70,15 +87,18 @@ runParser input =
     Nothing ->
       case runP parse (tkTokens tokens) of
         Left (info, msg) -> RespParserError msg info
-        Right ((_, r), _) -> RespOK (toParseForest r)
+        Right ((_, r), _) ->
+          let cr = case Pipeline.runPure (compile "input.lvar" input) of
+                     Left err -> CRFailure err
+                     Right asm -> CRSuccess asm
+          in RespOK (SuccessfulParse (toParseForest r) cr)
 
 getTestFiles :: IO [TestFile]
 getTestFiles = do
   all <- getDirectoryContents "tests"
-  files <- forM (filter (isSuffixOf ".lvar") all) $ \file -> do
+  forM (filter (isSuffixOf ".lvar") all) $ \file -> do
     contents <- TextIO.readFile (combine "tests" file)
     pure (TestFile (Text.pack file) contents (runParser contents))
-  pure files
 
 main :: IO ()
 main = runServer

@@ -41,7 +41,7 @@ function App() {
         Click me
       </button><br />
       <div className="output">
-        {resp.tag === 'RespOK' && <TreeView text={lastText} forest={processParseForest(resp.contents)} />}
+        {resp.tag === 'RespOK' && <TreeView text={lastText} forest={processParseForest(resp.contents.spParseForest)} />}
         <ErrorHighlight
           text={lastText}
           info={tokenInfo(resp)} />

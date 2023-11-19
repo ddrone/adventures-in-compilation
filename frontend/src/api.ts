@@ -1,6 +1,6 @@
 export interface RespOK {
   tag: "RespOK";
-  contents: ParseForest;
+  contents: SuccessfulParse;
 }
 
 export interface TokenInfo {
@@ -20,6 +20,23 @@ export interface RespLexerError {
   contents: [string, TokenInfo]
 }
 
+export interface SuccessfulParse {
+  spParseForest: ParseForest;
+  spCompileResult: CompileResult;
+}
+
+interface CRSucess {
+  tag: 'CRSuccess';
+  contents: string;
+}
+
+interface CRFailure {
+  tag: 'CRFailure';
+  contents: string;
+}
+
+export type CompileResult = CRSucess | CRFailure;
+
 export type Resp = RespOK | RespLexerError | RespParserError;
 
 export async function singleParse(body: string): Promise<Resp> {
@@ -33,7 +50,13 @@ export async function singleParse(body: string): Promise<Resp> {
 
 export const emptyResponse: RespOK = {
   tag: 'RespOK',
-  contents: []
+  contents: {
+    spParseForest: [],
+    spCompileResult: {
+      tag: "CRSuccess",
+      contents: ''
+    }
+  }
 }
 
 export function tokenInfo(resp: Resp): TokenInfo | undefined {
