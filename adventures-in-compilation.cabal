@@ -81,17 +81,9 @@ library
     build-tool-depends: alex:alex
         , happy:happy
 
-executable interpreter
-    import:           binary
-    main-is:          app/Main.hs
-
 executable dominator-graph
     import:           binary
     main-is:          app/DominationGraph.hs
-
-executable compiler
-    import:           binary
-    main-is:          app/Compiler.hs
 
 executable lvar
     import:           binary
@@ -104,10 +96,6 @@ executable ll1
 executable regular
     import:           binary
     main-is:          app/Regular.hs
-
-executable lexemes
-    import:           binary
-    main-is:          app/Lexemes.hs
 
 executable parser-test
     import:           binary
