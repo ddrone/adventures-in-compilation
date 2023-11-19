@@ -73,10 +73,7 @@ mapExpr f = \case
       mappedAlt = case alt of
         Nothing -> Nothing
         Just (iAlt, block) -> Just (iAlt, map (second (mapExpr f)) block)
-  -- TODO: figure out whether this should actually map the expression in the while loop as well?
-  -- Pretty sure the way it's going to break right now if I'm going to have and/or inside condition
-  -- of a while loop, make note to test
-  While e (info, body) -> While e (info, map (second (mapExpr f)) body)
+  While (ie, e) (info, body) -> While (ie, f e) (info, map (second (mapExpr f)) body)
 
 newtype GenModule s ann = Module
   { modStmts :: [(ann, s)]
