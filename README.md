@@ -38,7 +38,7 @@ Currently, the compiler works just one way, and it would be close to impossible 
 
 - [x] Figure out how to make HLS working again, it's really hard to actually work on Haskell code without any kind of code intelligence features
 - [x] Make the UI run the whole compiler and present assembly code
-- [ ] Test the compiler on having `and` inside while-loop
+- [x] Test the compiler on having `and` inside while-loop
 
 ## Adventure 7: implement while-loops
 
