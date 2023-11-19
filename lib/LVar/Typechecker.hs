@@ -100,6 +100,7 @@ typecheckExpr env expr = case expr of
       tyErr "argument of unary operator has the wrong type"
     pure t
   InputInt -> pure Int64T
+  Tuple _ -> tyErr "tuples typechecking is not implemented yet"
   where
     check = typecheckExpr env . snd
     tyErr = Left . TypeError expr

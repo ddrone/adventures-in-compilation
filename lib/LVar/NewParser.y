@@ -29,7 +29,9 @@ import LVar.ParseTree
   '}' { (_, TokenLit "}") }
   'print' { (_, TokenLit "print") }
   'while' { (_, TokenLit "while") }
+  'tuple' { (_, TokenLit "tuple") }
   ';' { (_, TokenLit ";") }
+  ',' { (_, TokenLit ",") }
   '=' { (_, TokenLit "=") }
   '+' { (_, TokenOp "+") }
   '-' { (_, TokenOp "-") }
@@ -89,7 +91,13 @@ Exp7
   | 'True' { constE $1 (Bool True) }
   | 'False' { constE $1 (Bool False) }
   | 'input_int' '(' ')' { (,) (combine (fst $1) (fst $3)) InputInt }
+  | 'tuple' '(' Exps ')' { wrapNew $1 $4 (Tuple $3) }
   | ident { identE $1 }
+
+Exps
+  : {- empty -} { [] }
+  | Exp { [$1] }
+  | Exp ',' Exps { $1 : $3 }
 
 Stmt
   : 'print' Exp { prefix Print $1 $2 }
@@ -116,6 +124,7 @@ data Expr ann
   | If (E ann) (E ann) (E ann)
   | Unary Unop (E ann)
   | InputInt
+  | Tuple [E ann]
   deriving (Show)
 
 instance Functor Expr where
@@ -127,6 +136,7 @@ instance Functor Expr where
     If cond cons alt -> If (go cond) (go cons) (go alt)
     Unary op e -> Unary op (go e)
     InputInt -> InputInt
+    Tuple es -> Tuple (map go es)
     where
       go (i, e) = (f i, fmap f e)
 
@@ -147,6 +157,7 @@ instance ToParseTree (TokenInfo, Expr TokenInfo) where
       If cond cons alt -> go "If" [cond, cons, alt]
       Unary _ e -> go "Unary" [e]
       InputInt -> go "InputInt" []
+      Tuple es -> go "Tuple" es
 
 data Stmt ann
   = Print (E ann)

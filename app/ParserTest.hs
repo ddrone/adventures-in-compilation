@@ -101,4 +101,6 @@ getTestFiles = do
     pure (TestFile (Text.pack file) contents (runParser contents))
 
 main :: IO ()
-main = runServer
+main = do
+  putStrLn "Running server"
+  runServer

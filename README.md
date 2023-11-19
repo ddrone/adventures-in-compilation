@@ -6,6 +6,10 @@ Instead of trying to "implement a cool programming language", a project that I h
 
 Took a long break from the book, need to start re-reading the chapter and write down the particular tasks as they appear.
 
+- [x] Add tuples to the parser
+- [ ] Add tuple projections to the parser
+- [ ] Implement typechecking for tuples
+
 ## Adventure 8: reverse mapping
 
 Currently, the compiler works just one way, and it would be close to impossible to figure out where the resulting code comes from. What I want is to have a "source mapping" between each compiler pass, so that it's possible to trace the source of a particular instruction.

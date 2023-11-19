@@ -55,6 +55,7 @@ exprPlate c e = case e of
   Bool _ -> e
   Name _ -> e
   InputInt -> e
+  Tuple es -> Tuple (map (second c) es)
 
 mapInfoE :: (Expr a -> Expr a) -> E a -> E a
 mapInfoE f (i, x) = (i, f x)

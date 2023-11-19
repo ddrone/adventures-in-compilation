@@ -32,7 +32,9 @@ tokens :-
   "}" { go }
   "print" { go }
   "while" { go }
+  "tuple" { go }
   ";" { go }
+  "," { go }
   "+" | "-" | "<=" | "<" | ">=" | ">" | "==" | "!=" | "and" | "or" | "not" { op }
   "=" { go }
   $alpha $alnum* { ident }
