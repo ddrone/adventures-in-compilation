@@ -30,6 +30,8 @@ tokens :-
   "else" { go }
   "{" { go }
   "}" { go }
+  "[" { go }
+  "]" { go }
   "print" { go }
   "while" { go }
   "tuple" { go }

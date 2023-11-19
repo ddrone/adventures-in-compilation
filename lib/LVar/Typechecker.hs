@@ -101,6 +101,7 @@ typecheckExpr env expr = case expr of
     pure t
   InputInt -> pure Int64T
   Tuple _ -> tyErr "tuples typechecking is not implemented yet"
+  Proj{} -> tyErr "tuple projection typechecking is not implemented yet"
   where
     check = typecheckExpr env . snd
     tyErr = Left . TypeError expr

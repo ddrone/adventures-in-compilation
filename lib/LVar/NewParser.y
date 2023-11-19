@@ -27,6 +27,8 @@ import LVar.ParseTree
   'else' { (_, TokenLit "else") }
   '{' { (_, TokenLit "{") }
   '}' { (_, TokenLit "}") }
+  '[' { (_, TokenLit "[") }
+  ']' { (_, TokenLit "]") }
   'print' { (_, TokenLit "print") }
   'while' { (_, TokenLit "while") }
   'tuple' { (_, TokenLit "tuple") }
@@ -86,6 +88,10 @@ Exp6
   | '-' Exp6 { unary Neg $1 $2 }
 
 Exp7
+  : Exp8 { $1 }
+  | Exp8 '[' Exp ']' { wrapNew $1 $4 (Proj $1 $3) }
+
+Exp8
   : '(' Exp ')' { wrap $1 $3 $2 }
   | int { lit $1 }
   | 'True' { constE $1 (Bool True) }
@@ -125,6 +131,7 @@ data Expr ann
   | Unary Unop (E ann)
   | InputInt
   | Tuple [E ann]
+  | Proj (E ann) (E ann)
   deriving (Show)
 
 instance Functor Expr where
@@ -137,6 +144,7 @@ instance Functor Expr where
     Unary op e -> Unary op (go e)
     InputInt -> InputInt
     Tuple es -> Tuple (map go es)
+    Proj tup i -> Proj (go tup) (go i)
     where
       go (i, e) = (f i, fmap f e)
 
@@ -158,6 +166,7 @@ instance ToParseTree (TokenInfo, Expr TokenInfo) where
       Unary _ e -> go "Unary" [e]
       InputInt -> go "InputInt" []
       Tuple es -> go "Tuple" es
+      Proj tup i -> go "Projection" [tup, i]
 
 data Stmt ann
   = Print (E ann)
