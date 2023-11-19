@@ -63,13 +63,11 @@ data Expr
   | InputInt
   deriving (Show)
 
-bracket (t, flag) = case flag of
-  True -> "(" <> t <> ")"
-  False -> t
+bracket (t, flag) = if flag then "(" <> t <> ")" else t
 
 printExpr :: Int -> Expr -> (Text, Bool)
 printExpr level expr =
-  let indent = Text.pack (take (2 * level) (repeat ' ')) in
+  let indent = Text.pack (replicate (2 * level) ' ') in
   case expr of
     Atom a -> (printAtom a, False)
     Bin op a1 a2 -> (printBinary op a1 a2, False)
@@ -97,7 +95,7 @@ printBlock level ss = Text.intercalate "\n" (map (printStmt level) ss)
 
 printStmt :: Int -> Stmt -> Text
 printStmt level stmt =
-  let indent = Text.pack (take (2 * level) (repeat ' '))
+  let indent = Text.pack (replicate (2 * level) ' ')
       content = case stmt of
         Print a -> Text.concat ["print(", printAtom a, ")"]
         Calc e -> fst (printExpr level e)
