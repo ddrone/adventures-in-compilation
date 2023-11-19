@@ -195,6 +195,7 @@ Currently, the compiler works just one way, and it would be close to impossible 
 
 - Refactor regular expression compilation code: especially subset construction and DFA minimization are quite messy
 - Refactor OptimizeBlocks.hs: some code is really messy
+- Changing `while e` to `while e and True` introduces extra basic blocks, need to optimize those away
 
 ## Useful CLI incantations
 
