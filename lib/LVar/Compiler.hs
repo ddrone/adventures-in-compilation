@@ -150,10 +150,7 @@ selectUnop = \case
 selectExpr :: Arg -> ASTC.Expr -> [Instr]
 selectExpr dest = \case
   ASTC.Atom a ->
-    let src = atom a in
-    if dest == src
-      then []
-      else [Movq src dest]
+    let src = atom a in [Movq src dest | dest /= src]
   ASTC.Bin op a1 a2 ->
     let src1 = atom a1
         src2 = atom a2 in
