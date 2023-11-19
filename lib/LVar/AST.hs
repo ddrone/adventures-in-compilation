@@ -32,6 +32,7 @@ binopRepr = \case
   Ne -> "!="
   And -> "and"
   Or -> "or"
+  Is -> "is"
 
 prependUnop :: Text -> Unop -> Text
 prependUnop t = \case

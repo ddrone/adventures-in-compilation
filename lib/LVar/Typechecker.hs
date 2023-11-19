@@ -37,6 +37,7 @@ binopTy = \case
   Ne -> error "should be checked specially"
   And -> bool `to` bool
   Or -> bool `to` bool
+  Is -> error "should be checked specially"
   where
     int = Int64T
     bool = BoolT

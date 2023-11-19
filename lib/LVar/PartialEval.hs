@@ -46,6 +46,7 @@ evalBinop = \case
   Ne -> neqBinop
   And -> raiseBoolBinop (&&)
   Or -> raiseBoolBinop (||)
+  Is -> (\_ _ -> Nothing) -- no partial evaluation for identity of tuples
 
 evalUnop :: Unop -> Value -> Maybe Value
 evalUnop uo v = case (uo, v) of

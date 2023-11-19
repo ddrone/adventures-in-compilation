@@ -11,6 +11,7 @@ data Binop
   | Ne
   | And
   | Or
+  | Is
   deriving (Show, Eq, Ord)
 
 data Unop

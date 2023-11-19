@@ -46,6 +46,7 @@ import LVar.ParseTree
   'and' { (_, TokenOp "and") }
   'or' { (_, TokenOp "or") }
   'not' { (_, TokenOp "not") }
+  'is' { (_, TokenOp "is") }
 
 %%
 
@@ -69,6 +70,7 @@ Exp3
   : Exp4 { $1 }
   | Exp3 '==' Exp4 { bin Eq $1 $3 }
   | Exp3 '!=' Exp4 { bin Ne $1 $3 }
+  | Exp3 'is' Exp4 { bin Is $1 $3 }
 
 Exp4
   : Exp5 { $1 }
