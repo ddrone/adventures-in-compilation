@@ -7,7 +7,7 @@ Instead of trying to "implement a cool programming language", a project that I h
 Took a long break from the book, need to start re-reading the chapter and write down the particular tasks as they appear.
 
 - [x] Add tuples to the parser
-- [ ] Add tuple projections to the parser
+- [x] Add tuple projections to the parser
 - [ ] Implement typechecking for tuples
 
 ## Adventure 8: reverse mapping
