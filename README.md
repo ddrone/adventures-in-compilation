@@ -186,6 +186,7 @@ Currently, the compiler works just one way, and it would be close to impossible 
 
 ## Fun compiler-related sidetracks to do
 
+- Write an interactive typechecker for a functional language
 - Try out language workbenches (e.g. MPS) to implement a simple compiler
 - Implement my own parser generator
 
