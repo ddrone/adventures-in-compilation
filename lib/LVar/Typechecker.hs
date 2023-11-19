@@ -8,10 +8,12 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Control.Monad (when)
 import qualified Data.Text as Text
+import Data.Int (Int64)
 
 data Type
   = Int64T
   | BoolT
+  | TupleT [Type]
   deriving (Show, Eq, Ord)
 
 data TypeError a = TypeError
@@ -59,6 +61,14 @@ unopTy = \case
 
 type TyEnv = Map Text Type
 
+safeLookup :: (Eq n, Num n) => [a] -> n -> Maybe a
+safeLookup ls n = case ls of
+  [] -> Nothing
+  hd : tl ->
+    if n == 0
+      then Just hd
+      else safeLookup tl (n - 1)
+
 typecheckExpr :: TyEnv -> Expr a -> Either (TypeError (Expr a)) Type
 typecheckExpr env expr = case expr of
   Const _ -> pure Int64T
@@ -101,8 +111,18 @@ typecheckExpr env expr = case expr of
       tyErr "argument of unary operator has the wrong type"
     pure t
   InputInt -> pure Int64T
-  Tuple _ -> tyErr "tuples typechecking is not implemented yet"
-  Proj{} -> tyErr "tuple projection typechecking is not implemented yet"
+  Tuple es -> TupleT <$> mapM check es
+  Proj tup i -> do
+    tupT <- check tup
+    parts <- case tupT of
+      TupleT ps -> pure ps
+      _ -> tyErr "projection should be applied to tuples"
+    idx <- case snd i of
+      Const n -> pure n
+      _ -> tyErr "projection index should be a literal integer"
+    case safeLookup parts idx of
+      Nothing -> tyErr $ "wrong tuple index " <> Text.pack (show idx) <> " for tuple of length " <> Text.pack (show (length parts))
+      Just ty -> pure ty
   where
     check = typecheckExpr env . snd
     tyErr = Left . TypeError expr

@@ -8,7 +8,7 @@ Took a long break from the book, need to start re-reading the chapter and write 
 
 - [x] Add tuples to the parser
 - [x] Add tuple projections to the parser
-- [ ] Implement typechecking for tuples
+- [x] Implement typechecking for tuples
 
 ## Adventure 8: reverse mapping
 
