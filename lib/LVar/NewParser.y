@@ -91,7 +91,7 @@ Exp6
 
 Exp7
   : Exp8 { $1 }
-  | Exp8 '[' Exp ']' { wrapNew $1 $4 (Proj $1 $3) }
+  | Exp7 '[' Exp ']' { wrapNew $1 $4 (Proj $1 $3) }
 
 Exp8
   : '(' Exp ')' { wrap $1 $3 $2 }
