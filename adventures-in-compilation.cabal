@@ -42,6 +42,7 @@ library
         , LVar.AST
         , LVar.ASTC
         , LVar.ASTMon
+        , LVar.ASTAlloc
         , LVar.Compiler
         , LVar.CompilerPipeline
         , LVar.ExplicateControl
@@ -50,6 +51,7 @@ library
         , LVar.Liveness
         , LVar.MoveBiasing
         , LVar.NewParser
+        , LVar.NewParserDeps
         , LVar.PartialEval
         , LVar.ParserWrapper
         , LVar.ParseTree
@@ -77,6 +79,7 @@ library
         , MultiWayIf
         , DeriveFunctor
         , TemplateHaskell
+        , FlexibleInstances
     hs-source-dirs:   lib
     build-tool-depends: alex:alex
         , happy:happy
